@@ -1,0 +1,18 @@
+{
+  "name": "던전 대장간",
+  "short_name": "던전 대장간",
+  "description": "던전 탐험과 장비 제작 모바일 RPG",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#10141f",
+  "theme_color": "#b9894b",
+  "icons": [
+    {
+      "src": "assets/art/hero.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
