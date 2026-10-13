@@ -1,0 +1,19 @@
+; Dungeon Forge - Godot 4.3+
+config_version=5
+
+[application]
+config/name="Dungeon Forge"
+run/main_scene="res://scenes/Main.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+config/description="Craft-first idle dungeon adventure"
+
+[display]
+window/size/viewport_width=480
+window/size/viewport_height=854
+window/stretch/mode="canvas_items"
+window/handheld/orientation=1
+
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/default_filters/use_nearest_mipmap_filter=false
