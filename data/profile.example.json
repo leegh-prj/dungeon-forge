@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "profileId": "local-demo",
+  "auth": {
+    "provider": "guest",
+    "remoteUserId": null
+  },
+  "appearance": {
+    "genderPresentation": "unspecified",
+    "skinToneId": "skin_01",
+    "faceId": "face_01",
+    "hairStyleId": "hair_short_01",
+    "hairLengthId": "short",
+    "hairColorId": "brown_01",
+    "bodyTypeId": "standard"
+  },
+  "progress": {
+    "stageId": "water_001",
+    "resources": {
+      "gold": 60,
+      "ore": 20,
+      "crystal": 5
+    },
+    "inventory": [],
+    "equipment": {},
+    "discovery": []
+  },
+  "updatedAt": ""
+}
