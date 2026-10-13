@@ -1,0 +1,17 @@
+던전 대장간 그래픽 패키지 설치
+
+1. 압축을 해제합니다.
+2. 압축 해제 결과의 assets 폴더를 기존 프로젝트 폴더로 복사합니다.
+   대상: C:\Users\leegh\Downloads\dungeon-forge-day2\dungeon-forge\assets
+3. 게임 프로젝트 폴더에서 PowerShell을 열고 다음을 실행합니다.
+
+ git pull origin main
+ git add assets/art
+ git commit -m "Add Dungeon Forge concept art assets"
+ git push origin main
+
+4. 잠시 후 https://leegh-prj.github.io/dungeon-forge/ 접속, Ctrl+Shift+R.
+
+주의: 확장 설계 문서와 웹 UI 코드는 이미 GitHub에 커밋되었습니다.
+      이 ZIP은 웹 UI가 불러올 그래픽 이미지를 담습니다.
+      사진은 아트북에서 크롭한 임시 에셋이며 투명 스프라이트는 아닙니다.
