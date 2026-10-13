@@ -1,0 +1,69 @@
+[
+  {
+    "id": "water",
+    "label": "물",
+    "region": "가라앉은 수로",
+    "material": "water_crystal",
+    "status": "planned",
+    "mechanics": [
+      "slow",
+      "barrier"
+    ]
+  },
+  {
+    "id": "fire",
+    "label": "불",
+    "region": "화염 광산",
+    "material": "flame_stone",
+    "status": "planned",
+    "mechanics": [
+      "burn",
+      "blast"
+    ]
+  },
+  {
+    "id": "lightning",
+    "label": "번개",
+    "region": "폭풍 탑",
+    "material": "volt_core",
+    "status": "future",
+    "mechanics": [
+      "shock",
+      "chain"
+    ]
+  },
+  {
+    "id": "poison",
+    "label": "독",
+    "region": "부식 늪지",
+    "material": "poison_sac",
+    "status": "future",
+    "mechanics": [
+      "poison",
+      "cleanse"
+    ]
+  },
+  {
+    "id": "earth",
+    "label": "대지",
+    "region": "거암 신전",
+    "material": "earth_shard",
+    "status": "future",
+    "mechanics": [
+      "armor",
+      "counter"
+    ]
+  },
+  {
+    "id": "robot",
+    "label": "기계/로봇",
+    "region": "기계 유적",
+    "material": "power_core",
+    "status": "future",
+    "mechanics": [
+      "shield",
+      "pierce"
+    ],
+    "category": "faction"
+  }
+]
