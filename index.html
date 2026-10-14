@@ -364,7 +364,7 @@ function tierArtwork(item){
 }
 function iconFor(item){return tierArtwork(item)}
 let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
-const stateInit=()=>({gold:125420,ore:3260,crystals:1850,stage:12,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'auto',materials:{},stageKills:null,forgeRegionKey:null,warehouse:[],bagCapacity:120,warehouseCapacity:200,autoSalvageTier:-1,last:Date.now()});
+const stateInit=()=>({gold:125420,ore:3260,crystals:1850,stage:12,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'auto',materials:{},stageKills:null,forgeRegionKey:null,warehouse:[],bagCapacity:120,warehouseCapacity:200,autoSalvageTier:-1,premiumTokens:0,daily:{day:'',kills:0,bosses:0,claimed:[]},autoCraftGoal:2,bagUpgrades:0,warehouseUpgrades:0,last:Date.now()});
 let S=stateInit();
 let TAB='던전';
 let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Date.now()+3200,combatFX='',combatDamage=0,combatFxUntil=0,enemyFxUntil=0,enemyPose='idle',bossPatternStep=0,stageRewardUntil=0,stageRewardText='',lastFrameUpdate=0,battleEnemyId='',battleLastPattern='',battlePoisonUntil=0,battleStunUntil=0,lastPoisonTick=0,bossSpecialUntil=0;
@@ -374,7 +374,7 @@ try{const saved=JSON.parse(localStorage.getItem(K)); if(saved){hasSavedGame=true
 catch(e){}
 if(!hasSavedGame){ seedStarterItems(); }
 normalizeState();
-function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
+function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1;S.premiumTokens=Math.max(0,Number(S.premiumTokens)||0);S.daily=S.daily&&typeof S.daily==='object'?S.daily:{day:'',kills:0,bosses:0,claimed:[]};S.daily.claimed=Array.isArray(S.daily.claimed)?S.daily.claimed:[];S.autoCraftGoal=Number.isInteger(S.autoCraftGoal)?Math.max(0,Math.min(6,S.autoCraftGoal)):2;S.bagUpgrades=Number.isInteger(S.bagUpgrades)?S.bagUpgrades:0;S.warehouseUpgrades=Number.isInteger(S.warehouseUpgrades)?S.warehouseUpgrades:0; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
 function seedStarterItems(){
   const starters=[
     mkItem(recipeDefs[0],4,'화상'), mkItem(recipeDefs[0],2,'흡혈'), mkItem(recipeDefs[1],3,'견고함'), mkItem(recipeDefs[2],2,'보호막'), mkItem(recipeDefs[3],3,'반격'), mkItem(recipeDefs[3],1,'냉기')
@@ -545,6 +545,7 @@ function takeDamage(base){
  refreshCombatNumbers();updateSpriteFrames(true);save();
 }
 function enemyDown(){
+ const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;
  const reward=awardBattleRewards(S.boss);S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
  if(eq('weapon')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+80);
  if(S.boss){S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 스테이지 정복! '+reward.quantity+'개 지역 재료 · 광석 +'+reward.ore;bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
@@ -590,6 +591,65 @@ function updateBattleHUD(){
 }
 function forgeRegion(){return REGIONS.find(r=>r.key===S.forgeRegionKey)||regionInfo()}
 function selectForgeRegion(key){if(!REGIONS.some(r=>r.key===key))return;S.forgeRegionKey=key;save();render()}
+// Daily progress is based on the player's device-local calendar date.
+function dailyKey(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
+function ensureDaily(){const day=dailyKey();if(S.daily.day!==day)S.daily={day,kills:0,bosses:0,claimed:[]};return S.daily}
+const DAILY_GOALS=[
+ {id:'mobs',title:'몬스터 10마리 처치',key:'kills',target:10,gold:3000,ore:80,tokens:4},
+ {id:'boss',title:'보스 2마리 격파',key:'bosses',target:2,gold:7500,ore:140,tokens:7},
+ {id:'master',title:'오늘의 모든 임무 완료',key:'all',target:2,gold:10000,ore:200,tokens:10}
+];
+function dailyProgress(goal){const d=ensureDaily();return goal.key==='all'?DAILY_GOALS.slice(0,2).filter(g=>d.claimed.includes(g.id)).length:Math.min(goal.target,d[goal.key]||0)}
+function claimDaily(id){
+ const d=ensureDaily(),goal=DAILY_GOALS.find(g=>g.id===id);if(!goal)return;
+ if(d.claimed.includes(id))return toast('이미 수령한 보상입니다');
+ if(dailyProgress(goal)<goal.target)return toast('아직 목표를 달성하지 못했습니다');
+ S.gold+=goal.gold;S.ore+=goal.ore;S.premiumTokens+=goal.tokens;d.claimed.push(id);save();render();toast('일일 임무 보상 수령! 별빛 '+goal.tokens+'개');
+}
+function renderDaily(){
+ const d=ensureDaily();
+ return '<div class="dailyPanel"><div class="sectiontitle">📅 오늘의 던전 도전 · '+d.day+'</div><p class="hint">매일 00:00(기기 현지 시각) 임무가 갱신됩니다. 별빛은 게임 내 편의 상품 재화이며 현금 결제 재화가 아닙니다.</p>'+
+ DAILY_GOALS.map(g=>{const progress=dailyProgress(g),complete=d.claimed.includes(g.id);
+ return '<div class="dailyMission"><div><strong>'+g.title+'</strong><small>'+progress+'/'+g.target+' · 🪙 '+g.gold.toLocaleString()+' · 광석 '+g.ore+' · ✧ 별빛 '+g.tokens+'</small></div><button '+(complete||progress<g.target?'disabled':'')+' onclick="claimDaily(\''+g.id+'\')">'+(complete?'수령 완료':'보상 수령')+'</button></div>'}).join('')+'</div>';
+}
+function expandStorage(kind,viaToken=false){
+ if(!['bag','warehouse'].includes(kind))return;
+ const level=kind==='bag'?S.bagUpgrades:S.warehouseUpgrades;if(level>=10)return toast('최대 확장 단계입니다');
+ const goldCost=(kind==='bag'?7500:12500)*(level+1),tokenCost=(kind==='bag'?12:18)*(level+1);
+ if(viaToken){if(S.premiumTokens<tokenCost)return toast('별빛이 부족합니다');S.premiumTokens-=tokenCost}
+ else{if(S.gold<goldCost)return toast('골드가 부족합니다');S.gold-=goldCost}
+ if(kind==='bag'){S.bagUpgrades++;S.bagCapacity+=20}else{S.warehouseUpgrades++;S.warehouseCapacity+=40}
+ save();render();toast((kind==='bag'?'가방':'창고')+' 확장 완료!');
+}
+function renderExpansion(){
+ const b=S.bagUpgrades||0,w=S.warehouseUpgrades||0;
+ return '<div class="expansionPanel"><strong>📦 보유 공간 확장</strong>'+
+ [['bag','가방',b,20,7500,12],['warehouse','창고',w,40,12500,18]].map(([key,name,lv,slots,g,t])=>
+ '<div class="expandLine"><div>'+name+' 확장 '+lv+'/10 · 다음 +'+slots+'칸</div><button '+(lv>=10?'disabled':'')+' onclick="expandStorage(\''+key+'\')">골드 '+((lv+1)*g).toLocaleString()+'</button><button '+(lv>=10?'disabled':'')+' onclick="expandStorage(\''+key+'\',true)">✧ '+((lv+1)*t)+'</button></div>').join('')+'</div>';
+}
+function setAutoCraftGoal(level){const n=Number(level);if(!Number.isInteger(n)||n<0||n>6)return;S.autoCraftGoal=n;save();render()}
+function craftToGoal(){
+ const goal=S.autoCraftGoal,kind=S.craftTab;
+ let attempts=0,kept=0,best=-1,stopped='제작 목표 미달성';
+ const beforeGold=S.gold,beforeOre=S.ore;
+ for(let i=0;i<20;i++){
+  const def=recipeDefs.find(x=>x.kind===kind);
+  if(!def||S.inventory.length>=S.bagCapacity&&S.warehouse.length>=S.warehouseCapacity){stopped='보관 공간 부족';break}
+  if(S.ore<def.ore||S.crystals<def.crystal+(S.focus==='balanced'?0:1)){stopped='재료 부족';break}
+  const priorSalvage=S.salvagedCount||0;
+  const item=craft(kind,true);
+  attempts++;
+  if(item){kept++;best=Math.max(best,item.tier);if(item.tier>=goal){stopped='목표 등급 달성';break}}
+  else if((S.salvagedCount||0)===priorSalvage){stopped='제작 중단';break}
+ }
+ save();render();
+ const items=S.inventory.filter(it=>it.kind===kind&&it.tier===best);
+ const sample=items[items.length-1];
+ if(sample&&stopped==='목표 등급 달성')return showForgeSummary('목표 제작 성공',[sample],attempts+'회 시도 · '+rarityLetter[best]+' 획득');
+ const modal=document.getElementById('craftModal');modal.className='craftModal';
+ modal.innerHTML='<div class="grade">⚒ 목표 제작 결과</div><p class="researchNote">시도 '+attempts+'회 · 보관 '+kept+'개 · '+stopped+'<br>소모 광석 '+(beforeOre-S.ore)+' · 골드 변화 '+(S.gold-beforeGold)+'</p><button onclick="closeCraft()">확인</button>';
+ document.getElementById('craftOverlay').classList.add('show');craftOverlayOpen=true;
+}
 function storageCapacity(){return {bag:S.inventory.length,bagMax:S.bagCapacity||120,warehouse:S.warehouse.length,warehouseMax:S.warehouseCapacity||200}}
 function salvageValue(item){return {ore:10+item.tier*12+itemPlus(item)*4,crystals:item.tier>=2?item.tier-1:0}}
 function shouldAutoSalvage(item){return S.autoSalvageTier>=0&&item.tier<=S.autoSalvageTier&&item.tier<3&&!item.locked&&!item.infusion&&itemPlus(item)===0}
@@ -796,6 +856,7 @@ function openStageInfo(){
 }
 function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100)); const ePct=Math.max(0,Math.min(100,S.enemyHp/getEnemyMax()*100)); return `
 ${renderHeader('던전','✦')}
+${renderDaily()}
 <div class="regionAffinity">${currentRegionAffinity().count>=2?`<strong>✦ ${regionInfo().name} 속성 공명 활성</strong><span>동일 속성 ${currentRegionAffinity().count}부위 · 피해 +6%${currentRegionAffinity().count>=4?' · 받는 피해 -4%':''}</span>`:`<strong>지역 속성 공략</strong><span>${regionInfo().name} 속성 장비 2부위 장착 시 추가 피해 +6%</span>`}</div>
 <div class="panel stagebar"><div class="name">3-${S.stage} ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div><div class="battleCondition" id="battleStatus">${combatStatus()}</div><div class="battleStats">⚔ 공격력 ${totalAtk().toLocaleString()} <span>🛡 방어력 ${totalDef().toLocaleString()}</span><span>❤ 최대 체력 ${getMaxHp().toLocaleString()}</span></div><div class="battleMode"><div><strong>전투 모드</strong><small>${S.battleMode==='manual'?'직접 공격·강타·방어':'스킬과 기본 공격 자동 사용'}</small></div><div class="modeSwitch"><button class="${S.battleMode!=='manual'?'active':''}" onclick="setBattleMode('auto')">자동</button><button class="${S.battleMode==='manual'?'active':''}" onclick="setBattleMode('manual')">수동</button></div></div><div class="enemyMeter"><span id="enemyCharge"></span></div>
@@ -975,7 +1036,7 @@ function forgePanel(){
  <div class="focusBox ${S.focus==='defense'?'active blue':''}" onclick="S.focus='defense';render()"><strong>방어</strong><div class="tiny muted">방어력 증가</div></div>
 </div>
 <div class="costRow"><span>⛏ ${recipeDefs.find(r=>r.kind===S.craftTab).ore} / 💎 ${recipeDefs.find(r=>r.kind===S.craftTab).crystal+(S.focus==='balanced'?0:1)}</span><span class="muted">${kindLabel[S.craftTab]} 제작</span></div>
-<button class="primaryBtn" onclick="craft()">🔨 제작하기</button><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>탐험으로 모은 재료를 지역에 상관없이 사용할 수 있습니다.</p><div class="elementSelect">${REGIONS.map(r=>`<button class="elementChip ${forgeRegion().key===r.key?'selected':''}" onclick="selectForgeRegion('${r.key}')"><img src="assets/materials/${({water:'01',poison:'10',storm:'08',fire:'04',earth:'13'})[r.key]}.webp" alt=""><span>${r.material}</span><b>${S.materials?.[r.key]||0}</b></button>`).join('')}</div><p>${forgeRegion().name} 속성 부여 · 보유 <b>${S.materials?.[forgeRegion().key]||0}개</b></p><small>선택 재료 4개 · 일반 제작비 + 광석 12 · 결정 1</small><button onclick="forgeElemental()" ${(S.materials?.[forgeRegion().key]||0)<4?'disabled':''}>${forgeRegion().material}로 속성 장비 제작</button></div>`;
+<button class="primaryBtn" onclick="craft()">🔨 제작하기</button><div class="craftGoal"><label>목표 등급 <select onchange="setAutoCraftGoal(this.value)">${rarityLetter.map((n,i)=>`<option value="${i}" ${S.autoCraftGoal===i?'selected':''}>${n} 이상</option>`).join('')}</select></label><button onclick="craftToGoal()">⚒ 목표 등급까지 제작 (최대 20회)</button><small>설정한 등급에 도달하거나 재료·공간이 부족하면 즉시 중단합니다. 성공 확률은 일반 제작과 같습니다.</small></div><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>탐험으로 모은 재료를 지역에 상관없이 사용할 수 있습니다.</p><div class="elementSelect">${REGIONS.map(r=>`<button class="elementChip ${forgeRegion().key===r.key?'selected':''}" onclick="selectForgeRegion('${r.key}')"><img src="assets/materials/${({water:'01',poison:'10',storm:'08',fire:'04',earth:'13'})[r.key]}.webp" alt=""><span>${r.material}</span><b>${S.materials?.[r.key]||0}</b></button>`).join('')}</div><p>${forgeRegion().name} 속성 부여 · 보유 <b>${S.materials?.[forgeRegion().key]||0}개</b></p><small>선택 재료 4개 · 일반 제작비 + 광석 12 · 결정 1</small><button onclick="forgeElemental()" ${(S.materials?.[forgeRegion().key]||0)<4?'disabled':''}>${forgeRegion().material}로 속성 장비 제작</button></div>`;
  const need=forgeMode==='분해'?50:forgeMode==='합성'?3:forgeMode==='승급'?2:1;
  const inventory=forgeMode==='분해'?dismantleCandidateList():forgeUsable();
  const info=forgeMode==='강화'?'장비를 강화하여 능력치를 높입니다. 최대 +20까지 강화 가능합니다.':
@@ -997,6 +1058,7 @@ function forgePanel(){
 function renderForge(){return `
 ${renderHeader('대장간','⚒️')}
 ${renderStorageControls()}
+${renderExpansion()}
 <div class="materialVault"><strong>지역 재료 보관함</strong><div class="materialVaultGrid">${REGIONS.map((region,i)=>`<div class="matSlot"><img src="assets/materials/${['01','10','08','04','13'][i]}.webp" alt="" loading="lazy"><span>${region.material}<b>${S.materials?.[region.key]||0}개</b></span></div>`).join('')}</div><p>던전 탐험으로 지역 재료를 얻고, 제작 탭에서 속성 장비를 완성하세요.</p></div>
 <div class="forgeTabs" style="margin-bottom:8px">
  ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${x}</button>`).join('')}
@@ -1070,6 +1132,7 @@ function openEquipmentDetails(index){
 function renderEquipment(){const all=filteredInventory(); return `
 ${renderHeader('장비','🛡️')}
 ${renderStorageControls()}
+${renderExpansion()}
 ${renderWarehouse()}
 ${storageTab==='bag'?`<div class="charwrap">
   <div class="slotcol">
