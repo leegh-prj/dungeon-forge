@@ -222,7 +222,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .matSlot{min-width:0;border-radius:9px;background:#131b27a6;text-align:center;padding:5px 3px;border:1px solid #786348}.matSlot img{height:43px;max-width:100%;object-fit:contain}
 .matSlot span{display:block;font-size:9px;line-height:1.3;word-break:keep-all}.matSlot b{display:block;font-size:12px;margin-top:3px;color:#ffdc7d}
 .zoneTag{display:inline-block;color:#c1e8fa;border-radius:6px;background:#27485a;padding:2px 5px;margin-right:4px}
-.subnav{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}.subnav .segbtn{flex:0 0 auto;min-width:46px;padding:9px 7px}.codexWrap .right{display:flex;align-items:center;justify-content:flex-end;gap:8px}.codexWrap .right button:disabled{opacity:.4}.forgeChance{display:flex;flex-direction:column;gap:5px;background:#1e2c33;color:#f6dbab;border:1px solid #c3995c;border-radius:12px;margin:10px 0;padding:11px;font-size:12px}.forgeChance strong{font-size:18px;color:#ffdf7f}.forgeChance small{font-size:11px;color:#bdd1d4}</style>
+.subnav{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}.subnav .segbtn{flex:0 0 auto;min-width:46px;padding:9px 7px}.codexWrap .right{display:flex;align-items:center;justify-content:flex-end;gap:8px}.codexWrap .right button:disabled{opacity:.4}.forgeChance{display:flex;flex-direction:column;gap:5px;background:#1e2c33;color:#f6dbab;border:1px solid #c3995c;border-radius:12px;margin:10px 0;padding:11px;font-size:12px}.forgeChance strong{font-size:18px;color:#ffdf7f}.forgeChance small{font-size:11px;color:#bdd1d4}.tierChooser{margin:10px 0;padding:11px;background:#172231;border:1px solid #977c4f;border-radius:12px}.tierChooser strong{font-size:12px}.tierBtns,.tierTools{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.tierBtns button{font-size:11px;padding:8px}.tierTools button{flex:1;font-size:12px;padding:10px}.confirmActions{display:grid;grid-template-columns:1fr 1fr;gap:9px}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -451,14 +451,7 @@ function showForgeSummary(title,items,detail){
  document.getElementById('craftModal').innerHTML=`<span class="beam">✦ ⚒ ✦</span><div class="grade">${title}</div><div class="forgeResults">${items.map(it=>`<div><img src="${iconFor(it)}" alt=""><small class="${rarityClass(it.tier)}">${rarityLetter[it.tier]} ${it.name}${itemPlus(it)?' +'+itemPlus(it):''}</small></div>`).join('')}</div><p class="researchNote">${detail}</p><button onclick="closeCraft()">확인</button>`;
  document.getElementById('craftOverlay').classList.add('show');
 }
-function bulkDismantle(){
- const candidates=forgeUsable().filter(e=>e.item.tier<=bulkDismantleTier).slice(0,50);
- if(!candidates.length)return toast('분해 가능한 장비가 없습니다');
- let gainOre=0,gainCrystal=0;
- for(const {item} of candidates){gainOre+=10+item.tier*12+itemPlus(item)*4;gainCrystal+=item.tier>=2?item.tier-1:0}
- removeForgeItems(candidates.map(x=>x.index));S.ore+=gainOre;S.crystals+=gainCrystal;
- save();render();showForgeSummary('일괄 분해 완료',[],'장비 '+candidates.length+'개 분해 · 광석 +'+gainOre+' · 결정 +'+gainCrystal);
-}
+function bulkDismantle(){selectDismantleAll();if(forgeSelection.length)confirmDismantle();else toast('분해 가능한 장비가 없습니다')}
 let bulkDismantleTier=0;
 function showCraft(item){craftOverlayOpen=true;document.getElementById('craftModal').innerHTML=`<span class="beam">⚒ ✦</span><div class="grade ${rarityClass(item.tier)}">${rarityName[item.tier]} 제작 성공!</div><img class="craftedIcon" src="${iconFor(item)}" alt="제작된 장비"><div style="font-weight:900">${item.name}</div><p class="researchNote">특수 효과: ${item.effect}<br>공격 +${item.power} · 방어 +${item.defense}</p><button onclick="closeCraft()">확인</button>`;document.getElementById('craftOverlay').classList.add('show')}
 function closeCraft(){craftOverlayOpen=false;document.getElementById('craftOverlay').classList.remove('show')}
@@ -513,7 +506,7 @@ ${renderHeader('던전','✦')}
 `;}
 
 /* Forge systems: persisted upgrades, safe dismantle, fusion and promotion */
-let forgeMode='제작', forgeSelection=[];
+let forgeMode='제작', forgeSelection=[],dismantleTierFilter='all';
 let inventoryFilter='전체',codexPage=0;
 function setForgeMode(mode){forgeMode=mode;forgeSelection=[];render()}
 function itemStrength(it){return (it.power||0)+(it.defense||0)}
@@ -521,7 +514,7 @@ function itemPlus(it){return Math.max(0,Math.floor(it?.level||0))}
 function forgeUsable(){return S.inventory.map((item,index)=>({item,index})).filter(x=>!isEquipped(x.index)&&!isLocked(x.item))}
 function selectForgeItem(index){
   const candidate=S.inventory[index]; if(!candidate||isEquipped(index)||isLocked(candidate))return toast('장착·잠금 장비는 재료로 선택할 수 없습니다');
-  const max=forgeMode==='합성'?3:forgeMode==='승급'?2:1;
+  const max=forgeMode==='분해'?50:forgeMode==='합성'?3:forgeMode==='승급'?2:1;
   if(forgeSelection.includes(index)){forgeSelection=forgeSelection.filter(i=>i!==index)}
   else if(max===1)forgeSelection=[index];
   else if(forgeSelection.length>=max)forgeSelection=[index];
@@ -537,6 +530,25 @@ function enhancementPreview(item){
  if(!item)return '<div class="forgeChance">강화할 장비를 선택하면 성공 확률이 표시됩니다.</div>';
  if(itemPlus(item)>=10)return '<div class="forgeChance">최대 강화(+10)에 도달했습니다.</div>';
  return '<div class="forgeChance"><b>+'+itemPlus(item)+' → +'+(itemPlus(item)+1)+'</b><strong>성공 확률 '+enhancementChance(item)+'%</strong><small>실패 시 비용 소모 · 장비/강화 수치 유지 · 실패당 확률 +5%p, 최대 +20%p</small></div>';
+}
+function dismantleCandidateList(){return forgeUsable().filter(x=>dismantleTierFilter==='all'||x.item.tier===Number(dismantleTierFilter)).slice(0,50)}
+function setDismantleTier(v){dismantleTierFilter=v;forgeSelection=[];render()}
+function selectDismantleAll(){forgeSelection=dismantleCandidateList().map(x=>x.index);render()}
+function clearDismantle(){forgeSelection=[];render()}
+function dismantleReturns(ids){let ore=0,crystals=0;for(const id of ids){const item=S.inventory[id];if(!item)continue;ore+=10+item.tier*12+itemPlus(item)*4;crystals+=item.tier>=2?item.tier-1:0}return {ore,crystals}}
+function confirmDismantle(){
+ const ids=[...new Set(forgeSelection)];
+ if(!ids.length)return toast('분해할 장비를 선택하세요');
+ if(ids.some(i=>!S.inventory[i]||isEquipped(i)||isLocked(S.inventory[i])))return toast('장착·잠금 장비는 분해할 수 없습니다');
+ const p=dismantleReturns(ids);
+ document.getElementById('craftModal').innerHTML='<div class="grade">분해 최종 확인</div><p class="researchNote">장비 '+ids.length+'개를 영구 분해합니다.<br>광석 +'+p.ore+' · 결정 +'+p.crystals+'<br>되돌릴 수 없습니다.</p><div class="confirmActions"><button onclick="closeCraft()">취소</button><button onclick="applyDismantle()">분해 확정</button></div>';
+ document.getElementById('craftOverlay').classList.add('show');craftOverlayOpen=true;
+}
+function applyDismantle(){
+ const ids=[...new Set(forgeSelection)];
+ if(!ids.length||ids.some(i=>!S.inventory[i]||isEquipped(i)||isLocked(S.inventory[i])))return toast('분해 대상을 다시 확인하세요');
+ const p=dismantleReturns(ids);removeForgeItems(ids);S.ore+=p.ore;S.crystals+=p.crystals;
+ closeCraft();save();render();showForgeSummary('분해 완료',[],'장비 '+ids.length+'개 · 광석 +'+p.ore+' · 결정 +'+p.crystals);
 }
 function forgePrice(mode){
   const a=S.inventory[forgeSelection[0]];
@@ -583,15 +595,7 @@ function runForge(){
    finishForge(item,'강화 성공! +'+item.level,'성공 확률 '+chance+'% · 공격 '+oldPower+' → '+item.power+' · 방어 '+oldDefense+' → '+item.defense);
    return;
  }
- if(forgeMode==='분해'){
-   if(ids.length!==1)return toast('분해할 장비를 한 개 선택하세요');
-   const item=items[0];
-   const ore=10+item.tier*12+itemPlus(item)*4;
-   const crystals=item.tier>=2?item.tier-1:0;
-   removeForgeItems(ids);S.ore+=ore;S.crystals+=crystals;
-   save();render();toast('분해 완료 · 광석 +'+ore+(crystals?' · 결정 +'+crystals:''));
-   return;
- }
+ if(forgeMode==='분해'){return confirmDismantle()}
  const required=forgeMode==='합성'?3:2;
  if(ids.length!==required)return toast('장비 '+required+'개를 선택하세요');
  const first=items[0];
@@ -625,21 +629,23 @@ function forgePanel(){
 </div>
 <div class="costRow"><span>⛏ ${recipeDefs.find(r=>r.kind===S.craftTab).ore} / 💎 ${recipeDefs.find(r=>r.kind===S.craftTab).crystal+(S.focus==='balanced'?0:1)}</span><span class="muted">${kindLabel[S.craftTab]} 제작</span></div>
 <button class="primaryBtn" onclick="craft()">🔨 제작하기</button><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>${regionInfo().name} · ${regionInfo().material} 보유 ${S.materials?.[regionInfo().key]||0}개</p><small>지역 재료 4 · 추가 광석 12 · 추가 결정 1</small><button onclick="forgeElemental()">${regionInfo().material}로 속성 제작</button></div>`;
- const need=forgeMode==='합성'?3:forgeMode==='승급'?2:1;
- const inventory=forgeUsable();
+ const need=forgeMode==='분해'?50:forgeMode==='합성'?3:forgeMode==='승급'?2:1;
+ const inventory=forgeMode==='분해'?dismantleCandidateList():forgeUsable();
  const info=forgeMode==='강화'?'장비를 강화하여 능력치를 높입니다. 최대 +10까지 강화 가능합니다.':
  forgeMode==='분해'?'불필요한 장비를 분해하여 광석과 결정을 회수합니다.':
  forgeMode==='합성'?'같은 부위·등급의 장비 3개를 소모해 다음 등급 장비를 제작합니다.':
  '같은 부위·등급의 장비 2개와 추가 재화로 다음 등급 장비를 얻습니다.';
- const valid=forgeSelection.length===need && (need===1 || forgeSelection.every(i=>S.inventory[i]?.kind===S.inventory[forgeSelection[0]]?.kind&&S.inventory[i]?.tier===S.inventory[forgeSelection[0]]?.tier));
+ const valid=forgeMode==='분해'?forgeSelection.length>0:forgeSelection.length===need && (need===1 || forgeSelection.every(i=>S.inventory[i]?.kind===S.inventory[forgeSelection[0]]?.kind&&S.inventory[i]?.tier===S.inventory[forgeSelection[0]]?.tier));
  const tooHigh=forgeMode==='강화'?itemPlus(S.inventory[forgeSelection[0]])>=10:['합성','승급'].includes(forgeMode)&&S.inventory[forgeSelection[0]]?.tier===4;
  const price=forgePrice(forgeMode);
- return `<div class="forge-help"><strong>⚒ ${forgeMode}</strong><p>${info}</p><p>선택: ${forgeSelection.length} / ${need} · 장착·잠금 장비 제외</p></div>
- <div class="forgeItemGrid">${inventory.length?inventory.map(forgeItemCard).join(''):'<p class="hint">사용 가능한 장비가 없습니다. 먼저 제작하거나 장착을 해제하세요.</p>'}</div>
+ return `<div class="forge-help"><strong>⚒ ${forgeMode}</strong><p>${info}</p><p>선택: ${forgeSelection.length}${forgeMode==='분해'?' / 최대 50':' / '+need} · 장착·잠금 장비 제외</p></div>
+ ${forgeMode==='분해'?`<div class="tierChooser"><strong>등급별 일괄 선택</strong><div class="tierBtns">${[{v:'all',name:'전체'},...rarityName.map((name,i)=>({v:String(i),name}))].map(x=>`<button class="segbtn ${dismantleTierFilter===x.v?'active':''}" onclick="setDismantleTier('${x.v}')">${x.name}</button>`).join('')}</div><div class="tierTools"><button onclick="selectDismantleAll()">현재 등급 전체 선택</button><button onclick="clearDismantle()">선택 해제</button></div></div>`:''}
+<div class="forgeItemGrid">${inventory.length?inventory.map(forgeItemCard).join(''):'<p class="hint">사용 가능한 장비가 없습니다. 먼저 제작하거나 장착을 해제하세요.</p>'}</div>
+ ${forgeMode==='분해'?`<div class="forgeChance">선택 반환 예상 · 광석 +${dismantleReturns(forgeSelection).ore} · 결정 +${dismantleReturns(forgeSelection).crystals}</div>`:''}
  ${forgeMode==='강화'?enhancementPreview(S.inventory[forgeSelection[0]]):''}
  <div class="forgePrice">비용 · 🪙 ${price.gold.toLocaleString()} · ⛏ ${price.ore} · 💎 ${price.crystals}</div>
- <button class="primaryBtn" ${(!valid||tooHigh||!enough(price))?'disabled':''} onclick="runForge()">⚒ ${forgeMode} 실행</button>${forgeMode==='분해'?`<div class="bulkDismantle"><label>일괄 분해 등급</label><select onchange="bulkDismantleTier=Number(this.value)">${rarityName.slice(0,4).map((n,t)=>`<option value="${t}" ${bulkDismantleTier===t?'selected':''}>${n} 이하</option>`).join('')}</select><button onclick="bulkDismantle()">일괄 분해 (최대 50개)</button></div>`:''}
- ${!valid?'<p class="hint">같은 부위·등급을 필요한 수량만큼 선택하세요.</p>':tooHigh?'<p class="hint">최대 등급·강화 한도입니다.</p>':!enough(price)?'<p class="hint">재료가 부족합니다.</p>':''}`;
+ <button class="primaryBtn" ${(!valid||tooHigh||(forgeMode!=='분해'&&!enough(price)))?'disabled':''} onclick="runForge()">${forgeMode==='분해'?'⚠ 선택한 장비 분해':'⚒ '+forgeMode+' 실행'}</button>
+ ${!valid?'<p class="hint">'+(forgeMode==='분해'?'분해할 장비를 선택하세요.':'같은 부위·등급을 필요한 수량만큼 선택하세요.')+'</p>':tooHigh?'<p class="hint">최대 등급·강화 한도입니다.</p>':!enough(price)?'<p class="hint">재료가 부족합니다.</p>':''}`;
 }
 function renderForge(){return `
 ${renderHeader('대장간','⚒️')}
