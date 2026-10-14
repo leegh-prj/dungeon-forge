@@ -206,6 +206,16 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .stageRewardNote{padding:10px;margin:7px 0;text-align:center;color:#ffe9b0;border:1px solid #d7a452;border-radius:12px;background:linear-gradient(90deg,#6f481b,#293349);box-shadow:0 0 16px #efbb4c44;font-weight:900;font-size:13px;animation:stagePop .4s ease}
 @keyframes stagePop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @media (max-width:390px){.battlefield .actor.hero img{height:175px}.battlefield .actor.enemy img{height:164px}}
+
+/* High-resolution artwork restored: never replace approved characters with placeholder SVGs */
+.battlefield .actor.hero img,.battlefield .actor.enemy img{object-fit:contain;filter:drop-shadow(0 8px 15px #000b);height:195px;max-height:71%;width:100%}
+.battlefield .actor.hero img.highres-sprite.hero-idle,.battlefield .actor.enemy img.highres-sprite.enemy-idle{animation:hdBreath 1.8s ease-in-out infinite alternate}
+.battlefield .actor.hero img.highres-sprite.hero-attack,.battlefield .actor.hero img.highres-sprite.hero-strong{animation:hdSlash .58s cubic-bezier(.2,.8,.2,1) both}
+.battlefield .actor.hero img.highres-sprite.hero-guard{animation:hdShield .6s ease both}
+.battlefield .actor.hero img.highres-sprite.hero-hurt{animation:hdHit .55s ease both}
+.battlefield .actor.enemy img.highres-sprite.enemy-attack{animation:hdCharge .56s ease both}
+.battlefield .actor.enemy img.highres-sprite.enemy-hurt{animation:hdHit .4s ease both}
+@keyframes hdBreath{to{transform:translateY(-5px) scale(1.015)}}@keyframes hdSlash{25%{transform:translateX(-7px) rotate(-4deg)}56%{transform:translateX(26px) rotate(6deg)}100%{transform:none}}@keyframes hdShield{50%{filter:drop-shadow(0 0 18px #76cfff);transform:translateX(8px) scale(1.04)}}@keyframes hdHit{40%{transform:translateX(-12px);filter:brightness(1.8)}}@keyframes hdCharge{50%{transform:translateX(-23px) scale(1.08)}}
 </style>
 </head>
 <body>
@@ -275,16 +285,11 @@ function effectCombat(kind,amount=0){combatFX=kind;combatDamage=Math.ceil(amount
 function displayCombatFX(){if(TAB!=='던전')return;const arena=document.querySelector('.battlefield');if(!arena)return;if(Date.now()<combatFxUntil){arena.classList.add('anim-'+combatFX);const pop=document.getElementById('damageNumber');if(pop)pop.textContent=combatFX==='guard'?'방어 성공':combatFX==='hurt'?'-'+combatDamage:'-'+combatDamage}updateSpriteFrames(true)}
 function spritePath(actor,pose,frame){return 'assets/sprites/'+actor+'/'+pose+'-'+frame+'.svg'}
 function updateSpriteFrames(force=false){
- if(TAB!=='던전')return;
- const now=Date.now();if(!force&&now-lastFrameUpdate<115)return;lastFrameUpdate=now;
- let heroPose='idle',heroCount=2;
- if(now<combatFxUntil){heroPose=combatFX==='attack'||combatFX==='strong'?'attack':combatFX==='guard'?'guard':combatFX==='hurt'?'hurt':'idle';heroCount=heroPose==='attack'?3:heroPose==='hurt'?1:2}
- let enemyState=now<enemyFxUntil?enemyPose:(enemyAttackAt-now<480?'attack':'idle');
- let enemyCount=enemyState==='hurt'?1:2;
- const heroFrame=Math.floor(now/(heroPose==='attack'?115:310))%heroCount;
- const enemyFrame=Math.floor(now/(enemyState==='attack'?130:390))%enemyCount;
- const assets=[['heroSprite',spritePath('hero',heroPose,heroFrame)],['enemySprite',spritePath(S.boss?'magma':'slime',enemyState,enemyFrame)]];
- for(const [id,path] of assets){const el=document.getElementById(id);if(el&&el.getAttribute('src')!==path)el.setAttribute('src',path)}
+ if(TAB!=='던전')return;const now=Date.now();if(!force&&now-lastFrameUpdate<105)return;lastFrameUpdate=now;
+ const hero=document.getElementById('heroSprite'),enemy=document.getElementById('enemySprite');
+ const phase=now<combatFxUntil?combatFX:'idle';
+ if(hero){hero.className='highres-sprite hero-'+phase}
+ if(enemy){enemy.className='highres-sprite enemy-'+(now<enemyFxUntil?enemyPose:enemyAttackAt-now<500?'attack':'idle')}
 }
 function attack(auto=false){
  if(!auto&&S.battleMode!=='manual')return;
@@ -410,8 +415,8 @@ ${renderHeader('던전','✦')}
   </div>
   <div class="battleactors">
     <div class="fxslash"></div><div class="waterburst"></div>
-    <div class="actor hero"><img id="heroSprite" src="assets/sprites/hero/idle-0.svg" alt="영웅 대기 프레임" draggable="false"><div class="actorname">Lv.32 대장장이</div></div>
-    <div class="actor enemy"><img id="enemySprite" src="${spritePath(S.boss?'magma':'slime','idle',0)}" alt="몬스터 대기 프레임" draggable="false"><div class="actorname">${currentEnemyName()}</div></div>
+    <div class="actor hero"><img id="heroSprite" src="assets/art/hero.webp" alt="영웅 대기 프레임" draggable="false"><div class="actorname">Lv.32 대장장이</div></div>
+    <div class="actor enemy"><img id="enemySprite" src="${currentEnemyImg()}" alt="몬스터 대기 프레임" draggable="false"><div class="actorname">${currentEnemyName()}</div></div>
   </div>
   <div class="bars">
     <div class="hpbox"><div class="hplabel"><span>Lv.32 대장장이</span><span class="subtxt">${Math.ceil(S.hp)} / ${getMaxHp()}</span></div><div class="bar"><div class="fill" style="width:${hpPct}%"></div></div></div>
