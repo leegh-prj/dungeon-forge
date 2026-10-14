@@ -231,7 +231,16 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .tierbadge.r5,.rarity.r5,.rar.r5{background:#4a1738!important;color:#ffc2df!important}
 .tierbadge.r6,.rarity.r6,.rar.r6{background:linear-gradient(105deg,#83532a,#d9a947,#7c451f)!important;color:#fff5c8!important;animation:legendGlow 1.9s ease-in-out infinite alternate}
 @keyframes legendGlow{from{filter:drop-shadow(0 0 2px #edbc40)}to{filter:drop-shadow(0 0 9px #ffd87b)}}
-.rarityLadder{display:flex;align-items:center;flex-wrap:wrap;gap:5px;padding:9px 11px;margin:9px 0;border:1px solid #8c764e;border-radius:12px;background:#181b29}.rarityLadder span{font-size:11px;color:#d2bb98}.rarityLadder b{font-size:12px;padding:4px 5px;border-radius:5px;background:#10131b}.rarityLadder small{width:100%;font-size:10px;color:#d6c8b3}</style>
+.rarityLadder{display:flex;align-items:center;flex-wrap:wrap;gap:5px;padding:9px 11px;margin:9px 0;border:1px solid #8c764e;border-radius:12px;background:#181b29}.rarityLadder span{font-size:11px;color:#d2bb98}.rarityLadder b{font-size:12px;padding:4px 5px;border-radius:5px;background:#10131b}.rarityLadder small{width:100%;font-size:10px;color:#d6c8b3}
+.elementSelect{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:10px 0}
+.elementChip{display:flex;min-width:0;flex-direction:column;align-items:center;gap:3px;background:#171d29;border:1px solid #63543f;border-radius:9px;padding:6px 2px;color:#dfd0b4;font-size:10px;cursor:pointer}
+.elementChip img{width:32px;height:32px;object-fit:contain}
+.elementChip span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.elementChip b{font-size:12px;color:#f3d38e}
+.elementChip.selected{background:#304151;border-color:#ffc66b;box-shadow:inset 0 0 0 1px #fbbf58}
+.elementalCraft button[disabled]{opacity:.45;cursor:not-allowed}
+@media(max-width:365px){.elementChip img{width:25px;height:25px}.elementChip{font-size:9px}}
+</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -443,8 +452,10 @@ function updateBattleHUD(){
  const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/(S.boss?5300:3200))))+'%';
  const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">완벽 방어! 광석 +2</span>':'';const reward=document.getElementById('stageRewardNote');if(reward)reward.style.display=now<stageRewardUntil?'block':'none';
 }
+function forgeRegion(){return REGIONS.find(r=>r.key===S.forgeRegionKey)||regionInfo()}
+function selectForgeRegion(key){if(!REGIONS.some(r=>r.key===key))return;S.forgeRegionKey=key;save();render()}
 function forgeElemental(){
- const region=regionInfo(),def=recipeDefs.find(d=>d.kind===S.craftTab);
+ const region=forgeRegion(),def=recipeDefs.find(d=>d.kind===S.craftTab);
  S.materials=S.materials||{};
  const needOre=def.ore+12,needCrystals=def.crystal+1;
  if((S.materials[region.key]||0)<4)return toast(region.material+' 4개가 필요합니다');
@@ -673,7 +684,7 @@ function forgePanel(){
  <div class="focusBox ${S.focus==='defense'?'active blue':''}" onclick="S.focus='defense';render()"><strong>방어</strong><div class="tiny muted">방어력 증가</div></div>
 </div>
 <div class="costRow"><span>⛏ ${recipeDefs.find(r=>r.kind===S.craftTab).ore} / 💎 ${recipeDefs.find(r=>r.kind===S.craftTab).crystal+(S.focus==='balanced'?0:1)}</span><span class="muted">${kindLabel[S.craftTab]} 제작</span></div>
-<button class="primaryBtn" onclick="craft()">🔨 제작하기</button><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>${regionInfo().name} · ${regionInfo().material} 보유 ${S.materials?.[regionInfo().key]||0}개</p><small>지역 재료 4 · 추가 광석 12 · 추가 결정 1</small><button onclick="forgeElemental()">${regionInfo().material}로 속성 제작</button></div>`;
+<button class="primaryBtn" onclick="craft()">🔨 제작하기</button><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>탐험으로 모은 재료를 지역에 상관없이 사용할 수 있습니다.</p><div class="elementSelect">${REGIONS.map(r=>`<button class="elementChip ${forgeRegion().key===r.key?'selected':''}" onclick="selectForgeRegion('${r.key}')"><img src="assets/materials/${({water:'01',poison:'10',storm:'08',fire:'04',earth:'13'})[r.key]}.webp" alt=""><span>${r.material}</span><b>${S.materials?.[r.key]||0}</b></button>`).join('')}</div><p>${forgeRegion().name} 속성 부여 · 보유 <b>${S.materials?.[forgeRegion().key]||0}개</b></p><small>선택 재료 4개 · 일반 제작비 + 광석 12 · 결정 1</small><button onclick="forgeElemental()" ${(S.materials?.[forgeRegion().key]||0)<4?'disabled':''}>${forgeRegion().material}로 속성 장비 제작</button></div>`;
  const need=forgeMode==='분해'?50:forgeMode==='합성'?3:forgeMode==='승급'?2:1;
  const inventory=forgeMode==='분해'?dismantleCandidateList():forgeUsable();
  const info=forgeMode==='강화'?'장비를 강화하여 능력치를 높입니다. 최대 +20까지 강화 가능합니다.':
@@ -681,7 +692,7 @@ function forgePanel(){
  forgeMode==='합성'?'같은 부위·등급의 장비 3개를 소모해 다음 등급 장비를 제작합니다.':
  '같은 부위·등급의 장비 2개와 추가 재화로 다음 등급 장비를 얻습니다.';
  const valid=forgeMode==='분해'?forgeSelection.length>0:forgeSelection.length===need && (need===1 || forgeSelection.every(i=>S.inventory[i]?.kind===S.inventory[forgeSelection[0]]?.kind&&S.inventory[i]?.tier===S.inventory[forgeSelection[0]]?.tier));
- const tooHigh=forgeMode==='강화'?itemPlus(S.inventory[forgeSelection[0]])>=10:['합성','승급'].includes(forgeMode)&&S.inventory[forgeSelection[0]]?.tier===MAX_TIER;
+ const tooHigh=forgeMode==='강화'?itemPlus(S.inventory[forgeSelection[0]])>=MAX_ENHANCEMENT:['합성','승급'].includes(forgeMode)&&S.inventory[forgeSelection[0]]?.tier===MAX_TIER;
  const price=forgePrice(forgeMode);
  return `<div class="forge-help"><strong>⚒ ${forgeMode}</strong><p>${info}</p><p>선택: ${forgeSelection.length}${forgeMode==='분해'?' / 최대 50':' / '+need} · 장착·잠금 장비 제외</p></div>
  ${forgeMode==='분해'?`<div class="tierChooser"><strong>등급별 일괄 선택</strong><div class="tierBtns">${[{v:'all',name:'전체'},...rarityName.map((name,i)=>({v:String(i),name}))].map(x=>`<button class="segbtn ${dismantleTierFilter===x.v?'active':''}" onclick="setDismantleTier('${x.v}')">${x.name}</button>`).join('')}</div><div class="tierTools"><button onclick="selectDismantleAll()">현재 등급 전체 선택</button><button onclick="clearDismantle()">선택 해제</button></div></div>`:''}
