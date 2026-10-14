@@ -1,127 +1,328 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>던전 대장간 · 그래픽 플레이</title><link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#b9894b"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="던전 대장간"><style>
-*{box-sizing:border-box}body{margin:0;background:#101827;color:#f8f1e4;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif}#app{max-width:490px;min-height:100dvh;margin:auto;background:linear-gradient(#202e4b,#151d31 45%);padding:18px 16px 90px}h1{font-size:25px;color:#ffd07f;margin:4px 0 9px}h2{font-size:20px;margin:8px 0 12px}.sub{color:#a8b9d1;font-size:13px}.resources{display:flex;gap:7px;margin:14px 0 18px}.res{flex:1;background:#34425c;border:1px solid #53627b;padding:11px 5px;border-radius:12px;text-align:center;font-weight:750}.card{background:#273750;border:1px solid #4c6385;border-radius:16px;padding:17px;margin:12px 0;box-shadow:0 6px 22px #0002}.stage{text-align:center}.scene{height:156px;background:radial-gradient(ellipse at center bottom,#476986,#263753 72%);border-radius:13px;display:flex;align-items:center;justify-content:center;gap:28px;position:relative;overflow:hidden}.scene:after{content:'✦ ✧ ✦';position:absolute;top:14px;right:17px;color:#dcae70;font-size:14px;letter-spacing:9px}.hero,.monster{font-size:68px;filter:drop-shadow(0 5px 5px #1118)}.vs{font-size:18px;color:#ffda91}button{background:#f1ab61;color:#2a2332;border:0;border-radius:11px;padding:12px 12px;font-weight:800;font-size:14px;cursor:pointer;min-height:45px}button:disabled{opacity:.42}button.secondary{background:#536d94;color:white}button.green{background:#74cca0}.actions{display:flex;gap:9px;margin-top:12px}.actions button{flex:1}.bar{height:11px;border-radius:20px;background:#121e31;overflow:hidden;margin:8px 0}.bar>span{display:block;height:100%;border-radius:20px;background:#7ddea3;transition:width .2s}.bar.red>span{background:#e87983}.stats{display:flex;justify-content:space-between;font-size:13px;color:#c5d0e1}.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(490px,100%);display:grid;grid-template-columns:repeat(4,1fr);background:#1b2a42;padding:7px 8px max(9px,env(safe-area-inset-bottom));border-top:1px solid #53617f;gap:5px}.tabs button{background:transparent;color:#a4b7d1;border-radius:10px;min-height:49px;padding:7px 4px;font-size:13px}.tabs button.active{background:#3d5374;color:#ffe1a6}.item{padding:12px;background:#34455e;border-radius:12px;margin:9px 0;border:1px solid #536882}.itemrow{display:flex;align-items:center;gap:12px}.itemrow .symbol{font-size:35px;min-width:43px}.itemrow .info{flex:1}.itemrow button{white-space:nowrap}.rarity{font-size:12px;font-weight:800}.rare0{color:#c3c7cb}.rare1{color:#8cdcaa}.rare2{color:#80b5ff}.rare3{color:#c5a0ff}.rare4{color:#ffd16c}.log{min-height:44px;color:#d3dfef;font-size:13px;line-height:1.6}.bosswarning{margin:10px 0;padding:9px;border:1px solid #ba7890;border-radius:10px;background:#53364e;font-size:14px;font-weight:800}.hint{font-size:12px;color:#bac9db;line-height:1.7}.choice{width:100%;margin-top:8px}.badge{color:#72dda8}#toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);max-width:92%;width:max-content;background:#f8d29f;color:#283043;border-radius:11px;padding:10px 14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:10;font-size:13px;font-weight:700}#toast.show{opacity:1}
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>던전 대장간</title>
+<style>
+:root{
+  --bg:#0b1018;--panel:#141922;--panel2:#1a1f2a;--line:#7a5b32;--gold:#f3c57a;--gold2:#d8942a;--paper:#dec39b;
+  --red:#d73723;--blue:#226dd6;--green:#4abd69;--text:#f6ead4;--muted:#cbb28d;--shadow:0 10px 24px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:system-ui,-apple-system,'Malgun Gothic',sans-serif;color:var(--text);background:#05080c;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.2),rgba(0,0,0,.7)),url('assets/art/dungeon.webp') center/cover no-repeat;filter:saturate(1.03);z-index:-2}
+body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle at 20% 20%,rgba(255,145,0,.15),transparent 22%),radial-gradient(circle at 80% 15%,rgba(45,140,255,.16),transparent 20%);z-index:-1}
+#app{max-width:460px;min-height:100dvh;margin:0 auto;padding:14px 12px 98px;position:relative}
+.topbrand{display:flex;align-items:end;justify-content:space-between;margin-bottom:10px}
+.brandtitle{font-size:36px;line-height:.9;font-weight:900;letter-spacing:-2px;text-shadow:0 3px 0 #1e0e00,0 0 12px rgba(255,150,0,.34)}
+.brandtitle span{display:block;background:linear-gradient(#fff0c7,#e8ad4f 55%,#b46a22);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brandsub{font-size:11px;color:#f1d29e;background:rgba(16,12,10,.72);border:1px solid #8d632f;padding:4px 8px;border-radius:999px}
+.screen{position:relative;border-radius:28px;padding:10px 10px 14px;background:linear-gradient(180deg,rgba(27,20,16,.92),rgba(10,12,16,.95));border:2px solid #b07f3b;box-shadow:0 0 0 2px rgba(255,215,142,.09) inset,var(--shadow);overflow:hidden}
+.screen::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.04),transparent 18%,transparent 82%,rgba(0,0,0,.15));pointer-events:none}
+.screenheader{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.headerleft{display:flex;align-items:center;gap:8px}
+.emblem{width:30px;height:30px;border-radius:999px;border:1px solid #af834b;background:radial-gradient(circle at 30% 30%,#7e5c2d,#24180d 70%);display:grid;place-items:center;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.screentitle{font-size:20px;font-weight:900;letter-spacing:-1px;text-shadow:0 2px 3px rgba(0,0,0,.45)}
+.resources{display:flex;gap:6px}
+.reschip{min-width:74px;background:linear-gradient(180deg,#2c2f36,#14181f);border:1px solid #7a603c;border-radius:12px;padding:6px 8px;display:flex;align-items:center;gap:6px;justify-content:center;font-size:13px;font-weight:800;color:#fff2d4}
+.reschip.plus{min-width:32px;padding:6px 0}
+.reschip small{font-size:12px;opacity:.95}
+.panel{background:linear-gradient(180deg,rgba(19,20,26,.94),rgba(10,10,14,.96));border:1px solid rgba(191,145,78,.72);border-radius:18px;box-shadow:inset 0 1px rgba(255,222,174,.08),0 10px 24px rgba(0,0,0,.22)}
+.stagebar{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;margin-bottom:8px}
+.stagebar .name{font-weight:900;color:#fff1c8}
+.stagebar .name small{display:block;color:#d2b380;font-size:12px;margin-top:1px}
+.stagepath{display:flex;align-items:center;gap:6px;color:#e8c17a;font-size:12px}
+.stagepath .dot{width:9px;height:9px;border-radius:50%;background:#866839;border:1px solid #f5cc77;box-shadow:0 0 8px rgba(248,168,40,.32)}
+.stagepath .boss{background:#8d1b1b;border-color:#ffb1b1}
+.battlefield{position:relative;min-height:340px;border-radius:20px;overflow:hidden;border:1px solid rgba(205,156,78,.8);background:linear-gradient(180deg,rgba(7,20,38,.2),rgba(0,0,0,.2)),url('assets/art/dungeon.webp') center/cover no-repeat}
+.battlefield .righticons{position:absolute;right:10px;top:74px;display:flex;flex-direction:column;gap:8px;z-index:2}
+.sideicon{width:64px;height:64px;border-radius:16px;background:rgba(8,12,18,.8);border:1px solid rgba(223,181,100,.75);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:#f4dfb3;text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.28)}
+.battleactors{position:relative;min-height:248px;padding:54px 14px 0;display:flex;align-items:flex-end;justify-content:space-between;gap:6px}
+.actor{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;min-width:0}
+.actor img{max-width:100%;height:180px;object-fit:contain;filter:drop-shadow(0 10px 20px rgba(0,0,0,.5))}
+.actor.hero img{height:188px}
+.actor.enemy img{height:152px}
+.actorname{margin-top:4px;font-size:13px;font-weight:800;background:rgba(0,0,0,.55);padding:4px 8px;border-radius:999px;border:1px solid rgba(255,214,146,.4)}
+.fxslash{position:absolute;left:18%;bottom:48px;width:110px;height:110px;border-radius:50%;border:9px solid transparent;border-top-color:rgba(255,147,59,.95);transform:rotate(32deg);filter:drop-shadow(0 0 12px rgba(255,115,25,.8))}
+.waterburst{position:absolute;right:18%;bottom:58px;width:90px;height:90px;border-radius:50%;background:radial-gradient(circle,#77d4ff,transparent 68%);opacity:.6;filter:blur(8px)}
+.bars{padding:8px 12px 0;position:relative;z-index:2}
+.hpbox{margin-bottom:8px}
+.hplabel{display:flex;justify-content:space-between;font-size:13px;font-weight:800;margin-bottom:4px;color:#fff3d8}
+.hplabel .subtxt{color:#d6c2a6;font-weight:700}
+.bar{height:16px;border-radius:999px;background:rgba(15,18,26,.88);border:1px solid rgba(255,223,172,.2);overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,.4)}
+.fill{height:100%;background:linear-gradient(180deg,#ff7558,#c51818);border-radius:999px}
+.fill.blue{background:linear-gradient(180deg,#48a7ff,#0958d3)}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:12px}
+.skillbtn{display:flex;flex-direction:column;align-items:center;gap:6px}
+.skillbtn button{width:126px;height:126px;border-radius:50%;border:2px solid #f2b15a;background:radial-gradient(circle at 30% 28%,#ffcc7a,#c64017 64%,#5e0f07);color:#fff6df;font-size:20px;font-weight:900;box-shadow:inset 0 3px 10px rgba(255,255,255,.18),0 10px 18px rgba(0,0,0,.38);text-shadow:0 2px 6px rgba(0,0,0,.5);cursor:pointer}
+.skillbtn button.guard{background:radial-gradient(circle at 30% 28%,#90d5ff,#2d7ceb 62%,#0f306d)}
+.skillbtn small{color:#e6cd9a;font-size:12px}
+.sectiontitle{font-size:17px;font-weight:900;color:#ffebb7;display:flex;align-items:center;gap:8px;margin:2px 0 10px}
+.heroBanner,.forgeBanner{position:relative;overflow:hidden;border-radius:18px;border:1px solid rgba(192,142,70,.75);background:#111}
+.heroBanner{min-height:230px;background:linear-gradient(180deg,rgba(15,17,21,.15),rgba(0,0,0,.4)),url('assets/art/dungeon.webp') center/cover no-repeat}
+.heroBanner .heroimg{position:absolute;inset:0;background:url('assets/art/hero_guard.webp') center/contain no-repeat}
+.forgeBanner{min-height:188px;background:linear-gradient(180deg,rgba(15,8,4,.15),rgba(0,0,0,.38)),url('assets/art/forge.webp') center/cover no-repeat}
+.forgeBanner .smith{position:absolute;inset:0;background:url('assets/art/smith.webp') center/contain no-repeat}
+.speech{position:absolute;right:12px;top:14px;max-width:135px;background:#f0ddbc;color:#5a3815;padding:10px;border-radius:12px 12px 4px 12px;font-weight:800;font-size:14px;line-height:1.35;box-shadow:0 8px 18px rgba(0,0,0,.25)}
+.forgeTabs,.codexTabs,.slotTabs,.categoryTabs,.subnav{display:flex;gap:8px;flex-wrap:wrap}
+.segbtn{padding:9px 14px;border-radius:12px;border:1px solid rgba(195,153,90,.72);background:linear-gradient(180deg,#2f241a,#171515);color:#f2dab4;font-weight:900;cursor:pointer}
+.segbtn.active{background:linear-gradient(180deg,#5e240f,#251515);color:#fff1d1;box-shadow:0 0 0 1px rgba(255,160,76,.35) inset,0 0 16px rgba(238,97,32,.14)}
+.categoryTabs .segbtn.active.altblue{background:linear-gradient(180deg,#21458e,#131b3b);box-shadow:0 0 0 1px rgba(130,186,255,.35) inset,0 0 16px rgba(79,151,255,.18)}
+.cardsRow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.equipCard{background:linear-gradient(180deg,#181a20,#0d0f14);border:1px solid rgba(221,174,95,.55);border-radius:14px;padding:6px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.equipThumb{width:100%;aspect-ratio:1/1;border-radius:10px;background:#0d0f14 center/cover no-repeat;border:1px solid rgba(255,255,255,.08);position:relative;overflow:hidden}
+.equipThumb .tierbadge{position:absolute;left:6px;bottom:6px;padding:2px 6px;border-radius:999px;background:rgba(0,0,0,.7);font-weight:900;font-size:12px}
+.equipCard .name{font-size:12px;text-align:center;color:#e9dbbe;font-weight:800;line-height:1.3;min-height:32px}
+.focusGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.focusBox{padding:12px 8px;border-radius:14px;border:1px solid rgba(198,154,89,.7);background:linear-gradient(180deg,#17191f,#101115);text-align:center;cursor:pointer}
+.focusBox.active.red{background:linear-gradient(180deg,#692418,#231010)}
+.focusBox.active.blue{background:linear-gradient(180deg,#21458a,#11172d)}
+.focusBox.active.neutral{background:linear-gradient(180deg,#57462c,#171514)}
+.costRow{display:flex;justify-content:space-between;align-items:center;margin:10px 0;font-size:14px;color:#f6deb0;gap:8px}
+.primaryBtn{width:100%;border:0;border-radius:16px;padding:14px 16px;background:linear-gradient(180deg,#ffd78b,#c8821b 62%,#8f5710);color:#392108;font-size:21px;font-weight:900;box-shadow:inset 0 2px 10px rgba(255,255,255,.2),0 10px 18px rgba(0,0,0,.35);cursor:pointer}
+.inlineCheck{display:flex;align-items:center;gap:8px;font-weight:800;color:#f1ddbf;font-size:14px;justify-content:flex-end;margin-top:10px}
+.charwrap{display:grid;grid-template-columns:84px 1fr 84px;gap:8px;align-items:center}
+.slotcol{display:flex;flex-direction:column;gap:8px}
+.slot{height:76px;border-radius:16px;border:1px solid rgba(203,154,83,.75);background:linear-gradient(180deg,#13151b,#090b10);display:grid;place-items:center;overflow:hidden;position:relative}
+.slot img{width:100%;height:100%;object-fit:cover}
+.slot .slotlabel{position:absolute;right:6px;top:6px;font-size:11px;background:rgba(0,0,0,.68);padding:2px 5px;border-radius:999px}
+.charstage{min-height:228px;border-radius:20px;border:1px solid rgba(204,159,90,.75);background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.42)),url('assets/art/dungeon.webp') center/cover no-repeat;display:flex;align-items:flex-end;justify-content:center;position:relative;overflow:hidden}
+.charstage img{max-width:78%;max-height:214px;object-fit:contain;filter:drop-shadow(0 12px 22px rgba(0,0,0,.55))}
+.statsBox{margin-top:10px;padding:12px;border-radius:16px;border:1px solid rgba(192,152,87,.75);background:linear-gradient(180deg,#14161d,#0c0d12)}
+.statrow{display:flex;justify-content:space-between;gap:8px;margin:7px 0;font-weight:800;font-size:15px}.statrow .up{color:#78d985}
+.inventoryGrid,.codexGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.invItem{background:linear-gradient(180deg,#171920,#0c0e12);border:1px solid rgba(190,146,81,.55);border-radius:14px;padding:6px;min-height:108px;display:flex;flex-direction:column;gap:6px;align-items:center;justify-content:flex-start}
+.invItem .mini{width:100%;aspect-ratio:1;border-radius:10px;background:#111 center/cover no-repeat;border:1px solid rgba(255,255,255,.08);position:relative}
+.invItem .mini .rar{position:absolute;right:6px;top:6px;background:rgba(0,0,0,.66);padding:2px 5px;border-radius:999px;font-size:11px;font-weight:900}
+.invItem .txt{font-size:12px;text-align:center;font-weight:800;color:#e9dabb;line-height:1.25}
+.invItem button{border:0;background:linear-gradient(180deg,#444854,#1a1d25);color:#f6deb0;border-radius:10px;padding:8px 0;width:100%;font-weight:900;cursor:pointer}
+.paper{background:linear-gradient(180deg,#ead6b1,#d2b187 70%,#c79e71);color:#3f2715;border-radius:18px;border:2px solid #8a6033;padding:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 10px 20px rgba(0,0,0,.24)}
+.paperTop{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.paperTop strong{font-size:18px}.progress{height:14px;background:#816342;border-radius:999px;overflow:hidden;margin:8px 0 4px;border:1px solid rgba(76,50,20,.45)}.progress span{display:block;height:100%;background:linear-gradient(90deg,#7fcf63,#bdd85f)}
+.codexWrap{display:grid;grid-template-columns:82px 1fr;gap:10px;margin-top:10px}
+.codexSide{display:flex;flex-direction:column;gap:8px}.sideTab{background:#342417;color:#f5e2be;border-radius:14px;border:1px solid #885d31;padding:10px 8px;text-align:center;font-size:13px;font-weight:900;cursor:pointer}.sideTab.active{background:linear-gradient(180deg,#6f350d,#34190d)}
+.codexItem{background:linear-gradient(180deg,#2b2218,#130f0c);border:1px solid rgba(134,90,38,.66);border-radius:12px;padding:4px;aspect-ratio:1;position:relative;overflow:hidden}
+.codexItem img{width:100%;height:100%;object-fit:cover;border-radius:9px;opacity:.97}.codexItem.locked img{filter:brightness(.15)}
+.codexItem .label{position:absolute;right:4px;top:4px;background:rgba(0,0,0,.72);color:#fff;padding:2px 4px;border-radius:999px;font-size:10px;font-weight:900}
+.shopHero{min-height:180px;border-radius:18px;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.4)),url('assets/art/forge.webp') center/cover no-repeat;border:1px solid rgba(196,151,83,.75);padding:14px;display:flex;align-items:flex-end}
+.shopHero .msg{background:rgba(10,8,7,.72);border:1px solid rgba(230,183,103,.65);padding:12px 14px;border-radius:16px;max-width:70%;font-weight:900;color:#ffebb8}
+.shopGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.shopItem{padding:12px;border-radius:16px;background:linear-gradient(180deg,#161a20,#0b0d11);border:1px solid rgba(187,145,83,.6)}
+.shopItem h4{margin:0 0 8px;font-size:16px}.shopItem p{margin:0 0 10px;color:#d6c0a3;font-size:13px;line-height:1.45}.shopItem button{width:100%;border:0;border-radius:12px;padding:10px;background:linear-gradient(180deg,#ffe49c,#ca8a23);font-weight:900;color:#39240a}
+.nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:min(460px,100%);padding:8px 8px max(10px,env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(20,14,10,.97),rgba(8,8,10,.98));border-top:1px solid rgba(213,162,91,.5);display:grid;grid-template-columns:repeat(5,1fr);gap:6px;box-shadow:0 -8px 24px rgba(0,0,0,.35)}
+.nav button{border:0;background:transparent;color:#e7d3ad;padding:8px 4px;border-radius:14px;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:12px;font-weight:800;cursor:pointer}
+.nav button.active{background:linear-gradient(180deg,rgba(255,197,106,.18),rgba(255,125,21,.15));box-shadow:inset 0 0 0 1px rgba(255,196,112,.3);color:#fff4d7}
+.nav .icon{font-size:20px}
+#toast{position:fixed;top:12px;left:50%;transform:translateX(-50%);max-width:92vw;padding:11px 14px;border-radius:14px;background:#f6dfbb;color:#482b12;font-weight:900;box-shadow:0 10px 20px rgba(0,0,0,.28);opacity:0;pointer-events:none;transition:opacity .2s;z-index:99}
+#toast.show{opacity:1}
+.muted{color:#d7bf95}.tiny{font-size:12px}.right{display:flex;justify-content:flex-end}.hide{display:none}
+.r0{color:#c7cdd9}.r1{color:#7bd965}.r2{color:#49a4ff}.r3{color:#c46cff}.r4{color:#ff9b2f}
+@media (max-width:390px){
+  .reschip{min-width:66px;font-size:12px}.brandtitle{font-size:31px}.battlefield{min-height:320px}.skillbtn button{width:112px;height:112px}.inventoryGrid,.codexGrid{grid-template-columns:repeat(3,1fr)}
+}
 
-/* Dungeon Forge visual system v1: forge-gold / dungeon-blue / stone-metal */
-:root{--bg:#10141f;--stone:#222633;--stoneHi:#343849;--gold:#f5d08b;--frame:#b9894b;--fire:#f29c47;--ice:#62c5f5;--ink:#f7ebd9}
-body{background:radial-gradient(circle at 50% 0%,#374058 0%,#0e131e 58%);color:var(--ink)}
-#app{max-width:490px;background:linear-gradient(168deg,#252b3b 0%,#101824 48%,#1c1a22 100%);padding:17px 15px 106px;box-shadow:0 0 0 2px #7d603d,0 0 45px #000b;position:relative;overflow:hidden}
-#app:before{content:"";position:absolute;inset:0 0 auto;height:280px;pointer-events:none;background:radial-gradient(ellipse at 70% -20%,#bd7a2c33,transparent 70%)}
-h1{font-family:Georgia,'Malgun Gothic',serif;text-shadow:0 2px 0 #382514,0 0 14px #ec973b50;font-size:27px;letter-spacing:-.8px;color:#ffe0a5}
-h2{font-family:Georgia,'Malgun Gothic',serif;color:#ffe1aa;letter-spacing:-.4px;text-shadow:0 1px 3px #000b}
-.sub{color:#d8b980;letter-spacing:1px;font-size:11px}
-.resources{position:relative;gap:6px}
-.res{background:linear-gradient(180deg,#424352,#212733);border:1px solid #a78352;border-radius:9px;box-shadow:inset 0 1px #ffffff18,0 3px 7px #0005;font-size:14px;padding:10px 4px}
-.card{background:linear-gradient(155deg,#303545,#20232f 60%,#211f28);border:1px solid #9c794b;border-radius:15px;box-shadow:inset 0 1px #fff2,inset 0 -3px #0b0c1440,0 6px 18px #0005;position:relative}
-.card:before{content:"";position:absolute;pointer-events:none;inset:4px;border:1px solid #e7b76a13;border-radius:11px}
-button{background:linear-gradient(180deg,#ffda83,#e99a37 60%,#ab602c);color:#352017;border:1px solid #ffdd87;box-shadow:inset 0 2px #fff6,0 3px 0 #68391f,0 5px 10px #0004;text-shadow:0 1px #ffffff4d;transition:transform .1s,filter .1s}
-button:active{transform:translateY(2px);box-shadow:inset 0 1px #fff4,0 1px 0 #68391f}
-button.secondary{background:linear-gradient(#53617b,#343d57);border-color:#8895b1;color:#fff0d6;text-shadow:0 1px #101a29}
-button.green{background:linear-gradient(#7bd7ff,#2787c9 65%,#14518c);border-color:#9adaff;color:#fff;box-shadow:inset 0 2px #fff6,0 3px 0 #123a62,0 0 15px #3bb6fa22;text-shadow:0 1px #12426b}
-.tabs{background:linear-gradient(#373342,#161a25);border-top:2px solid #bc9253;box-shadow:0 -6px 20px #080b14bb}
-.tabs button{color:#cfba97;background:transparent;border:1px solid transparent;box-shadow:none;text-shadow:none;font-size:12px}
-.tabs button.active{background:linear-gradient(#514b46,#342e35);border:1px solid #d2a661;color:#ffe09c;box-shadow:inset 0 1px #ffda8b40,0 0 10px #df983433}
-.item{background:linear-gradient(115deg,#3c404e,#282b39);border:1px solid #917751;box-shadow:inset 0 1px #ffffff18,0 3px 9px #0003}
-.symbol{display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#6e6480,#292937);border:1px solid #ad8a59;border-radius:12px;min-width:50px!important;height:52px;text-shadow:0 0 10px #fff7}
-.scene{height:220px;border:2px solid #6c96a8;background:radial-gradient(ellipse at center bottom,#32739e 0%,#1c4b72 33%,#182c49 70%,#0c2035 100%);box-shadow:inset 0 0 40px #061420,0 0 10px #45799b3d}
-.scene:before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#121c28a9,transparent 50%),repeating-linear-gradient(104deg,transparent 0 38px,#81d6ef08 40px 42px);pointer-events:none}
-.scene .hero,.scene .monster{position:relative;z-index:1;font-size:82px;animation:float-char 2.1s ease-in-out infinite}
-.scene .monster{animation-delay:.35s;filter:drop-shadow(0 0 14px #79cfff99)}
-@keyframes float-char{50%{transform:translateY(-6px)}}
-.bar{height:14px;border:1px solid #977f67;background:#0f1722}
-.bar>span{background:linear-gradient(#abf1b3,#4fa57f)}
-.bar.red>span{background:linear-gradient(#ffad9d,#bf3c56)}
-.bosswarning{border:1px solid #f5b866;background:linear-gradient(#673844,#3c293d);box-shadow:0 0 12px #f7754e3b}
-.log{border-color:#695a48;color:#e1c9a6}
-.rarity{padding:1px 6px;border-radius:4px;background:#0005;border:1px solid #ffffff16}
-.rare4{text-shadow:0 0 7px #ffbd52}
-#toast{background:linear-gradient(#ffe2a2,#e4a453);border:1px solid #fff0bc;box-shadow:0 6px 28px #0009}
-@media(max-width:370px){#app{padding-left:10px;padding-right:10px}.card{padding:13px}.itemrow{gap:7px}.itemrow button{padding:9px 7px}.resources{gap:4px}}
-
-
-.forge-art{height:155px;position:relative;margin:10px 0 14px;overflow:hidden;border-radius:14px;border:2px solid #ab7348;background:radial-gradient(ellipse at 53% 80%,#d16b20 0%,#6b3521 35%,#312630 70%,#1c1e29);box-shadow:inset 0 0 35px #160a0c,0 3px 12px #0005}
-.forge-art:before,.forge-art:after{content:"";position:absolute;bottom:0;width:36%;height:67%;border:12px solid #43373a;border-bottom:0;border-radius:90px 90px 0 0;opacity:.6}
-.forge-art:before{left:-20%}.forge-art:after{right:-20%}
-.furnace{position:absolute;font-size:94px;left:13%;bottom:-30px;filter:drop-shadow(0 0 26px #ff9b29);animation:float-char 2.4s ease-in-out infinite}
-.anvil{position:absolute;right:16%;bottom:15px;font-size:73px;filter:drop-shadow(0 4px 7px #000)}
-.sparks{position:absolute;left:34%;top:13px;color:#ffd28b;font-size:26px;letter-spacing:12px;text-shadow:0 0 9px #ffaa35}
-.forge-name{position:absolute;top:13px;left:12px;font-size:10px;letter-spacing:2px;color:#ffdfa0}
-
-/* Day 5: original game concept art crops, progressively enhanced (fallbacks keep gameplay usable) */
-.scene{background-image:linear-gradient(0deg,#0b1625d6,#122a42a3),url("assets/art/dungeon.svg");background-size:cover;background-position:center}
-.scene .hero,.scene .monster{font-size:0;display:flex;align-items:flex-end;justify-content:center;width:45%;height:90%;position:relative}
-.scene .hero img,.scene .monster img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;border-radius:14px;box-shadow:0 5px 20px #0009;border:1px solid #ffffff33}
-.scene .art-fallback{font-size:68px;display:none}.scene .hero .art-fallback:only-child,.scene .monster .art-fallback:only-child{display:block}
-.scene .vs{z-index:2;font-size:15px;text-shadow:0 2px 5px #000}
-.forge-art{height:235px}.forge-art .art-forge-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.54}
-.forge-art .art-smith{position:absolute;bottom:0;right:4%;height:94%;width:60%;object-fit:cover;object-position:center;border-radius:12px;box-shadow:0 0 24px #0008}
-.forge-art:has(.art-smith) .anvil,.forge-art:has(.art-smith) .furnace{display:none}
-.forge-name{z-index:3;text-shadow:0 2px 3px #000}
-.equipment-hero{height:185px;position:relative;border-radius:14px;background:radial-gradient(circle at 70% 40%,#845b38,#24374c 58%,#161c2b);overflow:hidden;border:1px solid #ae8553;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:8px 0 14px}
-.equipment-hero img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.88;object-position:center 42%}
-.equipment-hero strong,.equipment-hero small{position:relative;align-self:flex-start;margin-left:12px;background:#131721a8;padding:3px 9px;border-radius:4px;z-index:1;text-shadow:0 2px 5px #000}
-.equipment-hero strong{margin-top:auto;color:#ffe4a5}.equipment-hero small{margin-bottom:10px;color:#e4d1b6}
-.codex-banner{padding:14px;border:1px solid #c39c60;border-radius:14px;background:linear-gradient(145deg,#584635,#262937);color:#f3d5a7;font-size:13px;text-align:center}
-.codex-pics{margin-top:10px;display:flex;gap:6px;max-height:90px}.codex-pics img{min-width:0;width:50%;object-fit:cover;object-position:center;border:1px solid #d9ba87;border-radius:8px}
-
-/* Day 6: vector art is illustrative; remove cropped portrait-like treatment */
-.scene .hero img,.scene .monster img{object-fit:contain;border:0;background:transparent;box-shadow:none;filter:drop-shadow(0 7px 8px #0009);border-radius:0}
-.scene .hero,.scene .monster{height:100%;align-items:center}
-.forge-art .art-smith{object-fit:contain;width:50%;height:93%;right:0;box-shadow:none;background:transparent}
-.equipment-hero img{object-fit:contain;opacity:.95;width:54%;left:auto;right:0;object-position:center}
-.codex-pics img{object-fit:contain;background:#161c29}
-
-/* Illustrated fantasy UI — first deployed visual milestone */
-body{background:#0b111b}body:before{content:"";position:fixed;inset:0;background:linear-gradient(#09112099,#080a14eb),url('assets/art/dungeon.svg') center/cover no-repeat;pointer-events:none;z-index:-1}
-#app{max-width:470px;min-height:100dvh;background:linear-gradient(155deg,#111e2af6,#15121cf8);border-left:1px solid #ac814a;border-right:1px solid #ac814a;padding:12px 12px 100px;box-shadow:0 0 45px #000b}
-.brand{display:flex;gap:12px;align-items:center;background:linear-gradient(90deg,#53331a,#171923);border:2px solid #d3a15c;padding:11px;border-radius:16px;box-shadow:inset 0 1px #ffe3a344,0 6px 16px #0008}
-.mark{display:grid;place-items:center;width:51px;height:51px;font-size:30px;background:radial-gradient(#8e6133,#24170d);border:2px solid #e0aa58;border-radius:12px;color:#ffe2a6}
-.brand h1{font-family:Georgia,'Malgun Gothic',serif;color:#ffdc94;text-shadow:0 2px #6c2d0e,0 0 12px #f88e3688;font-size:27px;margin:0 0 5px}
-.brand .sub{font-size:10px;color:#e9c18a}.resources{margin:11px 0 12px;gap:5px}
-.res{background:linear-gradient(#373b46,#171923);border:1px solid #ac8051;border-radius:11px;box-shadow:inset 0 1px #fff3,0 4px 8px #0007;color:#f8dfa9}
-.card{background:linear-gradient(150deg,#283240,#13151e);border:1px solid #b68a50;box-shadow:inset 0 1px #fff2,0 8px 17px #0008}
-h2{color:#ffe0a8;text-shadow:0 2px #110a0a;font-family:Georgia,'Malgun Gothic',serif}
-.stage h2{font-size:18px;background:#1b1c29b9;border:1px solid #a57a45;border-radius:9px;padding:10px;margin-top:0}
-.scene{height:330px;background:linear-gradient(0deg,#0b152ad9,#112c4355),url('assets/art/dungeon.svg') center/cover no-repeat;border:2px solid #9d956e;border-radius:15px;gap:0;align-items:flex-end;box-shadow:inset 0 0 27px #080f1e}
-.scene .hero,.scene .monster{display:flex;align-items:flex-end;justify-content:center;height:98%;width:48%;font-size:0}
-.scene .hero img,.scene .monster img{height:95%;width:100%;object-fit:contain;background:none;box-shadow:none;border:0;filter:drop-shadow(0 8px 13px #000a);border-radius:0}
-.scene .hero img{transform:scale(1.06)}.scene .monster img{transform:scale(.9)}.scene .vs{display:none}.art-fallback{display:none}
-.stats{font-weight:800;color:#f5dfb8}.bar{height:15px;background:#090c16;border:1px solid #a98a63}
-.bar>span{background:linear-gradient(#a4ffcf,#3d985d)}.bar.red>span{background:linear-gradient(#ff9a8a,#b42c3e)}
-.card.stage .actions{justify-content:space-evenly}.card.stage .actions button{height:96px;flex:0 0 46%;border-radius:25px;font-size:21px;color:#fff1d4;text-shadow:0 2px #371718;border:2px solid #f4b261;background:radial-gradient(circle at 30% 20%,#ffb07f,#b93419 68%,#4d130f);box-shadow:0 0 17px #f46a3755,0 8px 15px #0009}
-.card.stage .actions button.green{border-color:#85ceff;background:radial-gradient(circle at 30% 20%,#92dbff,#206fc2 66%,#152f68);box-shadow:0 0 17px #53aaff77,0 8px 15px #0009}
-.card.stage .actions button small{font-size:11px;display:block}
-button{background:linear-gradient(#ffdf9e,#d99639 60%,#a35a21);border:1px solid #ffe1a0;box-shadow:inset 0 2px #fff6,0 4px 0 #68351b,0 7px 12px #0007}
-button.secondary{background:linear-gradient(#6b7288,#333b55);border-color:#a6afc3;color:#fff2d8}
-button.green{background:linear-gradient(#89dfff,#1869bd);border-color:#a7deff;color:#fff}
-.forge-art{height:250px;border:2px solid #c48b4b}.forge-art .art-forge-bg{opacity:.5}.forge-art .art-smith{width:65%;height:100%;object-fit:contain;right:0;filter:drop-shadow(0 6px 15px #0009)}
-.item{border-color:#aa8553;background:linear-gradient(120deg,#363846,#191924)}
-.symbol{font-size:0!important;border:1px solid #d3a26a;border-radius:12px;background:#1b1d2a;min-width:64px!important;height:64px;display:grid;place-items:center}
-.symbol img{width:100%;height:100%;object-fit:contain}
-.equipment-hero{height:248px}.equipment-hero img{width:65%;right:0;left:auto;object-fit:contain}
-.tabs{max-width:470px;grid-template-columns:repeat(5,1fr);background:linear-gradient(#322735,#0c0e17);border-top:2px solid #b88b53}.tabs button{font-size:11px;min-height:59px}.tabs button.active{border-color:#cf9d54;color:#ffe3a1;background:linear-gradient(#59402f,#25222a)}
-.shopart{display:flex;align-items:center;border:1px solid #a97b41;border-radius:14px;background:linear-gradient(100deg,#663b27,#111c2f);margin:10px 0;padding:10px}.shopart img{width:45%;height:190px;object-fit:contain}.shopart strong{flex:1;font-size:18px;color:#ffe6a9;text-align:center}
-@media(max-width:370px){.scene{height:290px}#app{padding-left:8px;padding-right:8px}.card.stage .actions button{font-size:18px}.res{font-size:12px}}
-</style></head><body><div id="toast"></div><main id="app"><header class="brand"><div class="mark">⚔</div><div><h1>던전 대장간</h1><div class="sub">DUNGEON FORGE · 더 강한 장비가 더 멀리 간다</div></div></header><div id="resources" class="resources"></div><div id="content"></div><div id="log" class="card log"></div></main><nav id="tabs" class="tabs"></nav><script>
-const K='dungeon-forge-web-v1';const recipes=[{n:'단검',kind:'weapon',icon:'⚔️',o:6,c:0},{n:'철갑옷',kind:'armor',icon:'🦺',o:9,c:0},{n:'수호 방패',kind:'shield',icon:'🛡️',o:7,c:2},{n:'마력 반지',kind:'ring',icon:'💍',o:4,c:3}], effects=['견고함','화상','흡혈','보호막','반격'],grades=['일반','고급','희귀','영웅','전설'];
-const init=()=>({gold:60,ore:20,crystals:5,stage:1,kills:0,inventory:[],equip:{},discovered:{},last:Date.now(),hp:100,enemy:70,boss:false,events:0,rewardReady:0,focus:"balanced"});let s=init(),tab='던전',guardUntil=0,guardReady=0,strikeReady=0,history=[],renderTime=0,nextEnemyAttack=Date.now()+1800;
-try{let j=JSON.parse(localStorage.getItem(K));if(j&&j.stage){s={...init(),...j};let sec=Math.max(0,Math.min(28800,Math.floor((Date.now()-(j.last||Date.now()))/1000)));if(sec>59){s.gold+=Math.floor(sec/20);s.ore+=Math.floor(sec/60);history.unshift('오프라인 '+Math.floor(sec/60)+'분: 보상 획득!')}}}catch(e){}
-function save(){s.last=Date.now();try{localStorage.setItem(K,JSON.stringify(s))}catch(e){}}function log(t){history.unshift(t);history=history.slice(0,3);document.querySelector('#log').innerHTML=history.map(x=>'✦ '+x).join('<br>')}
-function toast(t){log(t);let el=document.querySelector('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1900)}
-const equipped=k=>s.inventory[s.equip[k]]||null;const power=()=>10+s.stage*.8+(equipped('weapon')?.power||0);const defense=()=>3+['armor','shield','ring'].reduce((v,k)=>v+(equipped(k)?.defense||0),0);const has=e=>Object.keys(s.equip).some(k=>equipped(k)?.effect===e);const maxEnemy=()=>70+s.stage*24+(s.boss?130:0);function victory(){s.gold+=8+s.stage*3;s.ore+=2+Math.floor(s.stage/4);s.kills++;s.events++;if(s.boss){s.crystals+=2;s.stage++;s.boss=false;toast('보스 격파! 다음 층 개방 · 결정 +2')}else if(s.kills%5===0){s.boss=true;toast('⚡ 보스 등장! 방어 타이밍에 주의')};if(s.events>=7){s.events=0;event()}s.enemy=maxEnemy();nextEnemyAttack=Date.now()+(s.boss?4500:1800);s.hp=Math.min(100,s.hp+12);save()}
-function hit(){s.enemy-=power()+(has('화상')?5:0);if(has('흡혈'))s.hp=Math.min(100,s.hp+3);if(s.enemy<=0)victory()}
-function hurt(){let raw=9+s.stage*2.8+(s.boss?15:0);let dmg=raw*100/(100+defense());let blocked=Date.now()<guardUntil;if(blocked)dmg*=.25;if(has('보호막'))dmg*=.85;if(blocked&&s.boss){s.ore+=2;toast('🛡 보스 공격 방어 성공! 광석 +2')}s.hp-=dmg;if(has('반격'))s.enemy-=4;if(s.enemy<=0)victory();if(s.hp<=0){s.hp=100;s.enemy=maxEnemy();toast('패배! 재화 손실 없이 재도전 가능')} }
-function guard(){if(Date.now()<guardReady)return;guardUntil=Date.now()+1300;guardReady=Date.now()+5500;toast('🛡 방어 자세! 1.3초 동안 피해 75% 감소');render()}
-function strike(){if(Date.now()<strikeReady)return;strikeReady=Date.now()+10000;let damage=Math.round(power()*3.2);s.enemy-=damage;toast('⚔ 강타! '+damage+' 피해');if(s.enemy<=0)victory();render()}
-function event(){const a=Math.floor(Math.random()*3);if(a===0){s.crystals++;toast('🎁 신비한 보물상자: 결정 +1')}else if(a===1){s.ore+=8;toast('⛏ 숨겨진 광맥: 광석 +8')}else{s.gold+=35;toast('🪙 떠돌이 상인: 골드 +35')}}
-function craft(i){const r=recipes[i],extra=s.focus==="balanced"?0:1;if(s.ore<r.o||s.crystals<r.c+extra)return toast('재료가 부족합니다');s.ore-=r.o;s.crystals-=r.c+extra;let x=Math.random(),tier=x>=.99?4:x>=.95?3:x>=.85?2:x>=.60?1:0;let item={name:r.n,kind:r.kind,icon:r.icon,tier,effect:effects[Math.floor(Math.random()*effects.length)],power:r.kind==='weapon'?6+5*tier+(s.focus==='attack'?3:0):0,defense:r.kind==='weapon'?0:3+4*tier+(s.focus==='defense'?3:0)};let idx=s.inventory.push(item)-1;s.discovered[[item.name,tier,item.effect].join('-')]=1;if(s.equip[r.kind]===undefined)s.equip[r.kind]=idx;toast('✨ '+grades[tier]+' '+r.n+' 제작! '+item.effect);save();render()}
-function equip(i){s.equip[s.inventory[i].kind]=i;toast(s.inventory[i].name+' 장착');save();render()}
-function focus(v){s.focus=v;save();render()}function claim(){if(Date.now()<s.rewardReady)return toast('탐험 보상은 60초마다 받을 수 있습니다');s.rewardReady=Date.now()+60000;s.gold+=20;s.ore+=10;toast('탐험 보상: 골드 +20 · 광석 +10');save();render()}function res(){return `<div class="res">🪙 ${s.gold}</div><div class="res">⛏ ${s.ore}</div><div class="res">✦ ${s.crystals}</div>`}
-function shopGift(){s.ore+=30;s.crystals+=3;toast('제작 재료 지급 완료');save();render()}
-function render(){document.querySelector('#resources').innerHTML=res();const nav=document.querySelector('#tabs');if(nav.dataset.active!==tab){nav.innerHTML=['던전','대장간','장비','도감','상점'].map(t=>`<button class="${t===tab?'active':''}" onclick="tab='${t}';render()">${t==='던전'?'🏰':t==='대장간'?'⚒':t==='장비'?'🛡':t==='도감'?'📖':'🛒'}<br>${t}</button>`).join('');nav.dataset.active=tab}let c=document.querySelector('#content');if(tab==='던전'){let ec=Math.min(100,Math.max(0,s.enemy/maxEnemy()*100));c.innerHTML=`<section class="card stage"><h2>🏰 ${s.stage}층 · ${s.boss?'보스전':'슬라임 숲'}</h2>${s.boss?`<div class="bosswarning" style="color:${nextEnemyAttack-Date.now()<1700?'#ff8e96':'#ffe0a4'}">${nextEnemyAttack-Date.now()<1700?'⚠ 강력한 공격 임박! 지금 방어하세요':'👹 보스 공격까지 '+Math.max(0,((nextEnemyAttack-Date.now())/1000)).toFixed(1)+'초'}</div>`:''}<div class="scene"><span class="hero"><img src="assets/art/hero.webp" onerror="this.onerror=null;this.src='assets/art/hero.svg'" alt="붉은 망토를 입은 모험가"><span class="art-fallback">🧙‍♂️</span></span><span class="vs">VS</span><span class="monster"><img src="${s.boss?'assets/art/magma.svg':'assets/art/slime.svg'}" alt="${s.boss?'마그마 슬라임 보스':'왕관 슬라임'}" onerror="this.remove()"><span class="art-fallback">${s.boss?'👹':'🟢'}</span></span></div><p class="stats"><span>영웅 HP ${Math.max(0,Math.ceil(s.hp))}/100</span><span>공격 ${Math.round(power())} · 방어 ${Math.round(defense())}</span></p><div class="bar"><span style="width:${Math.max(0,s.hp)}%"></span></div><p class="stats"><span>${s.boss?'보스':'몬스터'}</span><span>HP ${Math.max(0,Math.ceil(s.enemy))}/${maxEnemy()}</span></p><div class="bar red"><span style="width:${ec}%"></span></div><div class="actions"><button onclick="strike()">⚔ 강타 <small>${Math.max(0,Math.ceil((strikeReady-Date.now())/1000))||'준비'}</small></button><button class="green" onclick="guard()">🛡 방어 <small>${Math.max(0,Math.ceil((guardReady-Date.now())/1000))||'준비'}</small></button></div></section><section class="card"><h2>⛏ 자동 탐험</h2><p class="hint">자동 전투로 골드와 광석을 얻습니다. 방어 스킬 타이밍은 보스전에서 특히 중요합니다.</p><button class="secondary" onclick="claim()">탐험 보상 수령 (60초 충전)</button></section>`}
-else if(tab==='대장간')c.innerHTML=`<h2>🔥 신비한 대장간</h2><div class="forge-art" aria-hidden="true"><img class="art-forge-bg" src="assets/art/forge.webp" onerror="this.onerror=null;this.src='assets/art/forge.svg'" alt=""><img class="art-smith" src="assets/art/smith.webp" onerror="this.onerror=null;this.src='assets/art/smith.svg'" alt=""><div class="furnace">🔥</div><div class="anvil">⚒️</div><div class="sparks">✦ ✧ ✦</div><div class="forge-name">FORGE OF LEGENDS</div></div><p class="hint">원하는 부위를 제작하세요. 제작 등급과 특수 효과는 랜덤입니다.<br>일반 60% · 고급 25% · 희귀 10% · 영웅 4% · 전설 1%</p><div class="actions"><button class="secondary" onclick="focus('balanced')">균형 ${s.focus==='balanced'?'✓':''}</button><button class="secondary" onclick="focus('attack')">공격 +3 ${s.focus==='attack'?'✓':''}</button><button class="secondary" onclick="focus('defense')">방어 +3 ${s.focus==='defense'?'✓':''}</button></div><p class="hint">공격·방어 집중 제작은 마력 결정 1개를 추가 사용합니다.</p>`+recipes.map((r,i)=>`<div class="item itemrow"><div class="symbol"><img src="${r.kind==='weapon'?'assets/art/weapons.svg':r.kind==='shield'?'assets/art/shields.svg':r.kind==='armor'?'assets/art/armors.svg':'assets/art/rings.svg'}" alt="${r.n}"></div><div class="info"><b>${r.n}</b><div class="sub">광석 ${r.o} · 결정 ${r.c+(s.focus==='balanced'?0:1)}</div></div><button onclick="craft(${i})">제작</button></div>`).join('')
-else if(tab==='장비')c.innerHTML=`<h2>🛡 장비 및 방어 전략</h2><div class="equipment-hero"><img src="assets/art/hero.webp" onerror="this.onerror=null;this.src='assets/art/hero.svg'" alt="방패로 방어하는 주인공"><strong>대장장이의 전투 장비</strong><small>무기 · 갑옷 · 방패 · 반지</small></div><p class="hint">방어력 ${Math.round(defense())} · 받는 피해는 방어력에 따라 감소.<br>방패와 갑옷을 제작해 보스의 큰 공격을 견뎌보세요.</p>`+(s.inventory.length?s.inventory.map((it,i)=>`<div class="item itemrow"><div class="symbol"><img src="${it.kind==='weapon'?'assets/art/weapons.svg':it.kind==='shield'?'assets/art/shields.svg':it.kind==='armor'?'assets/art/armors.svg':'assets/art/rings.svg'}" alt="${it.name}"></div><div class="info"><span class="rarity rare${it.tier}">${grades[it.tier]}</span> <b>${it.name}</b><div class="sub">공격 +${it.power} · 방어 +${it.defense}</div><div class="sub">특수 효과: ${it.effect}</div></div><button class="${s.equip[it.kind]===i?'green':'secondary'}" onclick="equip(${i})">${s.equip[it.kind]===i?'장착 중':'장착'}</button></div>`).join(''):'<div class="card">장비가 없습니다. 대장간에서 첫 장비를 제작하세요.</div>')
-else if(tab==='도감')c.innerHTML=`<h2>📖 발견 도감</h2><div class="codex-banner"><span>✦ 장비·몬스터·지역의 비밀을 밝혀라 ✦</span><div class="codex-pics"><img src="assets/art/weapons.webp" onerror="this.onerror=null;this.src='assets/art/weapons.svg'" alt="무기 컬렉션"><img src="assets/art/shields.webp" onerror="this.onerror=null;this.src='assets/art/shields.svg'" alt="방패 컬렉션"></div></div><div class="card"><b class="badge">발견한 조합 ${Object.keys(s.discovered).length}종</b><p class="hint">제작하면 등급·효과 조합이 도감에 등록됩니다. 더 희귀한 장비를 찾아보세요.</p></div>`+(Object.keys(s.discovered).map(x=>`<div class="item">✦ ${x}</div>`).join('')||'<div class="card">아직 발견한 장비가 없습니다.</div>')
-else c.innerHTML=`<div class="shopart"><img src="assets/art/smith.svg" alt="대장장이"><div><h2>⚒ 장인의 상점</h2><p>성장에 필요한 제작 재료</p></div></div><div class="card"><p>⛏ 광석 +30 · ✧ 마력 결정 +3</p><button onclick="shopGift()">체험 보상 수령</button><p class="hint">테스트용 무료 보상이며 실제 광고·결제는 아직 연결되지 않았습니다.</p></div>`;
-document.querySelector('#log').innerHTML=history.map(x=>'✦ '+x).join('<br>')}
-render();setInterval(()=>{hit();render()},1100);setInterval(()=>{if(Date.now()>=nextEnemyAttack){hurt();nextEnemyAttack=Date.now()+(s.boss?4500:1800);render()}else{const w=document.querySelector('.bosswarning');if(w){const ms=nextEnemyAttack-Date.now();w.textContent=ms<1700?'⚠ 강력한 공격 임박! 지금 방어하세요':'👹 보스 공격까지 '+Math.max(0,ms/1000).toFixed(1)+'초';w.style.color=ms<1700?'#ff8e96':'#ffe0a4'}}},120);setInterval(save,8000);window.addEventListener('beforeunload',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
-</script></body></html>
+/* Day 8: production icon slots, battle telegraph, craft reveal, codex */
+.equipThumb,.slot img,.mini,.codexItem img{object-fit:cover}
+.itemIcon{width:100%;height:100%;object-fit:contain;display:block;border-radius:9px}
+.combatAlert{position:absolute;left:10px;top:10px;right:82px;border:1px solid #ffc16e;background:linear-gradient(90deg,#632d1cee,#251920e8);padding:9px;border-radius:10px;color:#ffe1a5;font-weight:900;text-align:center;font-size:12px;z-index:5;text-shadow:0 2px 4px #000}
+.combatAlert.danger{background:linear-gradient(90deg,#b12721ee,#4a1419ef);box-shadow:0 0 22px #f33b2b77;animation:warnPulse .45s ease-in-out infinite alternate}
+@keyframes warnPulse{to{filter:brightness(1.5)}}
+.guardSuccess{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);z-index:8;font-weight:1000;color:#d7f2ff;font-size:24px;text-shadow:0 0 14px #31b3ff,0 3px 5px #000;pointer-events:none;animation:rise .8s ease forwards}
+@keyframes rise{to{transform:translate(-50%,-100%);opacity:0}}
+.craftOverlay{position:fixed;inset:0;z-index:130;background:#050608d9;display:none;align-items:center;justify-content:center;padding:20px}
+.craftOverlay.show{display:flex}
+.craftModal{max-width:340px;width:100%;border:2px solid #d9a65b;border-radius:24px;padding:20px;background:radial-gradient(circle at 50% 8%,#693f20,#19141d 70%);box-shadow:0 0 38px #ef9b3f55;text-align:center}
+.craftModal .beam{font-size:42px;display:block;animation:hammerDrop .65s ease-in-out 2}
+@keyframes hammerDrop{50%{transform:translateY(16px) rotate(-25deg)}}
+.craftModal .craftedIcon{height:124px;width:124px;object-fit:contain;margin:8px auto;filter:drop-shadow(0 0 15px #ffcc69)}
+.craftModal .grade{font-size:23px;color:#ffe08e;font-weight:1000;margin:6px 0}
+.craftModal button{margin-top:12px;border:1px solid #ffe3a7;border-radius:14px;background:linear-gradient(#ffe09a,#ca852c);padding:12px 26px;font-size:17px;font-weight:900;color:#34210c}
+.codexMonsterGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
+.codexMonsterGrid .panel{text-align:center;padding:10px}
+.codexMonsterGrid img{width:100%;height:125px;object-fit:contain}
+.elementPills{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.elementPills span{padding:6px 9px;border:1px solid #9c783d;border-radius:99px;background:#241f26;color:#f7ddb3;font-weight:900;font-size:12px}
+.researchNote{font-size:12px;color:#e4ca9f;line-height:1.6}
+</style>
+</head>
+<body>
+<div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
+<main id="app">
+  <div class="topbrand">
+    <div class="brandtitle"><span>던전</span><span>대장간</span></div>
+    <div class="brandsub">DUNGEON FORGE</div>
+  </div>
+  <section class="screen">
+    <div id="screen"></div>
+  </section>
+</main>
+<nav id="nav" class="nav"></nav>
+<script>
+const K='dungeon-forge-ui-v2';
+const rarityName=['일반','고급','희귀','영웅','전설'];
+const rarityLetter=['C','B','A','S','SS'];
+const navTabs=['던전','대장간','장비','도감','상점'];
+const areaNames=['잊힌 지하 수도','왕관 슬라임 굴','용광로 회랑','거암 통로','폭풍 첨탑'];
+const recipeDefs=[
+  {name:'화염의 검',kind:'weapon',ore:10,crystal:0,img:'assets/art/weapons.webp',atk:[22,28,36,44,52],def:[0,0,0,0,0]},
+  {name:'수호자의 갑옷',kind:'armor',ore:12,crystal:1,img:'assets/art/armors.webp',atk:[0,0,0,0,0],def:[16,24,33,42,53]},
+  {name:'빛의 방패',kind:'shield',ore:9,crystal:1,img:'assets/art/shields.webp',atk:[0,0,0,0,0],def:[14,20,28,36,45]},
+  {name:'심연의 반지',kind:'ring',ore:8,crystal:2,img:'assets/art/rings.webp',atk:[6,10,14,18,24],def:[6,8,12,15,18]}
+];
+const kindLabel={weapon:'무기',armor:'갑옷',shield:'방패',ring:'반지'};
+const kindAsset={weapon:'assets/art/weapons.webp',armor:'assets/art/armors.webp',shield:'assets/art/shields.webp',ring:'assets/art/rings.webp'};
+const effects=['화상','흡혈','보호막','반격','견고함','냉기'];
+const iconDir={weapon:'weapons',armor:'armors',shield:'shields',ring:'rings'};
+function iconFor(item){const t=Math.max(0,Math.min(5,item.tier||0));return 'assets/art/items/'+iconDir[item.kind]+'/'+Math.min(5,t+1)+'.webp'}
+let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
+const stateInit=()=>({gold:125420,ore:3260,crystals:1850,stage:12,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,last:Date.now()});
+let S=stateInit();
+let TAB='던전';
+let strikeReady=0,guardReady=0,guardActiveUntil=0;
+let logs=[];
+try{const saved=JSON.parse(localStorage.getItem(K)); if(saved){S={...stateInit(),...saved};}}
+catch(e){}
+if(!S.inventory.length){ seedStarterItems(); }
+normalizeState();
+function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;}); S.maxHp=getMaxHp(); S.hp=Math.min(S.hp||S.maxHp,S.maxHp); S.enemyMax=getEnemyMax(); S.enemyHp=Math.min(S.enemyHp||S.enemyMax,S.enemyMax);}
+function seedStarterItems(){
+  const starters=[
+    mkItem(recipeDefs[0],4,'화상'), mkItem(recipeDefs[0],2,'흡혈'), mkItem(recipeDefs[1],3,'견고함'), mkItem(recipeDefs[2],2,'보호막'), mkItem(recipeDefs[3],3,'반격'), mkItem(recipeDefs[3],1,'냉기')
+  ];
+  starters.forEach(it=>{const idx=S.inventory.push(it)-1;if(S.equip[it.kind]===null)S.equip[it.kind]=idx;discover(it)});
+}
+function mkItem(def,tier,effect){return {name:def.name,kind:def.kind,tier,effect,power:def.atk[tier],defense:def.def[tier],img:def.img,id:cryptoRandom()};}
+function cryptoRandom(){return Math.random().toString(36).slice(2)+Date.now().toString(36).slice(-4)}
+function save(){S.last=Date.now();localStorage.setItem(K,JSON.stringify(S));}
+function toast(t){logs.unshift(t);logs=logs.slice(0,3);const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1700); save(); render();}
+function eq(kind){return S.equip[kind]!==null?S.inventory[S.equip[kind]]:null}
+function totalAtk(){return 120+(eq('weapon')?.power||0)+(eq('ring')?.power||0)+S.stage*8}
+function totalDef(){return 60+(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)+S.stage*12}
+function getMaxHp(){return 1280+(eq('armor')?.defense||0)*6+(eq('shield')?.defense||0)*3+S.stage*20}
+function getEnemyMax(){return 880+S.stage*25+(S.boss?520:0)}
+function currentEnemyName(){return S.boss?'마그마 슬라임':'왕관 슬라임'}
+function currentEnemyImg(){return S.boss?'assets/art/magma.webp':'assets/art/slime.webp'}
+function discover(item){const key=[item.kind,item.name,item.tier,item.effect].join('|'); if(!S.discovered.includes(key)) S.discovered.push(key)}
+function progressRate(){return Math.min(100,Math.round(S.discovered.length/150*100))}
+function rarityClass(t){return 'r'+t}
+function areaName(){return areaNames[S.stage % areaNames.length]}
+function strike(){if(Date.now()<strikeReady)return toast('강타가 아직 준비되지 않았습니다'); strikeReady=Date.now()+7000; const dmg=Math.round(totalAtk()*1.6); damageEnemy(dmg); toast('강타! '+dmg+' 피해');}
+function guard(){if(Date.now()<guardReady)return toast('방어가 아직 준비되지 않았습니다'); guardReady=Date.now()+5500; guardActiveUntil=Date.now()+1500; toast('방어 자세! 잠시 받는 피해 감소'); render();}
+function damageEnemy(d){S.enemyHp-=d; if(S.enemyHp<=0) enemyDown(); save(); render();}
+function takeDamage(base){let dmg=base*(100/(100+totalDef())); if(Date.now()<guardActiveUntil){dmg*=0.35;if(S.boss){S.ore+=2;battleFxUntil=Date.now()+1000;}} if(eq('shield')?.effect==='보호막')dmg*=0.88; S.hp-=dmg; if(eq('ring')?.effect==='반격') S.enemyHp-=10; if(S.enemyHp<=0) enemyDown(); if(S.hp<=0){S.maxHp=getMaxHp(); S.hp=S.maxHp; S.enemyMax=getEnemyMax(); S.enemyHp=S.enemyMax; toast('패배했지만 다시 도전할 수 있습니다');} save(); render();}
+function enemyDown(){S.gold+=520+S.stage*32; S.ore+=22+Math.floor(S.stage/3); S.crystals+=S.boss?8:1; S.kills++; if(eq('weapon')?.effect==='흡혈') S.hp=Math.min(getMaxHp(),S.hp+80); if(S.boss){S.stage++; S.boss=false; toast('보스 격파! 다음 스테이지 개방');} else {toast('몬스터 처치! 재료 획득'); if(S.kills%4===0) {S.boss=true; pendingBossAttack=Date.now()+5500; toast('보스 등장! 방어 타이밍에 주의');}} S.maxHp=getMaxHp(); S.enemyMax=getEnemyMax(); S.enemyHp=S.enemyMax; save(); render();}
+function craft(kind=S.craftTab){const def=recipeDefs.find(r=>r.kind===kind); const extra=S.focus==='balanced'?0:1; const needOre=def.ore, needCry=def.crystal+extra; if(S.ore<needOre||S.crystals<needCry) return toast('재료가 부족합니다'); S.ore-=needOre; S.crystals-=needCry; const roll=Math.random(); const tier=roll>.99?4:roll>.94?3:roll>.82?2:roll>.57?1:0; const ef=effects[Math.floor(Math.random()*effects.length)]; const item=mkItem(def,tier,ef); if(S.focus==='attack') item.power+=4; if(S.focus==='defense') item.defense+=5; const idx=S.inventory.push(item)-1; discover(item); S.equip[kind]=idx; S.maxHp=getMaxHp(); S.hp=Math.min(S.hp,S.maxHp); toast(rarityName[tier]+' '+def.name+' 제작!'); save(); render();showCraft(item);}
+function showCraft(item){craftOverlayOpen=true;document.getElementById('craftModal').innerHTML=`<span class="beam">⚒ ✦</span><div class="grade ${rarityClass(item.tier)}">${rarityName[item.tier]} 제작 성공!</div><img class="craftedIcon" src="${iconFor(item)}" alt="제작된 장비"><div style="font-weight:900">${item.name}</div><p class="researchNote">특수 효과: ${item.effect}<br>공격 +${item.power} · 방어 +${item.defense}</p><button onclick="closeCraft()">확인</button>`;document.getElementById('craftOverlay').classList.add('show')}
+function closeCraft(){craftOverlayOpen=false;document.getElementById('craftOverlay').classList.remove('show')}
+function equipItem(index){const it=S.inventory[index]; S.equip[it.kind]=index; S.maxHp=getMaxHp(); S.hp=Math.min(S.hp,S.maxHp); toast(it.name+' 장착');}
+function isEquipped(i){return Object.values(S.equip).includes(i)}
+function filteredItems(kind=null){return S.inventory.filter(it=>!kind||it.kind===kind)}
+function recipeCard(def,tier=4){return `<div class="equipCard"><div class="equipThumb" style="background-image:url('assets/art/items/${iconDir[def.kind]}/${Math.min(5,tier+1)}.webp')"><span class="tierbadge ${rarityClass(tier)}">${rarityLetter[tier]}</span></div><div class="name">${def.name}</div></div>`}
+function renderResources(){return `<div class="resources"><div class="reschip"><small>🪙</small>${S.gold.toLocaleString()}</div><div class="reschip"><small>⛏</small>${S.ore.toLocaleString()}</div><div class="reschip"><small>💎</small>${S.crystals.toLocaleString()}</div><div class="reschip plus">＋</div></div>`}
+function renderHeader(title,icon='✦'){return `<div class="screenheader"><div class="headerleft"><div class="emblem">${icon}</div><div class="screentitle">${title}</div></div>${renderResources()}</div>`}
+function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100)); const ePct=Math.max(0,Math.min(100,S.enemyHp/getEnemyMax()*100)); return `
+${renderHeader('던전','✦')}
+<div class="panel stagebar"><div class="name">3-${S.stage} ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot boss"></span></div></div>
+<div class="battlefield"><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
+  <div class="righticons">
+    <div class="sideicon">⚔<span>자동전투</span></div>
+    <div class="sideicon">ℹ️<span>스테이지 정보</span></div>
+  </div>
+  <div class="battleactors">
+    <div class="fxslash"></div><div class="waterburst"></div>
+    <div class="actor hero"><img src="assets/art/hero.webp" alt="hero"><div class="actorname">Lv.32 대장장이</div></div>
+    <div class="actor enemy"><img src="${currentEnemyImg()}" alt="enemy"><div class="actorname">${currentEnemyName()}</div></div>
+  </div>
+  <div class="bars">
+    <div class="hpbox"><div class="hplabel"><span>Lv.32 대장장이</span><span class="subtxt">${Math.ceil(S.hp)} / ${getMaxHp()}</span></div><div class="bar"><div class="fill" style="width:${hpPct}%"></div></div></div>
+    <div class="hpbox"><div class="hplabel"><span>${currentEnemyName()}</span><span class="subtxt">${Math.ceil(S.enemyHp)} / ${getEnemyMax()}</span></div><div class="bar"><div class="fill blue" style="width:${ePct}%"></div></div></div>
+  </div>
+</div>
+<div class="actions">
+  <div class="skillbtn"><button onclick="strike()">강타</button><small>${Math.max(0,Math.ceil((strikeReady-Date.now())/1000))||'준비'}</small></div>
+  <div class="skillbtn"><button class="guard" onclick="guard()">방어</button><small>${Math.max(0,Math.ceil((guardReady-Date.now())/1000))||'준비'}</small></div>
+</div>
+`;}
+function renderForge(){return `
+${renderHeader('대장간','⚒️')}
+<div class="forgeTabs" style="margin-bottom:8px">
+  ${['제작','강화','분해','승급'].map(x=>`<button class="segbtn ${x==='제작'?'active':''}">${x}</button>`).join('')}
+</div>
+<div class="forgeBanner panel"><div class="smith"></div><div class="speech">좋은 장비는<br>더 멀리 가게 해주지!</div></div>
+<div class="categoryTabs" style="margin:10px 0">${['weapon','armor','shield','ring'].map(k=>`<button class="segbtn ${S.craftTab===k?'active':''}" onclick="S.craftTab='${k}';render()">${kindLabel[k]}</button>`).join('')}</div>
+<div class="cardsRow">${recipeDefs.map(d=>recipeCard(d,d.kind===S.craftTab?4:2)).join('')}</div>
+<div class="sectiontitle" style="margin-top:14px">제작 집중 옵션</div>
+<div class="focusGrid">
+  <div class="focusBox ${S.focus==='balanced'?'active neutral':''}" onclick="S.focus='balanced';render()"><strong>균형</strong><div class="tiny muted">균형 잡힌 능력치</div></div>
+  <div class="focusBox ${S.focus==='attack'?'active red':''}" onclick="S.focus='attack';render()"><strong>공격</strong><div class="tiny muted">공격력 증가</div></div>
+  <div class="focusBox ${S.focus==='defense'?'active blue':''}" onclick="S.focus='defense';render()"><strong>방어</strong><div class="tiny muted">방어력 증가</div></div>
+</div>
+<div class="costRow"><span>⛏ ${recipeDefs.find(r=>r.kind===S.craftTab).ore} / 💎 ${recipeDefs.find(r=>r.kind===S.craftTab).crystal+(S.focus==='balanced'?0:1)}</span><span class="muted">${kindLabel[S.craftTab]} 제작</span></div>
+<button class="primaryBtn" onclick="craft()">🔨 제작하기</button>
+<div class="inlineCheck"><input id="repeatChk" type="checkbox" checked> <label for="repeatChk">연속 제작</label></div>
+`;}
+function slotImage(kind){const item=eq(kind); return item?item.img:''}
+function slotBadge(kind){const item=eq(kind); return item?rarityLetter[item.tier]:'잠금'}
+function renderEquipment(){const all=S.inventory; return `
+${renderHeader('장비','🛡️')}
+<div class="charwrap">
+  <div class="slotcol">
+    <div class="slot">${eq('weapon')?`<img src="${iconFor(eq('weapon'))}"><span class="slotlabel">${rarityLetter[eq('weapon').tier]}</span>`:'무기'}</div>
+    <div class="slot">${eq('ring')?`<img src="${iconFor(eq('ring'))}"><span class="slotlabel">${rarityLetter[eq('ring').tier]}</span>`:'반지'}</div>
+  </div>
+  <div>
+    <div class="charstage"><img src="assets/art/hero_guard.webp" alt="hero"></div>
+  </div>
+  <div class="slotcol">
+    <div class="slot">${eq('armor')?`<img src="${iconFor(eq('armor'))}"><span class="slotlabel">${rarityLetter[eq('armor').tier]}</span>`:'갑옷'}</div>
+    <div class="slot">${eq('shield')?`<img src="${iconFor(eq('shield'))}"><span class="slotlabel">${rarityLetter[eq('shield').tier]}</span>`:'방패'}</div>
+  </div>
+</div>
+<div class="statsBox">
+  <div class="sectiontitle">Lv.32 대장장이 <span class="tiny muted">상세 스탯</span></div>
+  <div class="statrow"><span>⚔ 공격력</span><span>${totalAtk().toLocaleString()} <span class="up">(+${(eq('weapon')?.power||0)+(eq('ring')?.power||0)})</span></span></div>
+  <div class="statrow"><span>🛡 방어력</span><span>${totalDef().toLocaleString()} <span class="up">(+${(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)})</span></span></div>
+  <div class="statrow"><span>❤ 체력</span><span>${getMaxHp().toLocaleString()} <span class="up">(+${getMaxHp()-1280})</span></span></div>
+</div>
+<div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${x==='전체'?'active':''}">${x}</button>`).join('')}</div>
+<div class="inventoryGrid">${all.map((it,idx)=>`<div class="invItem"><div class="mini" style="background-image:url('${iconFor(it)}')"><span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span></div><button onclick="equipItem(${idx})">${isEquipped(idx)?'장착 중':'장착'}</button></div>`).join('')}</div>
+`;}
+function renderCodex(){if(S.codexTab==='monster')return renderMonsterCodex();if(S.codexTab==='region')return renderRegionCodex();const progress=progressRate(); const cats=['weapon','armor','shield','ring']; const discovered=S.discovered.filter(k=>k.startsWith(S.codexSide+'|')); const defImg=kindAsset[S.codexSide]; const grid=Array.from({length:12},(_,i)=>{const hit=discovered[i]; return hit?`<div class="codexItem"><img src="${iconFor({kind:S.codexSide,tier:Number(hit.split('|')[2])})}"><span class="label ${rarityClass(Number(hit.split('|')[2]))}">${rarityLetter[Number(hit.split('|')[2])]}</span></div>`:`<div class="codexItem locked"><img src="assets/art/items/${iconDir[S.codexSide]}/0.webp"></div>`}).join(''); return `
+${renderHeader('도감','📖')}
+<div class="codexTabs" style="margin-bottom:10px">${[{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}</div>
+<div class="paper">
+  <div class="paperTop"><strong>수집률 ${progress}%</strong><span>${S.discovered.length} / 150</span></div>
+  <div class="progress"><span style="width:${progress}%"></span></div>
+  <div class="paperTop"><span class="muted">더 많은 장비를 제작할수록 도감이 채워집니다.</span><span>🎁</span></div>
+</div>
+<div class="codexWrap">
+  <div class="codexSide">${cats.map(k=>`<button class="sideTab ${S.codexSide===k?'active':''}" onclick="S.codexSide='${k}';render()">${kindLabel[k]}<br><small>${S.discovered.filter(d=>d.startsWith(k+'|')).length}/40</small></button>`).join('')}</div>
+  <div><div class="codexGrid">${grid}</div><div class="right" style="margin-top:10px"><span class="muted">1 / 10</span></div></div>
+</div>
+`;}
+function renderMonsterCodex(){const defeated=S.kills>0;return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">몬스터 도감</div><div class="codexMonsterGrid"><div class="panel"><img src="assets/art/slime.webp"><strong>왕관 슬라임</strong><p class="researchNote">물 · 일반 · ${defeated?'발견':'미발견'}</p></div><div class="panel"><img src="assets/art/magma.webp"><strong>마그마 슬라임</strong><p class="researchNote">불 · 보스 · ${S.stage>12?'발견':'미발견'}</p></div></div><div class="panel" style="padding:12px;margin-top:10px"><strong>속성 확장 예정</strong><div class="elementPills">${['물','불','번개','독','대지','로봇'].map(x=>'<span>'+x+'</span>').join('')}</div><p class="researchNote">속성별 전투 패턴, 드롭 재료, 장비 옵션을 함께 확장합니다.</p></div>`}
+function renderRegionCodex(){const regions=[['💧','잊힌 지하 수도','물'],['🔥','화염 광산','불'],['⚡','폭풍 첨탑','번개'],['☠','부식 늪지','독'],['⛰','거암 신전','대지'],['⚙','기계 유적','로봇']];return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">지역 도감</div><div class="codexMonsterGrid">${regions.map((r,i)=>`<div class="panel" style="padding:14px"><div style="font-size:34px">${r[0]}</div><strong>${r[1]}</strong><p class="researchNote">${r[2]} 테마<br>${i<2?'아트 방향 설정 완료':'추가 개발 예정'}</p></div>`).join('')}</div>`}
+function codexTabButtons(){return [{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}
+function renderShop(){return `
+${renderHeader('상점','🛒')}
+<div class="shopHero"><div class="msg">더 강한 장비를 위해<br>필요한 재화를 골라 보세요.</div></div>
+<div class="shopGrid">
+  <div class="shopItem"><h4>광석 꾸러미</h4><p>제작에 필요한 광석을 빠르게 확보합니다.</p><button onclick="S.ore+=120; toast('광석 꾸러미 획득!')">무료 받기</button></div>
+  <div class="shopItem"><h4>결정 상자</h4><p>희귀 제작에 필요한 마력 결정을 획득합니다.</p><button onclick="S.crystals+=25; toast('결정 상자 획득!')">무료 받기</button></div>
+  <div class="shopItem"><h4>자동 탐험권</h4><p>자동 전투 보상을 한 번 더 즉시 수령합니다.</p><button onclick="S.gold+=2500; toast('탐험권 사용! 골드 보너스 지급')">사용</button></div>
+  <div class="shopItem"><h4>장인 패스</h4><p>향후 광고 제거 및 편의 기능으로 확장될 상품 슬롯입니다.</p><button onclick="toast('준비 중인 상품입니다')">준비 중</button></div>
+</div>
+`;}
+function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="TAB='${t}';render()"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join(''); }
+function tickCombat(){ if(TAB!=='던전') return; damageEnemy(Math.max(18,Math.round(totalAtk()*0.16))); if(Math.random()<0.72) takeDamage(90+S.stage*6+(S.boss?80:0)); }
+render();
+setInterval(()=>{ if(TAB==='던전'){ const auto=Math.max(10,Math.round(totalAtk()*0.11)); S.enemyHp-=auto; if(eq('weapon')?.effect==='화상') S.enemyHp-=6; if(S.enemyHp<=0) enemyDown(); render(); } }, 1300);
+setInterval(()=>{ if(TAB==='던전'){if(S.boss){if(Date.now()>=pendingBossAttack){takeDamage(180+S.stage*7);pendingBossAttack=Date.now()+5500;}}else{takeDamage(85+S.stage*5);}}},2200);
+setInterval(()=>{const el=document.getElementById('combatAlert');if(!el||TAB!=='던전'||!S.boss)return;const remain=Math.max(0,(pendingBossAttack-Date.now())/1000);el.style.display='block';el.classList.toggle('danger',remain<1.8);el.textContent=remain<1.8?'⚠ 강공격 임박! 방어!':'보스 강공격까지 '+remain.toFixed(1)+'초';const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=Date.now()<battleFxUntil?'<span class="guardSuccess">완벽 방어! 광석 +2</span>':'';},150);
+setInterval(save,10000);
+window.addEventListener('beforeunload',save);
+document.addEventListener('visibilitychange',()=>document.hidden&&save());
+</script>
+</body>
+</html>
