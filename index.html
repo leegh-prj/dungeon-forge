@@ -303,7 +303,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 @keyframes tierSparkle{from{transform:translateY(9px) scale(.6);opacity:.25}to{transform:translateY(-14px) scale(1.35);opacity:1}}
 @keyframes tierItemPop{from{opacity:0;transform:scale(.52) rotate(-8deg)}70%{opacity:1;transform:scale(1.07)}to{opacity:1;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.tierReveal *,.tierGear:before{animation:none!important}}
-.forgeStatCompare{display:grid;gap:7px;margin:13px 0}.forgeCompareRow{display:grid;grid-template-columns:1.2fr .7fr .8fr .6fr;align-items:center;gap:6px;border:1px solid #6e5a42;border-radius:9px;background:#1e202b;padding:10px 7px;font-size:11px;text-align:left}.forgeCompareRow del{color:#98949b}.forgeCompareRow b{color:#fff6d4;font-size:13px}.forgeCompareRow strong{color:#89ebae;text-align:right}</style>
+.forgeStatCompare{display:grid;gap:7px;margin:13px 0}.forgeCompareRow{display:grid;grid-template-columns:1.2fr .7fr .8fr .6fr;align-items:center;gap:6px;border:1px solid #6e5a42;border-radius:9px;background:#1e202b;padding:10px 7px;font-size:11px;text-align:left}.forgeCompareRow del{color:#98949b}.forgeCompareRow b{color:#fff6d4;font-size:13px}.forgeCompareRow strong{color:#89ebae;text-align:right}.equipmentDetail{--tier-color:#f1e0a2;background:radial-gradient(circle at 50% 25%,rgba(var(--tier-rgb),.26),#1d1921 80%)!important;border:2px solid var(--tier-color)!important;max-width:380px}.gearDetailArt{width:164px;height:164px;margin:12px auto;border-radius:24px;border:2px solid var(--tier-color);background:radial-gradient(circle,rgba(var(--tier-rgb),.32),#171a29);display:grid;place-items:center;box-shadow:0 0 20px rgba(var(--tier-rgb),.36)}.gearDetailArt img{width:95%;height:95%;object-fit:contain}.gearCompareTitle{font-size:12px;margin:10px 0;color:#e5d7a9}.gearCompare{display:grid;gap:6px}.gearCompareLine{display:grid;grid-template-columns:1fr .6fr .8fr .6fr;gap:6px;align-items:center;padding:9px 7px;border-radius:8px;background:#121620a6;font-size:11px}.gearCompareLine strong.plus{color:#8de4ac}.gearCompareLine strong.minus{color:#ff9999}.gearCompareLine b{color:#f7eaca}.gearCompareHint{font-size:10px;color:#cbc2af}.gearDetailActions{display:flex;gap:10px}.gearDetailActions button{flex:1;padding:12px;border-radius:10px}.gearDetailActions button:last-child{background:linear-gradient(110deg,var(--tier-color),#c6aa65);color:#171523;font-weight:bold}.inventoryGrid .invItem>button{font-size:11px}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -687,7 +687,7 @@ function repairStats(){
 }
 
 function filteredItems(kind=null){return S.inventory.filter(it=>!kind||it.kind===kind)}
-function recipeCard(def,tier=4){return `<div class="equipCard tierGear tierGear${tier}"><div class="equipThumb" style="background-image:url('assets/art/items/${iconDir[def.kind]}/${Math.min(5,tier+1)}.webp')"><span class="tierbadge ${rarityClass(tier)}">${rarityLetter[tier]}</span></div><div class="name">${def.name}</div></div>`}
+function recipeCard(def,tier=4){return `<div class="equipCard tierGear tierGear${tier}"><div class="equipThumb" style="background-image:url('${iconFor({kind:def.kind,tier})}')"><span class="tierbadge ${rarityClass(tier)}">${rarityLetter[tier]}</span></div><div class="name">${def.name}</div></div>`}
 function renderResources(){return `<div class="resources"><div class="reschip"><small>🪙</small>${S.gold.toLocaleString()}</div><div class="reschip"><small>⛏</small>${S.ore.toLocaleString()}</div><div class="reschip"><small>💎</small>${S.crystals.toLocaleString()}</div><div class="reschip plus">＋</div></div>`}
 function renderHeader(title,icon='✦'){return `<div class="screenheader"><div class="headerleft"><div class="emblem">${icon}</div><div class="screentitle">${title}</div></div>${renderResources()}</div>`}
 function openStageInfo(){
@@ -915,6 +915,36 @@ function renderLegendaryAchievements(){
  ];
  return '<div class="legendAchievement"><div class="sectiontitle">✦ 레전드 업적</div><div class="legendAchievementRows">'+defs.map(([id,title,desc,prize])=>'<div class="legendAchievementRow '+(achievements.includes(id)?'unlocked':'')+'"><span>'+(achievements.includes(id)?'🏆':'🔒')+'</span><div><strong>'+title+'</strong><small>'+desc+' · '+prize+'</small></div><b>'+(achievements.includes(id)?'완료':'미달성')+'</b></div>').join('')+'</div></div>';
 }
+function compareItemToEquipped(index){
+ const item=S.inventory[index];if(!item)return '';
+ const current=eq(item.kind);
+ const old=current&&current!==item?current:null;
+ const fields=[
+  ['⚔ 공격력',old?.power||0,item.power||0],
+  ['🛡 방어력',old?.defense||0,item.defense||0],
+  ['✦ 강화',old?itemPlus(old):0,itemPlus(item)]
+ ];
+ return '<div class="gearCompare">'+fields.map(([label,oldVal,newVal])=>
+   '<div class="gearCompareLine"><span>'+label+'</span><span>'+oldVal+'</span><b>→ '+newVal+'</b><strong class="'+(newVal>=oldVal?'plus':'minus')+'">'+(newVal>=oldVal?'+':'')+(newVal-oldVal)+'</strong></div>').join('')+'</div>'+
+ '<p class="gearCompareHint">'+(current===item?'현재 장착 중인 아이템입니다.':current?'현재 장착 장비와 비교':'해당 부위에 장착된 장비가 없습니다.')+'</p>';
+}
+function openEquipmentDetails(index){
+ const item=S.inventory[index];if(!item)return toast('장비 정보를 찾을 수 없습니다');
+ const overlay=document.getElementById('craftOverlay'),modal=document.getElementById('craftModal');
+ const tier=rarityLetter[item.tier]||'C',t=tierTheme(item);
+ modal.className='craftModal equipmentDetail tierLevel'+item.tier;
+ modal.style.setProperty('--tier-color',t.color);modal.style.setProperty('--tier-rgb',t.rgb);
+ modal.innerHTML='<div class="tierResultLabel">'+t.name+' · '+tier+'</div>'+
+  '<div class="gearDetailArt"><img src="'+iconFor(item)+'" alt="'+item.name+'"></div>'+
+  '<div class="tierResultName">'+item.name+' '+(itemPlus(item)?'+'+itemPlus(item):'')+'</div>'+
+  '<p class="tierResultEffect">옵션: '+item.effect+'</p>'+
+  (item.tier===MAX_TIER?'<p class="legendaryPassive">'+legendaryPassive(item)+'</p>':'')+
+  '<h4 class="gearCompareTitle">현재 장착 장비와 비교</h4>'+compareItemToEquipped(index)+
+  '<div class="gearDetailActions"><button onclick="closeCraft()">닫기</button>'+
+  '<button onclick="closeCraft();equipItem('+index+')">'+(isEquipped(index)?'장착 해제':'장착하기')+'</button></div>';
+ overlay.classList.add('show','tierReveal');craftOverlayOpen=true;
+ overlay.setAttribute('aria-label',item.name+' 장비 상세정보');
+}
 function renderEquipment(){const all=filteredInventory(); return `
 ${renderHeader('장비','🛡️')}
 <div class="charwrap">
@@ -938,7 +968,7 @@ ${renderHeader('장비','🛡️')}
 </div>
 ${renderLegendaryAchievements()}
 <div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
-<div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}"><div class="mini" style="background-image:url('${iconFor(it)}')"><span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>
+<div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}"><div class="mini" style="background-image:url('${iconFor(it)}')"><span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div><button onclick="openEquipmentDetails(${idx})">상세</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>
 `;}
 function setCodexCollectionFilter(v){codexCollectionFilter=v;codexPage=0;render()}
 function codexSlots(kind){
