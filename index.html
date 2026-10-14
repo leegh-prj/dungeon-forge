@@ -521,15 +521,32 @@ function selectForgeItem(index){
   else forgeSelection.push(index);
   render();
 }
+// Logarithmic reinforcement curve; all probabilities are in percentage points.
+function enhancementBaseChance(item){
+ const level=Math.min(9,itemPlus(item));
+ return Math.round(Math.max(10,100-39*Math.log1p(level))*10)/10;
+}
+function enhancementPityStep(item){
+ return Math.round(4/(1+0.42*Math.min(9,itemPlus(item)))*10)/10;
+}
+function enhancementPityCap(item){
+ return Math.round(16/(1+0.42*Math.min(9,itemPlus(item)))*10)/10;
+}
 function enhancementChance(item){
- const lv=itemPlus(item);
- const rates=[100,95,90,85,75,65,55,45,35,25];
- return Math.min(100,rates[Math.min(lv,9)]+Math.min(20,(item?.upgradeFails||0)*5));
+ if(!item)return 0;
+ if(itemPlus(item)>=10)return 0;
+ const base=enhancementBaseChance(item);
+ const pity=Math.min(enhancementPityCap(item),(item.upgradeFails||0)*enhancementPityStep(item));
+ return Math.round(Math.min(100,base+pity)*10)/10;
 }
 function enhancementPreview(item){
  if(!item)return '<div class="forgeChance">강화할 장비를 선택하면 성공 확률이 표시됩니다.</div>';
  if(itemPlus(item)>=10)return '<div class="forgeChance">최대 강화(+10)에 도달했습니다.</div>';
- return '<div class="forgeChance"><b>+'+itemPlus(item)+' → +'+(itemPlus(item)+1)+'</b><strong>성공 확률 '+enhancementChance(item)+'%</strong><small>실패 시 비용 소모 · 장비/강화 수치 유지 · 실패당 확률 +5%p, 최대 +20%p</small></div>';
+ return '<div class="forgeChance"><b>+'+itemPlus(item)+' → +'+(itemPlus(item)+1)+'</b>'+
+ '<strong>성공 확률 '+enhancementChance(item).toFixed(1)+'%</strong>'+
+ '<span>기본 '+enhancementBaseChance(item).toFixed(1)+'% · 실패 보정 +'+Math.min(enhancementPityCap(item),(item.upgradeFails||0)*enhancementPityStep(item)).toFixed(1)+'%p</span>'+
+ '<small>실패 1회당 +'+enhancementPityStep(item).toFixed(1)+'%p (최대 +'+enhancementPityCap(item).toFixed(1)+'%p) · 고강화일수록 실패 보정 감소</small>'+
+ '<small>실패 시 재료만 소모, 장비/강화 단계 유지 · 성공 시 누적 보정 초기화</small></div>';
 }
 function dismantleCandidateList(){return forgeUsable().filter(x=>dismantleTierFilter==='all'||x.item.tier===Number(dismantleTierFilter)).slice(0,50)}
 function setDismantleTier(v){dismantleTierFilter=v;forgeSelection=[];render()}
