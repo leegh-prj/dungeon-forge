@@ -231,7 +231,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .tierbadge.r5,.rarity.r5,.rar.r5{background:#4a1738!important;color:#ffc2df!important}
 .tierbadge.r6,.rarity.r6,.rar.r6{background:linear-gradient(105deg,#83532a,#d9a947,#7c451f)!important;color:#fff5c8!important;animation:legendGlow 1.9s ease-in-out infinite alternate}
 @keyframes legendGlow{from{filter:drop-shadow(0 0 2px #edbc40)}to{filter:drop-shadow(0 0 9px #ffd87b)}}
-</style>
+.rarityLadder{display:flex;align-items:center;flex-wrap:wrap;gap:5px;padding:9px 11px;margin:9px 0;border:1px solid #8c764e;border-radius:12px;background:#181b29}.rarityLadder span{font-size:11px;color:#d2bb98}.rarityLadder b{font-size:12px;padding:4px 5px;border-radius:5px;background:#10131b}.rarityLadder small{width:100%;font-size:10px;color:#d6c8b3}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -651,7 +651,7 @@ function forgeItemCard(entry){
 function forgePanel(){
  if(forgeMode==='제작')return `
 <div class="categoryTabs" style="margin:10px 0">${['weapon','armor','shield','ring'].map(k=>`<button class="segbtn ${S.craftTab===k?'active':''}" onclick="S.craftTab='${k}';render()">${kindLabel[k]}</button>`).join('')}</div>
-<div class="cardsRow">${recipeDefs.map(d=>recipeCard(d,d.kind===S.craftTab?4:2)).join('')}</div>
+<div class="cardsRow">${recipeDefs.map(d=>recipeCard(d,d.kind===S.craftTab?6:2)).join('')}</div><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS 0.048% · L 0.002% 제작 확률</small></div>
 <div class="sectiontitle" style="margin-top:14px">제작 집중 옵션</div>
 <div class="focusGrid">
  <div class="focusBox ${S.focus==='balanced'?'active neutral':''}" onclick="S.focus='balanced';render()"><strong>균형</strong><div class="tiny muted">균형 잡힌 능력치</div></div>
@@ -731,7 +731,7 @@ function renderCodex(){
    `<div class="codexItem undiscovered"><span class="codexQuestion">?</span><span class="label">미수집</span></div>`).join('');
  return `${renderHeader('도감','📖')}
 <div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div>
-<div class="paper"><div class="paperTop"><strong>장비 도감 수집 ${Math.min(168,S.discovered.length)} / 168</strong><span>${Math.round(Math.min(160,S.discovered.length)/160*100)}%</span></div><div class="progress"><span style="width:${Math.min(100,Math.round(S.discovered.length/168*100))}%"></span></div><p class="researchNote">부위별 42칸 · 같은 장비의 다른 등급/효과도 수집 기록으로 인정됩니다.</p></div>
+<div class="paper"><div class="paperTop"><strong>장비 도감 수집 ${Math.min(168,S.discovered.length)} / 168</strong><span>${Math.round(Math.min(168,S.discovered.length)/168*100)}%</span></div><div class="progress"><span style="width:${Math.min(100,Math.round(S.discovered.length/168*100))}%"></span></div><p class="researchNote">부위별 42칸 · 같은 장비의 다른 등급/효과도 수집 기록으로 인정됩니다.</p></div>
 <div class="codexFilters"><button class="segbtn ${codexCollectionFilter==='all'?'active':''}" onclick="setCodexCollectionFilter('all')">전체 42</button><button class="segbtn ${codexCollectionFilter==='found'?'active':''}" onclick="setCodexCollectionFilter('found')">✓ 수집 ${found.length}</button><button class="segbtn ${codexCollectionFilter==='missing'?'active':''}" onclick="setCodexCollectionFilter('missing')">🔒 미수집 ${Math.max(0,42-found.length)}</button></div>
 <div class="codexWrap"><div class="codexSide">${cats.map(k=>`<button class="sideTab ${S.codexSide===k?'active':''}" onclick="setCodexSide('${k}')">${kindLabel[k]}<br><small>${S.discovered.filter(d=>d.startsWith(k+'|')).length}/42</small></button>`).join('')}</div>
 <div><div class="codexGrid">${grid||'<p class="hint">이 조건에 해당하는 항목이 없습니다.</p>'}</div><div class="right" style="margin-top:10px"><button class="segbtn" onclick="changeCodexPage(-1)" ${codexPage===0?'disabled':''}>◀</button><span class="muted">${codexPage+1} / ${pages}</span><button class="segbtn" onclick="changeCodexPage(1)" ${codexPage+1>=pages?'disabled':''}>▶</button></div></div></div>`;
