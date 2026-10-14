@@ -481,6 +481,11 @@ function filteredItems(kind=null){return S.inventory.filter(it=>!kind||it.kind==
 function recipeCard(def,tier=4){return `<div class="equipCard"><div class="equipThumb" style="background-image:url('assets/art/items/${iconDir[def.kind]}/${Math.min(5,tier+1)}.webp')"><span class="tierbadge ${rarityClass(tier)}">${rarityLetter[tier]}</span></div><div class="name">${def.name}</div></div>`}
 function renderResources(){return `<div class="resources"><div class="reschip"><small>🪙</small>${S.gold.toLocaleString()}</div><div class="reschip"><small>⛏</small>${S.ore.toLocaleString()}</div><div class="reschip"><small>💎</small>${S.crystals.toLocaleString()}</div><div class="reschip plus">＋</div></div>`}
 function renderHeader(title,icon='✦'){return `<div class="screenheader"><div class="headerleft"><div class="emblem">${icon}</div><div class="screentitle">${title}</div></div>${renderResources()}</div>`}
+function openStageInfo(){
+ const r=regionInfo(),pattern=r.patterns.map(x=>x[0]).join(' · ');
+ document.getElementById('craftModal').innerHTML=`<span class="beam">🏰</span><div class="grade">${r.name}</div><p class="researchNote">일반 몬스터: ${r.enemy}<br>보스: ${r.boss}<br>공격 패턴: ${pattern}<br>지역 재료: ${r.material}<br>보유 수량: ${S.materials?.[r.key]||0}</p><button onclick="closeCraft()">닫기</button>`;
+ document.getElementById('craftOverlay').classList.add('show');craftOverlayOpen=true;
+}
 function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100)); const ePct=Math.max(0,Math.min(100,S.enemyHp/getEnemyMax()*100)); return `
 ${renderHeader('던전','✦')}
 <div class="panel stagebar"><div class="name">3-${S.stage} ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.kills%4>=1?'cleared':''}"></span><span class="dot ${S.kills%4>=2?'cleared':''}"></span><span class="dot ${S.kills%4>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
@@ -488,7 +493,7 @@ ${renderHeader('던전','✦')}
 <div class="regionBadge" style="--region-color:${regionInfo().tint}"><span class="zoneTag">지역 ${(S.stage-1)%5+1}/5 · ${Math.floor((S.stage-1)/5)+1}순환</span>⛏ 지역 재료 <b>${regionInfo().material} ${S.materials?.[regionInfo().key]||0}개</b> · 보스 ${regionInfo().boss}</div><div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
   <div class="righticons">
     <button class="sideicon" onclick="setBattleMode(S.battleMode==='manual'?'auto':'manual')">⚔<span>${S.battleMode==='manual'?'수동 전투':'자동 전투'}</span></button>
-    <div class="sideicon">ℹ️<span>스테이지 정보</span></div>
+    <button class="sideicon" onclick="openStageInfo()">ℹ️<span>스테이지 정보</span></button>
   </div>
   <div class="battleactors">
     <div class="fxslash"></div><div class="waterburst"></div>
@@ -667,8 +672,15 @@ ${renderHeader('도감','📖')}
   <div><div class="codexGrid">${grid}</div><div class="right" style="margin-top:10px"><button class="segbtn" onclick="changeCodexPage(-1)" ${codexPage===0?'disabled':''}>◀</button><span class="muted">${codexPage+1} / ${Math.max(1,Math.ceil(discovered.length/12))}</span><button class="segbtn" onclick="changeCodexPage(1)" ${codexPage+1>=Math.max(1,Math.ceil(discovered.length/12))?'disabled':''}>▶</button></div></div>
 </div>
 `;}
-function renderMonsterCodex(){const defeated=S.kills>0;return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">몬스터 도감</div><div class="codexMonsterGrid"><div class="panel"><img src="assets/art/slime.webp"><strong>왕관 슬라임</strong><p class="researchNote">물 · 일반 · ${defeated?'발견':'미발견'}</p></div><div class="panel"><img src="assets/art/magma.webp"><strong>마그마 슬라임</strong><p class="researchNote">불 · 보스 · ${S.stage>12?'발견':'미발견'}</p></div></div><div class="panel" style="padding:12px;margin-top:10px"><strong>속성 확장 예정</strong><div class="elementPills">${['물','불','번개','독','대지','로봇'].map(x=>'<span>'+x+'</span>').join('')}</div><p class="researchNote">속성별 전투 패턴, 드롭 재료, 장비 옵션을 함께 확장합니다.</p></div>`}
-function renderRegionCodex(){const regions=[['💧','잊힌 지하 수도','물'],['🔥','화염 광산','불'],['⚡','폭풍 첨탑','번개'],['☠','부식 늪지','독'],['⛰','거암 신전','대지'],['⚙','기계 유적','로봇']];return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">지역 도감</div><div class="codexMonsterGrid">${regions.map((r,i)=>`<div class="panel" style="padding:14px"><div style="font-size:34px">${r[0]}</div><strong>${r[1]}</strong><p class="researchNote">${r[2]} 테마<br>${i<2?'아트 방향 설정 완료':'추가 개발 예정'}</p></div>`).join('')}</div>`}
+function renderMonsterCodex(){
+ const regions=REGIONS;
+ const grid=regions.map((r,i)=>`<div class="panel" style="padding:12px"><img src="assets/hd/${r.key==='fire'?'magma':r.key}/idle-0.webp" onerror="this.onerror=null;this.src='assets/art/${i===3?'magma':'slime'}.webp'" alt="${r.boss}"><strong>${r.boss}</strong><p class="researchNote">${r.name} · 보스<br>${S.stage>i+1?'진행 기록 있음':'도전 가능'}</p><p class="researchNote">보상: ${r.material}</p></div>`).join('');
+ return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">몬스터 도감</div><div class="codexMonsterGrid">${grid}</div>`;
+}
+function renderRegionCodex(){
+ const grid=REGIONS.map((r,i)=>`<div class="panel" style="padding:14px;border-color:${r.tint}"><div style="font-size:30px">${['💧','☠','⚡','🔥','⛰'][i]}</div><strong>${r.name}</strong><p class="researchNote">${r.enemy} / ${r.boss}<br>재료: ${r.material} · 보유 ${S.materials?.[r.key]||0}개</p></div>`).join('');
+ return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">지역 도감</div><div class="codexMonsterGrid">${grid}</div>`;
+}
 function codexTabButtons(){return [{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}
 function renderShop(){return `
 ${renderHeader('상점','🛒')}
@@ -677,7 +689,7 @@ ${renderHeader('상점','🛒')}
   <div class="shopItem"><h4>광석 꾸러미</h4><p>제작에 필요한 광석을 빠르게 확보합니다.</p><button onclick="S.ore+=120; toast('광석 꾸러미 획득!')">무료 받기</button></div>
   <div class="shopItem"><h4>결정 상자</h4><p>희귀 제작에 필요한 마력 결정을 획득합니다.</p><button onclick="S.crystals+=25; toast('결정 상자 획득!')">무료 받기</button></div>
   <div class="shopItem"><h4>자동 탐험권</h4><p>자동 전투 보상을 한 번 더 즉시 수령합니다.</p><button onclick="S.gold+=2500; toast('탐험권 사용! 골드 보너스 지급')">사용</button></div>
-  <div class="shopItem"><h4>장인 패스</h4><p>향후 광고 제거 및 편의 기능으로 확장될 상품 슬롯입니다.</p><button onclick="toast('준비 중인 상품입니다')">준비 중</button></div>
+  <div class="shopItem"><h4>장인 패스</h4><p>향후 광고 제거 및 편의 기능으로 확장될 상품 슬롯입니다.</p><button disabled title="아직 출시되지 않은 상품입니다">추후 출시</button></div>
 </div>
 `;}
 function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="TAB='${t}';render()"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join(''); }
