@@ -216,7 +216,13 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .battlefield .actor.enemy img.highres-sprite.enemy-attack{animation:hdCharge .56s ease both}
 .battlefield .actor.enemy img.highres-sprite.enemy-hurt{animation:hdHit .4s ease both}
 @keyframes hdBreath{to{transform:translateY(-5px) scale(1.015)}}@keyframes hdSlash{25%{transform:translateX(-7px) rotate(-4deg)}56%{transform:translateX(26px) rotate(6deg)}100%{transform:none}}@keyframes hdShield{50%{filter:drop-shadow(0 0 18px #76cfff);transform:translateX(8px) scale(1.04)}}@keyframes hdHit{40%{transform:translateX(-12px);filter:brightness(1.8)}}@keyframes hdCharge{50%{transform:translateX(-23px) scale(1.08)}}
-.battlefield{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.regionBadge{margin:5px 0;padding:7px 9px;border:1px solid var(--region-color,#698fb3);border-radius:8px;background:#151823d8;font-size:11px;color:#ead5b5}.regionBadge b{color:#ffdb8c}.battlefield .actor.hero img,.battlefield .actor.enemy img{object-fit:contain;image-rendering:auto;transition:filter .12s ease}.battlefield .actor.hero img{height:210px;max-height:72%}.battlefield .actor.enemy img{height:200px;max-height:71%}.battlefield .actor.hero,.battlefield .actor.enemy{overflow:visible}.elementalCraft{margin:12px 0;padding:12px;background:linear-gradient(120deg,#302c35,#132739);border:1px solid #ca9a56;border-radius:13px;color:#e8d6b5}.elementalCraft strong{color:#fbd58b}.elementalCraft p{font-size:12px;margin:7px 0}.elementalCraft small{display:block;font-size:11px;color:#bcd1de}.elementalCraft button{display:block;width:100%;margin-top:9px}.battleCondition{text-align:center;font-size:11px;color:#c6e5f4;margin-top:7px;padding:5px 8px;background:#16212fd1;border-radius:8px}.battlefield .bar .fill{transition:width .19s linear}</style>
+.battlefield{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.regionBadge{margin:5px 0;padding:7px 9px;border:1px solid var(--region-color,#698fb3);border-radius:8px;background:#151823d8;font-size:11px;color:#ead5b5}.regionBadge b{color:#ffdb8c}.battlefield .actor.hero img,.battlefield .actor.enemy img{object-fit:contain;image-rendering:auto;transition:filter .12s ease}.battlefield .actor.hero img{height:210px;max-height:72%}.battlefield .actor.enemy img{height:200px;max-height:71%}.battlefield .actor.hero,.battlefield .actor.enemy{overflow:visible}.elementalCraft{margin:12px 0;padding:12px;background:linear-gradient(120deg,#302c35,#132739);border:1px solid #ca9a56;border-radius:13px;color:#e8d6b5}.elementalCraft strong{color:#fbd58b}.elementalCraft p{font-size:12px;margin:7px 0}.elementalCraft small{display:block;font-size:11px;color:#bcd1de}.elementalCraft button{display:block;width:100%;margin-top:9px}.battleCondition{text-align:center;font-size:11px;color:#c6e5f4;margin-top:7px;padding:5px 8px;background:#16212fd1;border-radius:8px}.battlefield .bar .fill{transition:width .19s linear}
+.materialVault{padding:11px;border:1px solid #ad854a;border-radius:12px;background:linear-gradient(120deg,#342b25,#131e30);margin:9px 0;color:#ffe4b4}
+.materialVault>strong{font-size:14px}.materialVault>p{font-size:11px;color:#d5bf9d;margin:9px 0 0}.materialVaultGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-top:9px}
+.matSlot{min-width:0;border-radius:9px;background:#131b27a6;text-align:center;padding:5px 3px;border:1px solid #786348}.matSlot img{height:43px;max-width:100%;object-fit:contain}
+.matSlot span{display:block;font-size:9px;line-height:1.3;word-break:keep-all}.matSlot b{display:block;font-size:12px;margin-top:3px;color:#ffdc7d}
+.zoneTag{display:inline-block;color:#c1e8fa;border-radius:6px;background:#27485a;padding:2px 5px;margin-right:4px}
+</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -251,7 +257,7 @@ let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
 const stateInit=()=>({gold:125420,ore:3260,crystals:1850,stage:12,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'auto',materials:{},last:Date.now()});
 let S=stateInit();
 let TAB='던전';
-let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Date.now()+3200,combatFX='',combatDamage=0,combatFxUntil=0,enemyFxUntil=0,enemyPose='idle',bossPatternStep=0,stageRewardUntil=0,stageRewardText='',lastFrameUpdate=0,battleEnemyId='',battleLastPattern='',battlePoisonUntil=0,battleStunUntil=0,lastPoisonTick=0;
+let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Date.now()+3200,combatFX='',combatDamage=0,combatFxUntil=0,enemyFxUntil=0,enemyPose='idle',bossPatternStep=0,stageRewardUntil=0,stageRewardText='',lastFrameUpdate=0,battleEnemyId='',battleLastPattern='',battlePoisonUntil=0,battleStunUntil=0,lastPoisonTick=0,bossSpecialUntil=0;
 let logs=[];
 try{const saved=JSON.parse(localStorage.getItem(K)); if(saved){S={...stateInit(),...saved};}}
 catch(e){}
@@ -294,10 +300,10 @@ function combatStatus(){
  return statuses.join(' · ')||'정상';
 }
 function runBossPattern(name,rawDamage){
- let dmg=rawDamage;
+ let dmg=rawDamage;bossSpecialUntil=Date.now()+900;
  if(name==='회복 젤'){S.enemyHp=Math.min(getEnemyMax(),S.enemyHp+Math.round(getEnemyMax()*.095));stageRewardText='💧 물의 왕이 체력을 회복했습니다';stageRewardUntil=Date.now()+1800;return}
  if(name==='방어 태세'){S.enemyHp=Math.min(getEnemyMax(),S.enemyHp+Math.round(getEnemyMax()*.045));bossGuardUntil=Date.now()+2400;stageRewardText='🪨 골렘 방어 태세 · 받는 피해 감소';stageRewardUntil=Date.now()+2400;return}
- if(name.includes('독')){battlePoisonUntil=Math.max(battlePoisonUntil,Date.now())+4200}
+ if(name.includes('독')){if(Date.now()>=guardActiveUntil)battlePoisonUntil=Math.max(battlePoisonUntil,Date.now())+4200;else{stageRewardText='🛡 독성 공격 방어 성공';stageRewardUntil=Date.now()+1500}}
  if(name==='천둥 포효'){battleStunUntil=Date.now()+1250}
  if(name==='번개 깃털'){takeDamage(Math.round(dmg*.53));takeDamage(Math.round(dmg*.53));return}
  if(name==='연속 할퀴기'){takeDamage(Math.round(dmg*.54));takeDamage(Math.round(dmg*.54));return}
@@ -329,8 +335,8 @@ function updateSpriteFrames(force=false){
  const hero=document.getElementById('heroSprite'),enemy=document.getElementById('enemySprite');
  const phase=now<combatFxUntil?combatFX:'idle';
  const heroPose=phase==='attack'||phase==='strong'?'attack':phase==='hurt'?'hurt':phase==='guard'?'guard':'idle';
- const enemyPoseNow=now<enemyFxUntil?(enemyPose==='hurt'?'hurt':'attack'):enemyAttackAt-now<580?'attack':'idle';
- const who=actorAssetId();setSprite(hero,spriteFrame('hero',heroPose,now),'assets/art/hero.webp');
+ const who=actorAssetId();const enemyPoseNow=now<enemyFxUntil?(enemyPose==='hurt'?'hurt':'attack'):S.boss&&now<bossSpecialUntil&&HD_FRAMES[who]?.special?'special':enemyAttackAt-now<580?'attack':'idle';
+ setSprite(hero,spriteFrame('hero',heroPose,now),'assets/art/hero.webp');
  setSprite(enemy,spriteFrame(who,enemyPoseNow,now),currentEnemyImg());
  if(hero)hero.className='highres-sprite hero-'+phase;
  if(enemy)enemy.className='highres-sprite enemy-'+enemyPoseNow;
@@ -475,7 +481,7 @@ function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100
 ${renderHeader('던전','✦')}
 <div class="panel stagebar"><div class="name">3-${S.stage} ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.kills%4>=1?'cleared':''}"></span><span class="dot ${S.kills%4>=2?'cleared':''}"></span><span class="dot ${S.kills%4>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div><div class="battleCondition" id="battleStatus">${combatStatus()}</div><div class="battleStats">⚔ 공격력 ${totalAtk().toLocaleString()} <span>🛡 방어력 ${totalDef().toLocaleString()}</span><span>❤ 최대 체력 ${getMaxHp().toLocaleString()}</span></div><div class="battleMode"><div><strong>전투 모드</strong><small>${S.battleMode==='manual'?'직접 공격·강타·방어':'스킬과 기본 공격 자동 사용'}</small></div><div class="modeSwitch"><button class="${S.battleMode!=='manual'?'active':''}" onclick="setBattleMode('auto')">자동</button><button class="${S.battleMode==='manual'?'active':''}" onclick="setBattleMode('manual')">수동</button></div></div><div class="enemyMeter"><span id="enemyCharge"></span></div>
-<div class="regionBadge" style="--region-color:${regionInfo().tint}">⛏ 지역 재료 <b>${regionInfo().material} ${S.materials?.[regionInfo().key]||0}개</b> · 보스 ${regionInfo().boss}</div><div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
+<div class="regionBadge" style="--region-color:${regionInfo().tint}"><span class="zoneTag">지역 ${(S.stage-1)%5+1}/5 · ${Math.floor((S.stage-1)/5)+1}순환</span>⛏ 지역 재료 <b>${regionInfo().material} ${S.materials?.[regionInfo().key]||0}개</b> · 보스 ${regionInfo().boss}</div><div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
   <div class="righticons">
     <button class="sideicon" onclick="setBattleMode(S.battleMode==='manual'?'auto':'manual')">⚔<span>${S.battleMode==='manual'?'수동 전투':'자동 전투'}</span></button>
     <div class="sideicon">ℹ️<span>스테이지 정보</span></div>
@@ -609,6 +615,7 @@ function forgePanel(){
 }
 function renderForge(){return `
 ${renderHeader('대장간','⚒️')}
+<div class="materialVault"><strong>지역 재료 보관함</strong><div class="materialVaultGrid">${REGIONS.map((region,i)=>`<div class="matSlot"><img src="assets/materials/${['01','10','08','04','13'][i]}.webp" alt="" loading="lazy"><span>${region.material}<b>${S.materials?.[region.key]||0}개</b></span></div>`).join('')}</div><p>던전 탐험으로 지역 재료를 얻고, 제작 탭에서 속성 장비를 완성하세요.</p></div>
 <div class="forgeTabs" style="margin-bottom:8px">
  ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${x}</button>`).join('')}
 </div>
