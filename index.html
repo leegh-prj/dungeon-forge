@@ -630,7 +630,7 @@ function renderExpansion(){
 function setAutoCraftGoal(level){const n=Number(level);if(!Number.isInteger(n)||n<0||n>6)return;S.autoCraftGoal=n;save();render()}
 function craftToGoal(){
  const goal=S.autoCraftGoal,kind=S.craftTab;
- let attempts=0,kept=0,best=-1,stopped='제작 목표 미달성';
+ let attempts=0,kept=0,best=-1,bestItem=null,stopped='제작 목표 미달성';
  const beforeGold=S.gold,beforeOre=S.ore;
  for(let i=0;i<20;i++){
   const def=recipeDefs.find(x=>x.kind===kind);
@@ -639,13 +639,11 @@ function craftToGoal(){
   const priorSalvage=S.salvagedCount||0;
   const item=craft(kind,true);
   attempts++;
-  if(item){kept++;best=Math.max(best,item.tier);if(item.tier>=goal){stopped='목표 등급 달성';break}}
+  if(item){kept++;if(item.tier>best){best=item.tier;bestItem=item}if(item.tier>=goal){stopped='목표 등급 달성';break}}
   else if((S.salvagedCount||0)===priorSalvage){stopped='제작 중단';break}
  }
  save();render();
- const items=S.inventory.filter(it=>it.kind===kind&&it.tier===best);
- const sample=items[items.length-1];
- if(sample&&stopped==='목표 등급 달성')return showForgeSummary('목표 제작 성공',[sample],attempts+'회 시도 · '+rarityLetter[best]+' 획득');
+ if(bestItem&&stopped==='목표 등급 달성')return showForgeSummary('목표 제작 성공',[bestItem],attempts+'회 시도 · '+rarityLetter[best]+' 획득');
  const modal=document.getElementById('craftModal');modal.className='craftModal';
  modal.innerHTML='<div class="grade">⚒ 목표 제작 결과</div><p class="researchNote">시도 '+attempts+'회 · 보관 '+kept+'개 · '+stopped+'<br>소모 광석 '+(beforeOre-S.ore)+' · 골드 변화 '+(S.gold-beforeGold)+'</p><button onclick="closeCraft()">확인</button>';
  document.getElementById('craftOverlay').classList.add('show');craftOverlayOpen=true;
