@@ -216,7 +216,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .battlefield .actor.enemy img.highres-sprite.enemy-attack{animation:hdCharge .56s ease both}
 .battlefield .actor.enemy img.highres-sprite.enemy-hurt{animation:hdHit .4s ease both}
 @keyframes hdBreath{to{transform:translateY(-5px) scale(1.015)}}@keyframes hdSlash{25%{transform:translateX(-7px) rotate(-4deg)}56%{transform:translateX(26px) rotate(6deg)}100%{transform:none}}@keyframes hdShield{50%{filter:drop-shadow(0 0 18px #76cfff);transform:translateX(8px) scale(1.04)}}@keyframes hdHit{40%{transform:translateX(-12px);filter:brightness(1.8)}}@keyframes hdCharge{50%{transform:translateX(-23px) scale(1.08)}}
-.battlefield{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.regionBadge{margin:5px 0;padding:7px 9px;border:1px solid var(--region-color,#698fb3);border-radius:8px;background:#151823d8;font-size:11px;color:#ead5b5}.regionBadge b{color:#ffdb8c}</style>
+.battlefield{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.regionBadge{margin:5px 0;padding:7px 9px;border:1px solid var(--region-color,#698fb3);border-radius:8px;background:#151823d8;font-size:11px;color:#ead5b5}.regionBadge b{color:#ffdb8c}.battlefield .actor.hero img,.battlefield .actor.enemy img{object-fit:contain;image-rendering:auto;transition:filter .12s ease}.battlefield .actor.hero img{height:210px;max-height:72%}.battlefield .actor.enemy img{height:200px;max-height:71%}.battlefield .actor.hero,.battlefield .actor.enemy{overflow:visible}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -296,12 +296,23 @@ function setBattleMode(v){if(v!=='manual'&&v!=='auto')return;S.battleMode=v;save
 function effectCombat(kind,amount=0){combatFX=kind;combatDamage=Math.ceil(amount);combatFxUntil=Date.now()+650;if(kind==='attack'||kind==='strong'){enemyPose='hurt';enemyFxUntil=Date.now()+420}}
 function displayCombatFX(){if(TAB!=='던전')return;const arena=document.querySelector('.battlefield');if(!arena)return;if(Date.now()<combatFxUntil){arena.classList.add('anim-'+combatFX);const pop=document.getElementById('damageNumber');if(pop)pop.textContent=combatFX==='guard'?'방어 성공':combatFX==='hurt'?'-'+combatDamage:'-'+combatDamage}updateSpriteFrames(true)}
 function spritePath(actor,pose,frame){return 'assets/sprites/'+actor+'/'+pose+'-'+frame+'.svg'}
+const HD_FRAMES={hero:{idle:2,attack:2,guard:1,hurt:1},slime:{idle:2,attack:2,hurt:1},magma:{idle:2,attack:3,hurt:1,special:2},water:{idle:2,attack:2,hurt:1,special:2},poison:{idle:2,attack:2,hurt:1,special:2},storm:{idle:2,attack:2,hurt:1,special:2},earth:{idle:2,attack:2,hurt:1,special:2}};
+function actorAssetId(){if(!S.boss)return regionInfo().key==='water'?'slime':regionInfo().key;return regionInfo().key}
+function spriteFrame(who,pose,now){
+ const length=(HD_FRAMES[who]&&HD_FRAMES[who][pose])||1;
+ return 'assets/hd/'+who+'/'+pose+'-'+Math.floor(now/(pose==='attack'?175:350)%length)+'.webp';
+}
+function setSprite(el,path,fallback){if(!el)return;el.onerror=function(){if(this.getAttribute('src')!==fallback){this.onerror=null;this.src=fallback}};if(el.getAttribute('src')!==path)el.setAttribute('src',path)}
 function updateSpriteFrames(force=false){
- if(TAB!=='던전')return;const now=Date.now();if(!force&&now-lastFrameUpdate<105)return;lastFrameUpdate=now;
+ if(TAB!=='던전')return;const now=Date.now();if(!force&&now-lastFrameUpdate<140)return;lastFrameUpdate=now;
  const hero=document.getElementById('heroSprite'),enemy=document.getElementById('enemySprite');
  const phase=now<combatFxUntil?combatFX:'idle';
- if(hero){hero.className='highres-sprite hero-'+phase}
- if(enemy){enemy.className='highres-sprite enemy-'+(now<enemyFxUntil?enemyPose:enemyAttackAt-now<500?'attack':'idle')}
+ const heroPose=phase==='attack'||phase==='strong'?'attack':phase==='hurt'?'hurt':phase==='guard'?'guard':'idle';
+ const enemyPoseNow=now<enemyFxUntil?(enemyPose==='hurt'?'hurt':'attack'):enemyAttackAt-now<580?'attack':'idle';
+ const who=actorAssetId();setSprite(hero,spriteFrame('hero',heroPose,now),'assets/art/hero.webp');
+ setSprite(enemy,spriteFrame(who,enemyPoseNow,now),currentEnemyImg());
+ if(hero)hero.className='highres-sprite hero-'+phase;
+ if(enemy)enemy.className='highres-sprite enemy-'+enemyPoseNow;
 }
 function attack(auto=false){
  if(!auto&&S.battleMode!=='manual')return;
@@ -427,8 +438,8 @@ ${renderHeader('던전','✦')}
   </div>
   <div class="battleactors">
     <div class="fxslash"></div><div class="waterburst"></div>
-    <div class="actor hero"><img id="heroSprite" src="assets/art/hero.webp" alt="영웅 대기 프레임" draggable="false"><div class="actorname">Lv.32 대장장이</div></div>
-    <div class="actor enemy"><img id="enemySprite" src="${currentEnemyImg()}" alt="몬스터 대기 프레임" draggable="false"><div class="actorname">${currentEnemyName()}</div></div>
+    <div class="actor hero"><img id="heroSprite" src="assets/art/hero.webp" alt="영웅" draggable="false"><div class="actorname">Lv.32 대장장이</div></div>
+    <div class="actor enemy"><img id="enemySprite" src="${currentEnemyImg()}" alt="적 몬스터" draggable="false"><div class="actorname">${currentEnemyName()}</div></div>
   </div>
   <div class="bars">
     <div class="hpbox"><div class="hplabel"><span>Lv.32 대장장이</span><span class="subtxt">${Math.ceil(S.hp)} / ${getMaxHp()}</span></div><div class="bar"><div class="fill" style="width:${hpPct}%"></div></div></div>
