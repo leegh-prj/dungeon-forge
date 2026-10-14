@@ -517,7 +517,7 @@ let forgeMode='제작', forgeSelection=[];
 let inventoryFilter='전체',codexPage=0;
 function setForgeMode(mode){forgeMode=mode;forgeSelection=[];render()}
 function itemStrength(it){return (it.power||0)+(it.defense||0)}
-function itemPlus(it){return Math.max(0,Math.floor(it.level||0))}
+function itemPlus(it){return Math.max(0,Math.floor(it?.level||0))}
 function forgeUsable(){return S.inventory.map((item,index)=>({item,index})).filter(x=>!isEquipped(x.index)&&!isLocked(x.item))}
 function selectForgeItem(index){
   const candidate=S.inventory[index]; if(!candidate||isEquipped(index)||isLocked(candidate))return toast('장착·잠금 장비는 재료로 선택할 수 없습니다');
