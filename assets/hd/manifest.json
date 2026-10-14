@@ -1,0 +1,70 @@
+{
+  "hero": [
+    "assets/hd/hero/idle-0.webp",
+    "assets/hd/hero/idle-1.webp",
+    "assets/hd/hero/run-0.webp",
+    "assets/hd/hero/run-1.webp",
+    "assets/hd/hero/attack-0.webp",
+    "assets/hd/hero/attack-1.webp",
+    "assets/hd/hero/guard-0.webp",
+    "assets/hd/hero/hurt-0.webp"
+  ],
+  "slime": [
+    "assets/hd/slime/idle-0.webp",
+    "assets/hd/slime/idle-1.webp",
+    "assets/hd/slime/attack-0.webp",
+    "assets/hd/slime/attack-1.webp",
+    "assets/hd/slime/hurt-0.webp",
+    "assets/hd/slime/death-0.webp"
+  ],
+  "magma": [
+    "assets/hd/magma/idle-0.webp",
+    "assets/hd/magma/idle-1.webp",
+    "assets/hd/magma/attack-0.webp",
+    "assets/hd/magma/attack-1.webp",
+    "assets/hd/magma/special-0.webp",
+    "assets/hd/magma/special-1.webp",
+    "assets/hd/magma/attack-2.webp",
+    "assets/hd/magma/hurt-0.webp"
+  ],
+  "storm": [
+    "assets/hd/storm/idle-0.webp",
+    "assets/hd/storm/idle-1.webp",
+    "assets/hd/storm/attack-0.webp",
+    "assets/hd/storm/attack-1.webp",
+    "assets/hd/storm/special-0.webp",
+    "assets/hd/storm/special-1.webp",
+    "assets/hd/storm/hurt-0.webp",
+    "assets/hd/storm/death-0.webp"
+  ],
+  "poison": [
+    "assets/hd/poison/idle-0.webp",
+    "assets/hd/poison/idle-1.webp",
+    "assets/hd/poison/attack-0.webp",
+    "assets/hd/poison/special-0.webp",
+    "assets/hd/poison/attack-1.webp",
+    "assets/hd/poison/special-1.webp",
+    "assets/hd/poison/hurt-0.webp",
+    "assets/hd/poison/death-0.webp"
+  ],
+  "earth": [
+    "assets/hd/earth/idle-0.webp",
+    "assets/hd/earth/idle-1.webp",
+    "assets/hd/earth/attack-0.webp",
+    "assets/hd/earth/attack-1.webp",
+    "assets/hd/earth/special-0.webp",
+    "assets/hd/earth/special-1.webp",
+    "assets/hd/earth/hurt-0.webp",
+    "assets/hd/earth/death-0.webp"
+  ],
+  "water": [
+    "assets/hd/water/idle-0.webp",
+    "assets/hd/water/idle-1.webp",
+    "assets/hd/water/attack-0.webp",
+    "assets/hd/water/attack-1.webp",
+    "assets/hd/water/special-0.webp",
+    "assets/hd/water/special-1.webp",
+    "assets/hd/water/hurt-0.webp",
+    "assets/hd/water/death-0.webp"
+  ]
+}
