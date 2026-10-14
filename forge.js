@@ -124,13 +124,22 @@ renderForge=function(){
     '<div class="forgeBanner panel"><div class="smith"></div><div class="speech">좋은 장비는<br>더 멀리 가게 해주지!</div></div>'+
     forgeOperations();
 };
+let equipmentFilter='all';
 renderEquipment=(function(previous){
   return function(){
-    const base=previous();
-    return base.replace(/<div class="subnav"[\s\S]*?<\/div>/,
-      '<div class="subnav">'+['전체','무기','갑옷','방패','반지'].map((name,i)=>'<button class="segbtn '+(equipmentFilter===['all','weapon','armor','shield','ring'][i]?'active':'')+'" onclick="equipmentFilter=\''+['all','weapon','armor','shield','ring'][i]+'\';render()">'+name+'</button>').join('')+'</div>')
-      .replace(/<div class="inventoryGrid">[\s\S]*?<\/div>\s*$/,match=>match);
+    let html=previous();
+    const marker='<div class="subnav"';
+    const start=html.indexOf(marker);
+    if(start<0)return html;
+    html=html.slice(0,start);
+    const categories=[['all','전체'],['weapon','무기'],['armor','갑옷'],['shield','방패'],['ring','반지']];
+    html+='<div class="subnav">'+categories.map(([key,name])=>'<button class="segbtn '+(equipmentFilter===key?'active':'')+'" onclick="equipmentFilter=\''+key+'\';render()">'+name+'</button>').join('')+'</div>';
+    const items=S.inventory.map((it,idx)=>({it,idx})).filter(row=>equipmentFilter==='all'||row.it.kind===equipmentFilter);
+    html+='<div class="inventoryGrid">'+items.map(({it,idx})=>
+      '<div class="invItem"><div class="mini" style="background-image:url('+iconFor(it)+')"><span class="rar '+rarityClass(it.tier)+'">'+rarityLetter[it.tier]+'</span></div><div class="txt">'+it.name+
+      (it.level?' +'+it.level:'')+'<br><span class="'+rarityClass(it.tier)+'">'+it.effect+'</span></div><button onclick="equipItem('+idx+')">'+
+      (isEquipped(idx)?'장착 중':'장착')+'</button></div>').join('')+'</div>';
+    return html;
   };
 })(renderEquipment);
-let equipmentFilter='all';
 render();
