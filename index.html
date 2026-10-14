@@ -192,6 +192,9 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .forgeResults{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:13px 0}.forgeResults>div{display:flex;align-items:center;flex-direction:column;max-width:95px}.forgeResults img{width:74px;height:74px;object-fit:contain;border:2px solid #b28a52;border-radius:9px}.forgeResults small{font-size:10px;margin-top:5px}
 .bulkAction{display:block;width:100%;margin-top:9px;background:linear-gradient(#425d7d,#1d304a);color:#fff2d3;border:1px solid #7397bf;font-weight:900;border-radius:13px;padding:12px}
 .bulkDismantle{margin-top:11px;padding:10px;border:1px solid #8b6b41;border-radius:13px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}.bulkDismantle label{font-size:12px;font-weight:800}.bulkDismantle select{color:#ffe6bd;background:#252935;border:1px solid #9a7a55;border-radius:8px;padding:9px}.bulkDismantle button{flex:1;min-width:130px;font-size:12px}
+
+.battleStats{display:flex;justify-content:space-between;gap:4px;flex-wrap:wrap;border-radius:8px;border:1px solid #ad7a39;background:#161c29;color:#ffe1a3;padding:7px 8px;font-size:10px;font-weight:800}
+.battleStats span{color:#c6e5f7}
 </style>
 </head>
 <body>
@@ -227,7 +230,7 @@ let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
 const stateInit=()=>({gold:125420,ore:3260,crystals:1850,stage:12,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'auto',last:Date.now()});
 let S=stateInit();
 let TAB='던전';
-let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Date.now()+3200,combatFX='',combatDamage=0;
+let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Date.now()+3200,combatFX='',combatDamage=0,combatFxUntil=0;
 let logs=[];
 try{const saved=JSON.parse(localStorage.getItem(K)); if(saved){S={...stateInit(),...saved};}}
 catch(e){}
@@ -257,14 +260,8 @@ function rarityClass(t){return 'r'+t}
 function areaName(){return areaNames[S.stage % areaNames.length]}
 
 function setBattleMode(v){if(v!=='manual'&&v!=='auto')return;S.battleMode=v;save();render()}
-function effectCombat(kind,amount=0){
- combatFX=kind;combatDamage=Math.ceil(amount);
- const arena=document.querySelector('.battlefield');if(!arena)return;
- arena.classList.remove('anim-attack','anim-strong','anim-guard','anim-hurt');
- void arena.offsetWidth;arena.classList.add('anim-'+kind);
- const pop=document.getElementById('damageNumber');
- if(pop)pop.textContent=kind==='guard'?'방어 성공':kind==='hurt'?'-'+combatDamage:'-'+combatDamage;
-}
+function effectCombat(kind,amount=0){combatFX=kind;combatDamage=Math.ceil(amount);combatFxUntil=Date.now()+610}
+function displayCombatFX(){if(TAB!=='던전'||Date.now()>combatFxUntil)return;const arena=document.querySelector('.battlefield');if(!arena)return;arena.classList.add('anim-'+combatFX);const pop=document.getElementById('damageNumber');if(pop)pop.textContent=combatFX==='guard'?'방어 성공':combatFX==='hurt'?'-'+combatDamage:'-'+combatDamage}
 function attack(auto=false){
  if(!auto&&S.battleMode!=='manual')return;
  if(Date.now()<basicReady)return;
@@ -286,13 +283,14 @@ function guard(auto=false){
  guardReady=Date.now()+5500;guardActiveUntil=Date.now()+1600;
  effectCombat('guard');if(!auto)toast('방어 자세!');
 }
-function damageEnemy(d){S.enemyHp-=d;if(S.enemyHp<=0)enemyDown();save();render()}
+function damageEnemy(d){let final=d;if(eq('weapon')?.effect==='화상')final+=Math.max(3,Math.round(totalAtk()*.08));if(eq('ring')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+Math.max(2,Math.floor(final*.04)));if(eq('ring')?.effect==='냉기')enemyAttackAt+=Math.min(180,Math.max(0,3000-(enemyAttackAt-Date.now())));S.enemyHp-=final;if(S.enemyHp<=0)enemyDown();save();render()}
 function takeDamage(base){
  let dmg=base*100/(100+totalDef()),blocked=Date.now()<guardActiveUntil;
  if(blocked){dmg*=0.25;if(S.boss){S.ore+=2;battleFxUntil=Date.now()+1000}}
  if(eq('shield')?.effect==='보호막')dmg*=0.88;
+ if(eq('armor')?.effect==='견고함')dmg*=0.90;
  S.hp-=dmg;effectCombat(blocked?'guard':'hurt',dmg);
- if(eq('ring')?.effect==='반격')S.enemyHp-=10;
+ if(eq('ring')?.effect==='반격')S.enemyHp-=Math.max(10,Math.round(totalDef()*.055));
  if(S.enemyHp<=0)enemyDown();
  if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;toast('패배 · 재화 손실 없이 재도전')}
  save();render();
@@ -327,7 +325,7 @@ function updateBattleHUD(){
  const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/(S.boss?5300:3200))))+'%';
  const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">완벽 방어! 광석 +2</span>':'';
 }
-function craft(kind=S.craftTab,quiet=false){const def=recipeDefs.find(r=>r.kind===kind); const extra=S.focus==='balanced'?0:1; const needOre=def.ore, needCry=def.crystal+extra; if(S.ore<needOre||S.crystals<needCry) return toast('재료가 부족합니다'); S.ore-=needOre; S.crystals-=needCry; const roll=Math.random(); const tier=roll>.99?4:roll>.94?3:roll>.82?2:roll>.57?1:0; const ef=effects[Math.floor(Math.random()*effects.length)]; const item=mkItem(def,tier,ef); if(S.focus==='attack') item.power+=4; if(S.focus==='defense') item.defense+=5; const idx=S.inventory.push(item)-1; discover(item); S.equip[kind]=idx; S.maxHp=getMaxHp(); S.hp=Math.min(S.hp,S.maxHp); if(!quiet){toast(rarityName[tier]+' '+def.name+' 제작!');save();render();showCraft(item)}else{save()} return item;}
+function craft(kind=S.craftTab,quiet=false){const def=recipeDefs.find(r=>r.kind===kind); const extra=S.focus==='balanced'?0:1; const needOre=def.ore, needCry=def.crystal+extra; if(S.ore<needOre||S.crystals<needCry) return toast('재료가 부족합니다'); S.ore-=needOre; S.crystals-=needCry; const roll=Math.random(); const tier=roll>.99?4:roll>.94?3:roll>.82?2:roll>.57?1:0; const ef=effects[Math.floor(Math.random()*effects.length)]; const item=mkItem(def,tier,ef); if(S.focus==='attack') item.power+=4; if(S.focus==='defense') item.defense+=5; const idx=S.inventory.push(item)-1; discover(item); if(S.equip[kind]===null||!eq(kind)||itemStrength(item)>itemStrength(eq(kind)))S.equip[kind]=idx; S.maxHp=getMaxHp(); S.hp=Math.min(S.hp,S.maxHp); if(!quiet){toast(rarityName[tier]+' '+def.name+' 제작!');save();render();showCraft(item)}else{save()} return item;}
 function bulkCraft(count=5){
  const num=Math.max(1,Math.min(10,Number(count)||5)),def=recipeDefs.find(x=>x.kind===S.craftTab);
  if(!def)return;
@@ -373,7 +371,7 @@ function renderHeader(title,icon='✦'){return `<div class="screenheader"><div c
 function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100)); const ePct=Math.max(0,Math.min(100,S.enemyHp/getEnemyMax()*100)); return `
 ${renderHeader('던전','✦')}
 <div class="panel stagebar"><div class="name">3-${S.stage} ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot boss"></span></div></div>
-<div class="battleMode"><div><strong>전투 모드</strong><small>${S.battleMode==='manual'?'직접 공격·강타·방어':'스킬과 기본 공격 자동 사용'}</small></div><div class="modeSwitch"><button class="${S.battleMode!=='manual'?'active':''}" onclick="setBattleMode('auto')">자동</button><button class="${S.battleMode==='manual'?'active':''}" onclick="setBattleMode('manual')">수동</button></div></div><div class="enemyMeter"><span id="enemyCharge"></span></div>
+<div class="battleStats">⚔ 공격력 ${totalAtk().toLocaleString()} <span>🛡 방어력 ${totalDef().toLocaleString()}</span><span>❤ 최대 체력 ${getMaxHp().toLocaleString()}</span></div><div class="battleMode"><div><strong>전투 모드</strong><small>${S.battleMode==='manual'?'직접 공격·강타·방어':'스킬과 기본 공격 자동 사용'}</small></div><div class="modeSwitch"><button class="${S.battleMode!=='manual'?'active':''}" onclick="setBattleMode('auto')">자동</button><button class="${S.battleMode==='manual'?'active':''}" onclick="setBattleMode('manual')">수동</button></div></div><div class="enemyMeter"><span id="enemyCharge"></span></div>
 <div class="battlefield"><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
   <div class="righticons">
     <button class="sideicon" onclick="setBattleMode(S.battleMode==='manual'?'auto':'manual')">⚔<span>${S.battleMode==='manual'?'수동 전투':'자동 전투'}</span></button>
@@ -567,7 +565,7 @@ ${renderHeader('상점','🛒')}
   <div class="shopItem"><h4>장인 패스</h4><p>향후 광고 제거 및 편의 기능으로 확장될 상품 슬롯입니다.</p><button onclick="toast('준비 중인 상품입니다')">준비 중</button></div>
 </div>
 `;}
-function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="TAB='${t}';render()"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join(''); }
+function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="TAB='${t}';render()"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join(''); }
 render();
 setInterval(battleTick,180);
 setInterval(save,10000);
