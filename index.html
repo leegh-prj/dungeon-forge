@@ -334,7 +334,35 @@ const kindLabel={weapon:'무기',armor:'갑옷',shield:'방패',ring:'반지'};
 const kindAsset={weapon:'assets/art/weapons.webp',armor:'assets/art/armors.webp',shield:'assets/art/shields.webp',ring:'assets/art/rings.webp'};
 const effects=['화상','흡혈','보호막','반격','견고함','냉기'];
 const iconDir={weapon:'weapons',armor:'armors',shield:'shields',ring:'rings'};
-function iconFor(item){const t=Math.max(0,Math.min(MAX_TIER,item.tier||0));return 'assets/art/items/'+iconDir[item.kind]+'/'+Math.min(5,t+1)+'.webp'}
+const TIER_METALS=[
+ ['#a2aaba','#5c687d','#e4e9f1'],['#75aa89','#38624d','#c1f6d0'],['#6cbeee','#245989','#b9ecff'],
+ ['#ad88eb','#53357d','#ead3ff'],['#f8b65d','#93521c','#ffedbe'],['#ff88db','#9d327f','#ffe0f6'],['#ffe6a4','#a76b22','#fffcef']
+];
+const ICON_CACHE=new Map();
+function tierArtwork(item){
+ const tier=Math.min(MAX_TIER,Math.max(0,item?.tier||0)),kind=item?.kind||'weapon';
+ // Keep established original illustrations for beginner gear.
+ if(tier<3)return 'assets/art/items/'+(iconDir[kind]||'weapons')+'/'+Math.min(5,tier+1)+'.webp';
+ const key=kind+':'+tier;
+ if(ICON_CACHE.has(key))return ICON_CACHE.get(key);
+ const [light,metal,hi]=TIER_METALS[tier],ornaments=tier>=5?4:tier>=4?3:2;
+ const jewel=tier===6?'#9af5ff':tier===5?'#ffccf2':tier===4?'#fff2ab':'#cb9fff';
+ const defs='<defs><linearGradient id="blade" x1="0" y1="0" x2="1" y2="1"><stop stop-color="'+hi+'"/><stop offset=".44" stop-color="'+light+'"/><stop offset="1" stop-color="'+metal+'"/></linearGradient><radialGradient id="gem"><stop stop-color="#fff"/><stop offset=".27" stop-color="'+jewel+'"/><stop offset=".94" stop-color="'+metal+'"/></radialGradient><filter id="glow" x="-70%" y="-70%" width="240%" height="240%"><feGaussianBlur stdDeviation="3.4"/></filter></defs>';
+ const star='<path d="M0 -15 L4 -4 L15 0 L4 4 L0 15 L-4 4 L-15 0 L-4 -4Z" fill="'+hi+'" stroke="'+metal+'" stroke-width="1.8"/>';
+ const corners=Array.from({length:ornaments},(_,i)=>'<g transform="translate('+(i%2?216:40)+' '+(i<2?47:208)+') scale('+(tier>=5?.65:.42)+')">'+star+'</g>').join('');
+ const gem=(x,y,s=1)=>'<g transform="translate('+x+' '+y+') scale('+s+')"><path d="M0 -16 L13 -3 L9 12 L0 19 L-9 12 L-13 -3Z" fill="url(#gem)" stroke="'+hi+'" stroke-width="3"/><path d="M0 -12 L0 12 M-9 -2 L9 -2" stroke="#fff" opacity=".65" stroke-width="1.8"/></g>';
+ let shape='';
+ if(kind==='weapon')shape='<path d="M128 23 L155 68 L145 159 L128 180 L111 159 L101 68Z" fill="url(#blade)" stroke="'+hi+'" stroke-width="5"/><path d="M128 35 L128 166" stroke="#fff" stroke-width="4" opacity=".64"/><path d="M75 158 L111 151 L128 162 L145 151 L181 158 L176 177 L147 176 L128 189 L109 176 L80 177Z" fill="'+metal+'" stroke="'+hi+'" stroke-width="6"/><rect x="120" y="181" width="16" height="49" rx="5" fill="url(#blade)" stroke="'+hi+'" stroke-width="3"/><path d="M111 232 L145 232 L136 243 L120 243Z" fill="'+hi+'"/>'+gem(128,166,.68)+(tier>=5?'<path d="M80 162 Q45 117 57 92 Q77 129 108 145 M176 162 Q211 117 199 92 Q179 129 148 145" fill="'+metal+'" stroke="'+light+'" stroke-width="5"/>':'');
+ else if(kind==='armor')shape='<path d="M70 65 L103 44 L128 55 L153 44 L186 65 L209 105 L182 134 L181 220 L75 220 L74 134 L47 105Z" fill="url(#blade)" stroke="'+hi+'" stroke-width="6"/><path d="M74 76 Q52 67 33 101 L53 140 L82 124 L91 88Z M182 76 Q204 67 223 101 L203 140 L174 124 L165 88Z" fill="'+metal+'" stroke="'+hi+'" stroke-width="5"/><path d="M99 66 L128 86 L157 66 L171 124 L153 194 L128 216 L103 194 L85 124Z" fill="'+metal+'" stroke="'+light+'" stroke-width="4"/><path d="M105 112 L128 133 L151 112 M107 165 L128 181 L149 165" fill="none" stroke="'+hi+'" stroke-width="5"/>'+gem(128,108,1.05)+(tier>=5?'<path d="M39 96 L18 52 L73 67 M217 96 L238 52 L183 67" fill="'+metal+'" stroke="'+hi+'" stroke-width="4"/>':'');
+ else if(kind==='shield')shape='<path d="M128 26 L213 68 L204 156 Q185 212 128 240 Q71 212 52 156 L43 68Z" fill="url(#blade)" stroke="'+hi+'" stroke-width="7"/><path d="M128 45 L191 78 L184 152 Q170 194 128 221 Q86 194 72 152 L65 78Z" fill="'+metal+'" stroke="'+light+'" stroke-width="5"/><path d="M128 52 V214 M75 122 H181" stroke="'+hi+'" stroke-width="5"/><path d="M85 86 L128 101 L171 86 L155 132 L128 160 L101 132Z" fill="url(#blade)" stroke="'+hi+'" stroke-width="3"/>'+gem(128,124,1.2)+(tier>=5?'<path d="M48 84 L20 56 L38 125 M208 84 L236 56 L218 125" fill="none" stroke="'+light+'" stroke-width="8"/>':'');
+ else shape='<circle cx="128" cy="130" r="77" fill="none" stroke="'+metal+'" stroke-width="35"/><circle cx="128" cy="130" r="77" fill="none" stroke="url(#blade)" stroke-width="22"/><circle cx="128" cy="130" r="51" fill="none" stroke="'+hi+'" stroke-width="4"/><path d="M96 64 L128 25 L160 64 L143 96 L113 96Z" fill="url(#blade)" stroke="'+hi+'" stroke-width="5"/>'+gem(128,57,1.45)+(tier>=5?'<path d="M57 90 L23 80 L59 117 M199 90 L233 80 L197 117" fill="none" stroke="'+hi+'" stroke-width="7"/>':'');
+ const runes=tier>=4?'<circle cx="128" cy="128" r="108" fill="none" stroke="'+light+'" stroke-width="'+(tier>=6?2:1)+'" stroke-dasharray="6 9" opacity=".55"/>':'';
+ const wings=tier===6?'<path d="M74 164 Q15 160 14 96 Q43 120 67 105 M182 164 Q241 160 242 96 Q213 120 189 105" fill="none" stroke="'+hi+'" stroke-width="6" opacity=".7"/>':'';
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">'+defs+'<circle cx="128" cy="128" r="104" fill="'+metal+'" opacity=".15" filter="url(#glow)"/>'+runes+wings+shape+corners+'</svg>';
+ const uri='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
+ ICON_CACHE.set(key,uri);return uri;
+}
+function iconFor(item){return tierArtwork(item)}
 let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
 const stateInit=()=>({gold:125420,ore:3260,crystals:1850,stage:12,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'auto',materials:{},stageKills:null,forgeRegionKey:null,last:Date.now()});
 let S=stateInit();
