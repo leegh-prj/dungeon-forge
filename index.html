@@ -522,30 +522,34 @@ function selectForgeItem(index){
   render();
 }
 // Logarithmic reinforcement curve; all probabilities are in percentage points.
+const MAX_ENHANCEMENT=20;
 function enhancementBaseChance(item){
- const level=Math.min(9,itemPlus(item));
- return Math.round(Math.max(10,100-39*Math.log1p(level))*10)/10;
+ const level=Math.min(MAX_ENHANCEMENT-1,itemPlus(item));
+ const probability=100*Math.exp(-0.95*Math.pow(Math.log1p(level),1.48));
+ return Math.round(probability*100)/100;
 }
 function enhancementPityStep(item){
- return Math.round(4/(1+0.42*Math.min(9,itemPlus(item)))*10)/10;
+ const level=Math.min(MAX_ENHANCEMENT-1,itemPlus(item));
+ return Math.round(250/Math.pow(1+level,.95))/100;
 }
 function enhancementPityCap(item){
- return Math.round(16/(1+0.42*Math.min(9,itemPlus(item)))*10)/10;
+ const level=Math.min(MAX_ENHANCEMENT-1,itemPlus(item));
+ return Math.round(1000/Math.pow(1+level,.95))/100;
+}
+function enhancementPityBonus(item){
+ return Math.min(enhancementPityCap(item),(item?.upgradeFails||0)*enhancementPityStep(item));
 }
 function enhancementChance(item){
- if(!item)return 0;
- if(itemPlus(item)>=10)return 0;
- const base=enhancementBaseChance(item);
- const pity=Math.min(enhancementPityCap(item),(item.upgradeFails||0)*enhancementPityStep(item));
- return Math.round(Math.min(100,base+pity)*10)/10;
+ if(!item||itemPlus(item)>=MAX_ENHANCEMENT)return 0;
+ return Math.round(Math.min(100,enhancementBaseChance(item)+enhancementPityBonus(item))*100)/100;
 }
 function enhancementPreview(item){
- if(!item)return '<div class="forgeChance">강화할 장비를 선택하면 성공 확률이 표시됩니다.</div>';
- if(itemPlus(item)>=10)return '<div class="forgeChance">최대 강화(+10)에 도달했습니다.</div>';
+ if(!item)return '<div class="forgeChance">강화할 장비를 선택하면 성공 확률이 표시됩니다. 최대 +20</div>';
+ if(itemPlus(item)>=MAX_ENHANCEMENT)return '<div class="forgeChance">최대 강화(+20)에 도달했습니다.</div>';
  return '<div class="forgeChance"><b>+'+itemPlus(item)+' → +'+(itemPlus(item)+1)+'</b>'+
- '<strong>성공 확률 '+enhancementChance(item).toFixed(1)+'%</strong>'+
- '<span>기본 '+enhancementBaseChance(item).toFixed(1)+'% · 실패 보정 +'+Math.min(enhancementPityCap(item),(item.upgradeFails||0)*enhancementPityStep(item)).toFixed(1)+'%p</span>'+
- '<small>실패 1회당 +'+enhancementPityStep(item).toFixed(1)+'%p (최대 +'+enhancementPityCap(item).toFixed(1)+'%p) · 고강화일수록 실패 보정 감소</small>'+
+ '<strong>성공 확률 '+enhancementChance(item).toFixed(2)+'%</strong>'+
+ '<span>기본 '+enhancementBaseChance(item).toFixed(2)+'% · 실패 보정 +'+enhancementPityBonus(item).toFixed(2)+'%p</span>'+
+ '<small>실패 1회당 +'+enhancementPityStep(item).toFixed(2)+'%p (최대 +'+enhancementPityCap(item).toFixed(2)+'%p) · 고강화일수록 보정 감소</small>'+
  '<small>실패 시 재료만 소모, 장비/강화 단계 유지 · 성공 시 누적 보정 초기화</small></div>';
 }
 function dismantleCandidateList(){return forgeUsable().filter(x=>dismantleTierFilter==='all'||x.item.tier===Number(dismantleTierFilter)).slice(0,50)}
@@ -570,7 +574,7 @@ function applyDismantle(){
 function forgePrice(mode){
   const a=S.inventory[forgeSelection[0]];
   if(!a)return {ore:0,gold:0,crystals:0};
-  if(mode==='강화')return {ore:12+itemPlus(a)*8,gold:1100+itemPlus(a)*650,crystals:0};
+  if(mode==='강화'){const lv=itemPlus(a),late=Math.max(0,lv-9);return {ore:12+lv*8+late*late*5,gold:1100+lv*650+late*late*450,crystals:late>0?Math.ceil(late/2):0}};
   if(mode==='승급')return {ore:40+a.tier*20,gold:3500+a.tier*2400,crystals:3+a.tier*3};
   if(mode==='합성')return {ore:24+a.tier*14,gold:1800+a.tier*1100,crystals:1+a.tier};
   return {ore:0,gold:0,crystals:0};
@@ -596,7 +600,7 @@ function runForge(){
  if(forgeMode==='강화'){
    if(ids.length!==1)return toast('강화할 장비 한 개를 선택하세요');
    const item=items[0],oldPower=item.power||0,oldDefense=item.defense||0;
-   if(itemPlus(item)>=10)return toast('강화 최대치 +10에 도달했습니다');
+   if(itemPlus(item)>=MAX_ENHANCEMENT)return toast('강화 최대치 +20에 도달했습니다');
    const p=forgePrice('강화');if(!enough(p))return toast('강화 재료가 부족합니다');
    const chance=enhancementChance(item);pay(p);
    if(Math.random()*100>=chance){
@@ -648,7 +652,7 @@ function forgePanel(){
 <button class="primaryBtn" onclick="craft()">🔨 제작하기</button><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>${regionInfo().name} · ${regionInfo().material} 보유 ${S.materials?.[regionInfo().key]||0}개</p><small>지역 재료 4 · 추가 광석 12 · 추가 결정 1</small><button onclick="forgeElemental()">${regionInfo().material}로 속성 제작</button></div>`;
  const need=forgeMode==='분해'?50:forgeMode==='합성'?3:forgeMode==='승급'?2:1;
  const inventory=forgeMode==='분해'?dismantleCandidateList():forgeUsable();
- const info=forgeMode==='강화'?'장비를 강화하여 능력치를 높입니다. 최대 +10까지 강화 가능합니다.':
+ const info=forgeMode==='강화'?'장비를 강화하여 능력치를 높입니다. 최대 +20까지 강화 가능합니다.':
  forgeMode==='분해'?'불필요한 장비를 분해하여 광석과 결정을 회수합니다.':
  forgeMode==='합성'?'같은 부위·등급의 장비 3개를 소모해 다음 등급 장비를 제작합니다.':
  '같은 부위·등급의 장비 2개와 추가 재화로 다음 등급 장비를 얻습니다.';
