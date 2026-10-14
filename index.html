@@ -302,7 +302,7 @@ function spriteFrame(who,pose,now){
  const length=(HD_FRAMES[who]&&HD_FRAMES[who][pose])||1;
  return 'assets/hd/'+who+'/'+pose+'-'+Math.floor(now/(pose==='attack'?175:350)%length)+'.webp';
 }
-function setSprite(el,path,fallback){if(!el)return;el.onerror=function(){if(this.getAttribute('src')!==fallback){this.onerror=null;this.src=fallback}};if(el.getAttribute('src')!==path)el.setAttribute('src',path)}
+const missingHD={};function setSprite(el,path,fallback){if(!el)return;if(missingHD[path]){if(el.getAttribute('src')!==fallback)el.setAttribute('src',fallback);return}el.onerror=function(){missingHD[path]=true;this.onerror=null;this.src=fallback};if(el.getAttribute('src')!==path)el.setAttribute('src',path)}
 function updateSpriteFrames(force=false){
  if(TAB!=='던전')return;const now=Date.now();if(!force&&now-lastFrameUpdate<140)return;lastFrameUpdate=now;
  const hero=document.getElementById('heroSprite'),enemy=document.getElementById('enemySprite');
