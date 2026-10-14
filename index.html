@@ -303,7 +303,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 @keyframes tierSparkle{from{transform:translateY(9px) scale(.6);opacity:.25}to{transform:translateY(-14px) scale(1.35);opacity:1}}
 @keyframes tierItemPop{from{opacity:0;transform:scale(.52) rotate(-8deg)}70%{opacity:1;transform:scale(1.07)}to{opacity:1;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.tierReveal *,.tierGear:before{animation:none!important}}
-.forgeStatCompare{display:grid;gap:7px;margin:13px 0}.forgeCompareRow{display:grid;grid-template-columns:1.2fr .7fr .8fr .6fr;align-items:center;gap:6px;border:1px solid #6e5a42;border-radius:9px;background:#1e202b;padding:10px 7px;font-size:11px;text-align:left}.forgeCompareRow del{color:#98949b}.forgeCompareRow b{color:#fff6d4;font-size:13px}.forgeCompareRow strong{color:#89ebae;text-align:right}.equipmentDetail{--tier-color:#f1e0a2;background:radial-gradient(circle at 50% 25%,rgba(var(--tier-rgb),.26),#1d1921 80%)!important;border:2px solid var(--tier-color)!important;max-width:380px}.gearDetailArt{width:164px;height:164px;margin:12px auto;border-radius:24px;border:2px solid var(--tier-color);background:radial-gradient(circle,rgba(var(--tier-rgb),.32),#171a29);display:grid;place-items:center;box-shadow:0 0 20px rgba(var(--tier-rgb),.36)}.gearDetailArt img{width:95%;height:95%;object-fit:contain}.gearCompareTitle{font-size:12px;margin:10px 0;color:#e5d7a9}.gearCompare{display:grid;gap:6px}.gearCompareLine{display:grid;grid-template-columns:1fr .6fr .8fr .6fr;gap:6px;align-items:center;padding:9px 7px;border-radius:8px;background:#121620a6;font-size:11px}.gearCompareLine strong.plus{color:#8de4ac}.gearCompareLine strong.minus{color:#ff9999}.gearCompareLine b{color:#f7eaca}.gearCompareHint{font-size:10px;color:#cbc2af}.gearDetailActions{display:flex;gap:10px}.gearDetailActions button{flex:1;padding:12px;border-radius:10px}.gearDetailActions button:last-child{background:linear-gradient(110deg,var(--tier-color),#c6aa65);color:#171523;font-weight:bold}.inventoryGrid .invItem>button{font-size:11px}</style>
+.forgeStatCompare{display:grid;gap:7px;margin:13px 0}.forgeCompareRow{display:grid;grid-template-columns:1.2fr .7fr .8fr .6fr;align-items:center;gap:6px;border:1px solid #6e5a42;border-radius:9px;background:#1e202b;padding:10px 7px;font-size:11px;text-align:left}.forgeCompareRow del{color:#98949b}.forgeCompareRow b{color:#fff6d4;font-size:13px}.forgeCompareRow strong{color:#89ebae;text-align:right}.equipmentDetail{--tier-color:#f1e0a2;background:radial-gradient(circle at 50% 25%,rgba(var(--tier-rgb),.26),#1d1921 80%)!important;border:2px solid var(--tier-color)!important;max-width:380px}.gearDetailArt{width:164px;height:164px;margin:12px auto;border-radius:24px;border:2px solid var(--tier-color);background:radial-gradient(circle,rgba(var(--tier-rgb),.32),#171a29);display:grid;place-items:center;box-shadow:0 0 20px rgba(var(--tier-rgb),.36)}.gearDetailArt img{width:95%;height:95%;object-fit:contain}.gearCompareTitle{font-size:12px;margin:10px 0;color:#e5d7a9}.gearCompare{display:grid;gap:6px}.gearCompareLine{display:grid;grid-template-columns:1fr .6fr .8fr .6fr;gap:6px;align-items:center;padding:9px 7px;border-radius:8px;background:#121620a6;font-size:11px}.gearCompareLine strong.plus{color:#8de4ac}.gearCompareLine strong.minus{color:#ff9999}.gearCompareLine b{color:#f7eaca}.gearCompareHint{font-size:10px;color:#cbc2af}.gearDetailActions{display:flex;gap:10px}.gearDetailActions button{flex:1;padding:12px;border-radius:10px}.gearDetailActions button:last-child{background:linear-gradient(110deg,var(--tier-color),#c6aa65);color:#171523;font-weight:bold}.inventoryGrid .invItem>button{font-size:11px}.equipmentSets{margin:12px 0;padding:12px;border:1px solid #6387a0;border-radius:14px;background:#142431}.setLine{padding:10px 0;border-top:1px solid #ffffff17}.setLine strong{color:#ebddb7;font-size:12px}.setLine strong small{color:#9ac4de}.setLine>div{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.setLine span{font-size:10px;padding:6px;border:1px solid #535965;color:#77818d;border-radius:6px}.setLine span.unlocked{color:#ffe7a0;border-color:#daa953;background:#64462b52}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -386,9 +386,32 @@ function cryptoRandom(){return Math.random().toString(36).slice(2)+Date.now().to
 function save(){S.last=Date.now();localStorage.setItem(K,JSON.stringify(S));}
 function toast(t){logs.unshift(t);logs=logs.slice(0,3);const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1700); save(); render();}
 function eq(kind){return S.equip[kind]!==null?S.inventory[S.equip[kind]]:null}
-function totalAtk(){return 120+(eq('weapon')?.power||0)+(eq('ring')?.power||0)+S.stage*8}
-function totalDef(){return 60+(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)+S.stage*12}
-function getMaxHp(){return 1280+(eq('armor')?.defense||0)*6+(eq('shield')?.defense||0)*3+S.stage*20}
+function totalAtk(){return 120+(eq('weapon')?.power||0)+(eq('ring')?.power||0)+S.stage*8+setBonuses().atk}
+function totalDef(){return 60+(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)+S.stage*12+setBonuses().def}
+function getMaxHp(){return 1280+(eq('armor')?.defense||0)*6+(eq('shield')?.defense||0)*3+S.stage*20+setBonuses().hp}
+const SET_NAMES={water:'물결의 수호자',poison:'늪지의 포식자',storm:'천둥의 군주',fire:'용암의 지배자',earth:'고대의 수호자'};
+function equippedSetCounts(){
+ const counts={};
+ ['weapon','armor','shield','ring'].forEach(k=>{const id=eq(k)?.infusion;if(id&&SET_NAMES[id])counts[id]=(counts[id]||0)+1});
+ return counts;
+}
+function setBonuses(){
+ const groups=equippedSetCounts(),result={atk:0,def:0,hp:0,damage:0,mitigation:0,active:[]};
+ for(const [key,count] of Object.entries(groups)){
+  if(count>=2){result.active.push(key+'2');if(key==='fire')result.atk+=24;else if(key==='storm')result.atk+=18;else if(key==='poison')result.damage+=.04;else if(key==='earth')result.def+=32;else result.hp+=180}
+  if(count>=4){result.active.push(key+'4');if(key==='fire')result.damage+=.08;else if(key==='storm')result.damage+=.06;else if(key==='poison')result.atk+=48;else if(key==='earth')result.mitigation+=.08;else result.hp+=400}
+ }
+ return result;
+}
+function renderSetPanel(){
+ const groups=equippedSetCounts();
+ return '<div class="equipmentSets"><div class="sectiontitle">✦ 속성 장비 세트 효과</div><p class="hint">같은 속성을 2부위 또는 4부위 장착하면 보너스가 활성화됩니다.</p>'+
+ Object.entries(SET_NAMES).map(([key,name])=>{
+ const count=groups[key]||0;
+ const description=key==='fire'?['공격력 +24','추가 피해 +8%']:key==='storm'?['공격력 +18','추가 피해 +6%']:key==='poison'?['추가 피해 +4%','공격력 +48']:key==='earth'?['방어력 +32','받는 피해 -8%']:['최대 체력 +180','최대 체력 +400'];
+ return '<div class="setLine"><strong>'+name+' <small>'+count+'/4</small></strong><div><span class="'+(count>=2?'unlocked':'')+'">2세트 '+description[0]+'</span><span class="'+(count>=4?'unlocked':'')+'">4세트 '+description[1]+'</span></div></div>';
+ }).join('')+'</div>';
+}
 function getEnemyMax(){return 880+S.stage*25+(S.boss?520:0)}
 const REGIONS=[
 {name:'물의 성당',key:'water',enemy:'왕관 슬라임',boss:'물의 왕 슬라임',material:'물의 결정',tint:'#368ec6',background:'assets/art/dungeon.webp',patterns:[['물방울 돌진',1],['파도 밀치기',1.3],['회복 젤',.6]]},
@@ -507,9 +530,9 @@ function guard(auto=false){
  guardReady=Date.now()+5500;guardActiveUntil=Date.now()+1600;
  effectCombat('guard');if(!auto)toast('방어 자세!');
 }
-function damageEnemy(d){let final=d;if(eq('weapon')?.tier===MAX_TIER)final=Math.round(final*1.12);if(eq('ring')?.tier===MAX_TIER)S.hp=Math.min(getMaxHp(),S.hp+Math.max(1,Math.round(final*.05)));if(eq('weapon')?.effect==='화상')final+=Math.max(3,Math.round(totalAtk()*.08));if(eq('weapon')?.effect==='번개')final+=Math.round(totalAtk()*.10);if(eq('weapon')?.effect==='독')final+=Math.round(totalAtk()*.06);if(eq('ring')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+Math.max(2,Math.floor(final*.04)));if(eq('ring')?.effect==='냉기')enemyAttackAt+=Math.min(180,Math.max(0,3000-(enemyAttackAt-Date.now())));if(Date.now()<bossGuardUntil&&S.boss)final=Math.round(final*.45);S.enemyHp-=final;if(S.enemyHp<=0){enemyDown()}else{refreshCombatNumbers();updateSpriteFrames(true)}save()}
+function damageEnemy(d){let final=d;final=Math.round(final*(1+setBonuses().damage));if(eq('weapon')?.tier===MAX_TIER)final=Math.round(final*1.12);if(eq('ring')?.tier===MAX_TIER)S.hp=Math.min(getMaxHp(),S.hp+Math.max(1,Math.round(final*.05)));if(eq('weapon')?.effect==='화상')final+=Math.max(3,Math.round(totalAtk()*.08));if(eq('weapon')?.effect==='번개')final+=Math.round(totalAtk()*.10);if(eq('weapon')?.effect==='독')final+=Math.round(totalAtk()*.06);if(eq('ring')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+Math.max(2,Math.floor(final*.04)));if(eq('ring')?.effect==='냉기')enemyAttackAt+=Math.min(180,Math.max(0,3000-(enemyAttackAt-Date.now())));if(Date.now()<bossGuardUntil&&S.boss)final=Math.round(final*.45);S.enemyHp-=final;if(S.enemyHp<=0){enemyDown()}else{refreshCombatNumbers();updateSpriteFrames(true)}save()}
 function takeDamage(base){
- let dmg=base*100/(100+totalDef()),blocked=Date.now()<guardActiveUntil;
+ let dmg=base*100/(100+totalDef())*(1-setBonuses().mitigation),blocked=Date.now()<guardActiveUntil;
  if(blocked){dmg*=0.25;if(S.boss){S.ore+=2;battleFxUntil=Date.now()+1000}}
  if(eq('shield')?.effect==='보호막')dmg*=0.88;
  if(eq('armor')?.effect==='견고함')dmg*=0.90;if(eq('armor')?.tier===MAX_TIER)dmg*=.92;if(eq('shield')?.tier===MAX_TIER)dmg*=.90;
@@ -966,6 +989,7 @@ ${renderHeader('장비','🛡️')}
   <div class="statrow"><span>🛡 방어력</span><span>${totalDef().toLocaleString()} <span class="up">(+${(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)})</span></span></div>
   <div class="statrow"><span>❤ 체력</span><span>${getMaxHp().toLocaleString()} <span class="up">(+${getMaxHp()-1280})</span></span></div>
 </div>
+${renderSetPanel()}
 ${renderLegendaryAchievements()}
 <div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
 <div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}"><div class="mini" style="background-image:url('${iconFor(it)}')"><span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div><button onclick="openEquipmentDetails(${idx})">상세</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>
