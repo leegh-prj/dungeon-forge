@@ -144,6 +144,20 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .elementPills{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
 .elementPills span{padding:6px 9px;border:1px solid #9c783d;border-radius:99px;background:#241f26;color:#f7ddb3;font-weight:900;font-size:12px}
 .researchNote{font-size:12px;color:#e4ca9f;line-height:1.6}
+
+/* Interactive blacksmith systems */
+.forgeTabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}
+.forgeTabs .segbtn{font-size:12px;min-width:0;padding:10px 2px}
+.forgeOperations{padding:12px 2px}
+.forgeOpsHead{display:flex;justify-content:space-between;gap:8px;color:#f5dcaa;font-size:13px;margin:10px 0}
+.forgeList{max-height:380px;overflow-y:auto;display:grid;gap:7px;padding:3px}
+.forgeRow{width:100%;display:flex;align-items:center;gap:9px;text-align:left;padding:7px;background:linear-gradient(#313541,#171a22);color:#ffe8c5;border:1px solid #977046;border-radius:12px;box-shadow:none;min-height:66px}
+.forgeRow img{width:50px;height:50px;object-fit:contain;background:#151620;border-radius:8px}
+.forgeRow span{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.forgeRow small{font-size:11px}.forgeRow strong{font-size:18px}
+.forgeRow.chosen{border:2px solid #ffbb61;background:linear-gradient(#56402e,#241c20);box-shadow:0 0 13px #ed9e4e44}
+.forgeRow.equipped{opacity:.8}
+.forgeOpsCost{font-size:13px;color:#ffe0a4;padding:13px 4px}
 </style>
 </head>
 <body>
@@ -324,5 +338,6 @@ setInterval(save,10000);
 window.addEventListener('beforeunload',save);
 document.addEventListener('visibilitychange',()=>document.hidden&&save());
 </script>
+<script src="forge.js"></script>
 </body>
 </html>
