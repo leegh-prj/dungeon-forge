@@ -266,7 +266,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 @keyframes legendFloat{from{opacity:.2;transform:translateY(14px)}to{opacity:1;transform:translateY(-30px)}}
 @keyframes legendStar{50%{filter:brightness(1.7);transform:scale(1.2)}}
 @media(prefers-reduced-motion:reduce){.legendaryReveal *,.legendaryCard::before{animation:none!important}}
-</style>
+.legendAchievement{margin:12px 0;padding:12px;background:linear-gradient(125deg,#271b22,#30281c);border:1px solid #b99452;border-radius:14px}.legendAchievementRows{display:grid;gap:7px}.legendAchievementRow{display:flex;align-items:center;gap:8px;background:#151821b0;border:1px solid #5d5447;border-radius:9px;padding:8px}.legendAchievementRow.unlocked{border-color:#d9bc70;background:#352b1e}.legendAchievementRow>span{font-size:21px}.legendAchievementRow>div{flex:1;min-width:0}.legendAchievementRow strong{display:block;font-size:12px;color:#ffe3aa}.legendAchievementRow small{font-size:10px;color:#d4c6af}.legendAchievementRow>b{font-size:10px;color:#ffd679}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -528,7 +528,7 @@ function bulkCraft(count=5){
  save();render();showForgeSummary('일괄 제작 완료',made,'제작 '+made.length+'개 · 광석 -'+(beforeOre-S.ore)+' · 결정 -'+(beforeCry-S.crystals));
 }
 function showForgeSummary(title,items,detail){
- const legend=items.find(it=>it?.tier===MAX_TIER);if(legend)return showLegendaryCutscene(legend,detail);
+ const legend=items.find(it=>it?.tier===MAX_TIER);if(legend&&/제작|합성|승급/.test(title))return showLegendaryCutscene(legend,detail);
  craftOverlayOpen=true;
  document.getElementById('craftModal').innerHTML=`<span class="beam">✦ ⚒ ✦</span><div class="grade">${title}</div><div class="forgeResults">${items.map(it=>`<div><img src="${iconFor(it)}" alt=""><small class="${rarityClass(it.tier)}">${rarityLetter[it.tier]} ${it.name}${itemPlus(it)?' +'+itemPlus(it):''}</small></div>`).join('')}</div><p class="researchNote">${detail}</p><button onclick="closeCraft()">확인</button>`;
  document.getElementById('craftOverlay').classList.add('show');
@@ -782,6 +782,15 @@ ${forgePanel()}
 
 function slotImage(kind){const item=eq(kind); return item?item.img:''}
 function slotBadge(kind){const item=eq(kind); return item?rarityLetter[item.tier]:'잠금'}
+function renderLegendaryAchievements(){
+ const achievements=S.achievements||[];
+ const defs=[
+  ['legendary_first','전설의 시작','L 장비 최초 획득','결정 50 · 골드 100,000'],
+  ['legendary_master','전설 수집가','L 장비 4부위 수집','결정 100'],
+  ['legendary_max','장인의 극한','L 장비 +20 달성','결정 150']
+ ];
+ return '<div class="legendAchievement"><div class="sectiontitle">✦ 레전드 업적</div><div class="legendAchievementRows">'+defs.map(([id,title,desc,prize])=>'<div class="legendAchievementRow '+(achievements.includes(id)?'unlocked':'')+'"><span>'+(achievements.includes(id)?'🏆':'🔒')+'</span><div><strong>'+title+'</strong><small>'+desc+' · '+prize+'</small></div><b>'+(achievements.includes(id)?'완료':'미달성')+'</b></div>').join('')+'</div></div>';
+}
 function renderEquipment(){const all=filteredInventory(); return `
 ${renderHeader('장비','🛡️')}
 <div class="charwrap">
@@ -803,6 +812,7 @@ ${renderHeader('장비','🛡️')}
   <div class="statrow"><span>🛡 방어력</span><span>${totalDef().toLocaleString()} <span class="up">(+${(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)})</span></span></div>
   <div class="statrow"><span>❤ 체력</span><span>${getMaxHp().toLocaleString()} <span class="up">(+${getMaxHp()-1280})</span></span></div>
 </div>
+${renderLegendaryAchievements()}
 <div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
 <div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem ${it.tier===MAX_TIER?'legendaryCard':''}"><div class="mini" style="background-image:url('${iconFor(it)}')"><span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>
 `;}
