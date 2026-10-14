@@ -216,7 +216,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
 .battlefield .actor.enemy img.highres-sprite.enemy-attack{animation:hdCharge .56s ease both}
 .battlefield .actor.enemy img.highres-sprite.enemy-hurt{animation:hdHit .4s ease both}
 @keyframes hdBreath{to{transform:translateY(-5px) scale(1.015)}}@keyframes hdSlash{25%{transform:translateX(-7px) rotate(-4deg)}56%{transform:translateX(26px) rotate(6deg)}100%{transform:none}}@keyframes hdShield{50%{filter:drop-shadow(0 0 18px #76cfff);transform:translateX(8px) scale(1.04)}}@keyframes hdHit{40%{transform:translateX(-12px);filter:brightness(1.8)}}@keyframes hdCharge{50%{transform:translateX(-23px) scale(1.08)}}
-</style>
+.battlefield{background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important}.regionBadge{margin:5px 0;padding:7px 9px;border:1px solid var(--region-color,#698fb3);border-radius:8px;background:#151823d8;font-size:11px;color:#ead5b5}.regionBadge b{color:#ffdb8c}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -248,7 +248,7 @@ const effects=['화상','흡혈','보호막','반격','견고함','냉기'];
 const iconDir={weapon:'weapons',armor:'armors',shield:'shields',ring:'rings'};
 function iconFor(item){const t=Math.max(0,Math.min(5,item.tier||0));return 'assets/art/items/'+iconDir[item.kind]+'/'+Math.min(5,t+1)+'.webp'}
 let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
-const stateInit=()=>({gold:125420,ore:3260,crystals:1850,stage:12,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'auto',last:Date.now()});
+const stateInit=()=>({gold:125420,ore:3260,crystals:1850,stage:12,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'auto',materials:{},last:Date.now()});
 let S=stateInit();
 let TAB='던전';
 let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Date.now()+3200,combatFX='',combatDamage=0,combatFxUntil=0,enemyFxUntil=0,enemyPose='idle',bossPatternStep=0,stageRewardUntil=0,stageRewardText='',lastFrameUpdate=0;
@@ -273,12 +273,24 @@ function totalAtk(){return 120+(eq('weapon')?.power||0)+(eq('ring')?.power||0)+S
 function totalDef(){return 60+(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)+S.stage*12}
 function getMaxHp(){return 1280+(eq('armor')?.defense||0)*6+(eq('shield')?.defense||0)*3+S.stage*20}
 function getEnemyMax(){return 880+S.stage*25+(S.boss?520:0)}
-function currentEnemyName(){return S.boss?'마그마 슬라임':'왕관 슬라임'}
+const REGIONS=[
+{name:'물의 성당',key:'water',enemy:'왕관 슬라임',boss:'물의 왕 슬라임',material:'물의 결정',tint:'#368ec6',background:'assets/art/dungeon.webp',patterns:[['물방울 돌진',1],['파도 밀치기',1.3],['회복 젤',.6]]},
+{name:'독성 늪지',key:'poison',enemy:'포자 정령',boss:'독성 버섯 군주',material:'독 포자',tint:'#5f9c38',background:'assets/art/dungeon.webp',patterns:[['독 포자 분사',.85],['버섯 폭발',1.4],['독안개',.75]]},
+{name:'폭풍 첨탑',key:'storm',enemy:'번개 정령',boss:'전격 석조 그리핀',material:'전격 깃털',tint:'#6664c6',background:'assets/art/dungeon.webp',patterns:[['전격 강하',1.4],['번개 깃털',1.1],['천둥 포효',.85]]},
+{name:'용암 제련소',key:'fire',enemy:'마그마 젤',boss:'마그마 슬라임',material:'용암 광석',tint:'#d46b30',background:'assets/art/forge.webp',patterns:[['용암 내려찍기',1.6],['화염 충격파',1.1],['연속 할퀴기',1.25]]},
+{name:'고대 마도 유적',key:'earth',enemy:'석금 파수병',boss:'석금 마도 골렘',material:'마도 광석',tint:'#af864d',background:'assets/art/dungeon.webp',patterns:[['암석 분쇄',1.65],['마력 포격',1.2],['방어 태세',.75]]}
+];
+function getStageData(stage){return REGIONS[(Math.max(1,stage)-1)%REGIONS.length]}
+function regionInfo(){return getStageData(S.stage)}
+function currentEnemyName(){return S.boss?regionInfo().boss:regionInfo().enemy}
 function currentEnemyImg(){return S.boss?'assets/art/magma.webp':'assets/art/slime.webp'}
+function getBossPattern(){return regionInfo().patterns[bossPatternStep%3]}
+function rollBattleRewards(boss){const scale=1+Math.floor(Math.max(1,S.stage)/5)*.12;return {gold:Math.round((boss?360:68)*scale),ore:Math.round((boss?46:11)*scale),crystals:boss?4:(Math.random()<.17?1:0),type:regionInfo().key,quantity:boss?6:1+Math.floor(Math.random()*2)}}
+function awardBattleRewards(boss){const reward=rollBattleRewards(boss);S.gold+=reward.gold;S.ore+=reward.ore;S.crystals+=reward.crystals;S.materials=S.materials||{};S.materials[reward.type]=(S.materials[reward.type]||0)+reward.quantity;return reward}
 function discover(item){const key=[item.kind,item.name,item.tier,item.effect].join('|'); if(!S.discovered.includes(key)) S.discovered.push(key)}
 function progressRate(){return Math.min(100,Math.round(S.discovered.length/150*100))}
 function rarityClass(t){return 'r'+t}
-function areaName(){return areaNames[S.stage % areaNames.length]}
+function areaName(){return regionInfo().name}
 
 function setBattleMode(v){if(v!=='manual'&&v!=='auto')return;S.battleMode=v;save();render()}
 function effectCombat(kind,amount=0){combatFX=kind;combatDamage=Math.ceil(amount);combatFxUntil=Date.now()+650;if(kind==='attack'||kind==='strong'){enemyPose='hurt';enemyFxUntil=Date.now()+420}}
@@ -325,10 +337,10 @@ function takeDamage(base){
  save();render();
 }
 function enemyDown(){
- S.gold+=520+S.stage*32;S.ore+=22+Math.floor(S.stage/3);S.crystals+=S.boss?8:1;S.kills++;
+ const reward=awardBattleRewards(S.boss);S.kills++;
  if(eq('weapon')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+80);
- if(S.boss){S.stage++;S.boss=false;S.crystals+=5;S.ore+=35;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 스테이지 정복! 결정 +5 · 광석 +35';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
- else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ 몬스터 보상 획득 · '+(S.kills%4)+'/4 진행';toast('몬스터 처치! 재료 획득');if(S.kills%4===0){S.boss=true;bossPatternStep=0;toast('보스 등장! 공격 예고를 확인하세요')}}
+ if(S.boss){S.stage++;S.boss=false;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 스테이지 정복! '+reward.quantity+'개 지역 재료 · 광석 +'+reward.ore;bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
+ else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ '+regionInfo().material+' +'+reward.quantity+' · '+(S.kills%4)+'/4 진행';toast('몬스터 처치! 재료 획득');if(S.kills%4===0){S.boss=true;bossPatternStep=0;toast('보스 등장! 공격 예고를 확인하세요')}}
  S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;
  enemyAttackAt=Date.now()+(S.boss?5100:3200);pendingBossAttack=enemyAttackAt;save();render();
 }
@@ -342,10 +354,10 @@ function battleTick(){
  if(now>=enemyAttackAt){
    enemyPose='attack';enemyFxUntil=now+500;
    if(S.boss){
-     const pattern=bossPatternStep%3;
-     const dmg=(pattern===0?235:pattern===1?145:185)+S.stage*(pattern===0?9:7);
-     takeDamage(dmg);
-     if(pattern===1){S.hp=Math.min(getMaxHp(),S.hp+Math.round(totalDef()*.07))}
+     const [name,power]=getBossPattern();const damage=Math.round((135+S.stage*8)*power);
+     if(name==='회복 젤'||name==='방어 태세')S.enemyHp=Math.min(getEnemyMax(),S.enemyHp+Math.round(getEnemyMax()*.07));
+     else if(name==='번개 깃털'){takeDamage(Math.round(damage*.56));takeDamage(Math.round(damage*.56))}
+     else{takeDamage(damage);if(name.includes('독'))S.hp=Math.max(1,S.hp-Math.round(12+S.stage*2))}
      bossPatternStep++;
    }else takeDamage(90+S.stage*5);
    enemyAttackAt=Date.now()+(S.boss?5300:3200);pendingBossAttack=enemyAttackAt;
@@ -356,7 +368,7 @@ function updateBattleHUD(){
  if(TAB!=='던전')return;
  const now=Date.now(),remain=Math.max(0,enemyAttackAt-now);
  const al=document.getElementById('combatAlert');
- if(al){al.style.display='block';al.classList.toggle('danger',remain<1250);const pattern=S.boss?['🔥 용암 내려찍기','💥 화염 충격파','⚡ 연속 할퀴기'][bossPatternStep%3]:'⚔ 슬라임 돌진';al.textContent=remain<1250?'⚠ '+pattern+' 임박! 방어!':pattern+'까지 '+(remain/1000).toFixed(1)+'초'}
+ if(al){al.style.display='block';al.classList.toggle('danger',remain<1250);const pattern=S.boss?'⚠ '+getBossPattern()[0]:'⚔ '+regionInfo().enemy+' 돌진';al.textContent=remain<1250?'⚠ '+pattern+' 임박! 방어!':pattern+'까지 '+(remain/1000).toFixed(1)+'초'}
  for(const [id,at] of [['attackTimer',basicReady],['strikeTimer',strikeReady],['guardTimer',guardReady]]){const el=document.getElementById(id);if(el)el.textContent=now>=at?'준비 완료':Math.ceil((at-now)/1000)+'초'}
  const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/(S.boss?5300:3200))))+'%';
  const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">완벽 방어! 광석 +2</span>':'';const reward=document.getElementById('stageRewardNote');if(reward)reward.style.display=now<stageRewardUntil?'block':'none';
@@ -408,7 +420,7 @@ function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100
 ${renderHeader('던전','✦')}
 <div class="panel stagebar"><div class="name">3-${S.stage} ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.kills%4>=1?'cleared':''}"></span><span class="dot ${S.kills%4>=2?'cleared':''}"></span><span class="dot ${S.kills%4>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div><div class="battleStats">⚔ 공격력 ${totalAtk().toLocaleString()} <span>🛡 방어력 ${totalDef().toLocaleString()}</span><span>❤ 최대 체력 ${getMaxHp().toLocaleString()}</span></div><div class="battleMode"><div><strong>전투 모드</strong><small>${S.battleMode==='manual'?'직접 공격·강타·방어':'스킬과 기본 공격 자동 사용'}</small></div><div class="modeSwitch"><button class="${S.battleMode!=='manual'?'active':''}" onclick="setBattleMode('auto')">자동</button><button class="${S.battleMode==='manual'?'active':''}" onclick="setBattleMode('manual')">수동</button></div></div><div class="enemyMeter"><span id="enemyCharge"></span></div>
-<div class="battlefield"><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
+<div class="regionBadge" style="--region-color:${regionInfo().tint}">⛏ 지역 재료 <b>${regionInfo().material} ${S.materials?.[regionInfo().key]||0}개</b> · 보스 ${regionInfo().boss}</div><div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
   <div class="righticons">
     <button class="sideicon" onclick="setBattleMode(S.battleMode==='manual'?'auto':'manual')">⚔<span>${S.battleMode==='manual'?'수동 전투':'자동 전투'}</span></button>
     <div class="sideicon">ℹ️<span>스테이지 정보</span></div>
