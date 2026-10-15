@@ -495,6 +495,32 @@ body{position:fixed;inset:0;overflow:hidden!important}
  .dungeonCombatPage .combatSkill{height:75px!important}
  .inventoryGrid,.codexGrid{max-height:57dvh}
 }
+
+/* Day29: three focused equipment views and crafting first-fold controls */
+.equipmentPages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:5px 0 10px}
+.equipmentPages button{min-height:44px;min-width:0;touch-action:manipulation;font-size:clamp(10px,2.7vw,13px);padding:7px 3px}
+.equipmentJump{display:flex;justify-content:center;margin:10px 0}
+.equipmentJump button{width:100%;max-width:320px;min-height:44px;border-radius:9px;background:linear-gradient(100deg,#7b552b,#44321f);color:#fff0cf;font-weight:800}
+.storageTabs.equipmentPages{margin:5px 0 11px}
+.forgeRates{margin:5px 0}.forgeRates .rarityLadder{margin:0 4px}
+.forgeExtras{margin:8px 0}
+.forgeExtras .uxDisclosureBody{padding:5px 8px 12px}
+.forgeExtras .craftGoal{margin:5px 0}
+.forgeExtras .elementalCraft{margin:8px 0}
+.forgeTabs{margin-bottom:6px!important}
+.forgePanel .cardsRow,.cardsRow{justify-content:start}
+.cardsRow:has(> .equipCard:only-child){grid-template-columns:minmax(0,min(47%,180px));justify-content:center}
+.inventoryGrid{max-height:calc(100dvh - var(--nav-height,68px) - 225px);min-height:0}
+.warehouseGrid{max-height:calc(100dvh - var(--nav-height,68px) - 160px)}
+@media(max-width:599px){
+ .charwrap{grid-template-columns:clamp(56px,18vw,82px) minmax(0,1fr) clamp(56px,18vw,82px)}
+ .charstage{min-height:clamp(125px,21dvh,180px)}
+ .slot{height:clamp(48px,9dvh,65px)}
+ .statsBox{padding:8px;margin-top:6px}
+ .statrow{font-size:12px;margin:4px 0}
+ .cardsRow:has(> .equipCard:only-child){grid-template-columns:minmax(0,min(42%,155px))}
+ .inventoryGrid{max-height:calc(100dvh - var(--nav-height,68px) - 235px)}
+}
 </style>
 </head>
 <body>
@@ -1000,10 +1026,10 @@ function renderStorageControls(){
  const v=storageCapacity();
  return '<div class="storagePanel"><strong>🎒 장비 보관 · 가방 '+v.bag+'/'+v.bagMax+' · 창고 '+v.warehouse+'/'+v.warehouseMax+'</strong><p class="hint">가방이 가득 차면 창고에 신규 장비를 보관합니다.</p><label>신규 장비 자동 분해 <select onchange="setAutoSalvageTier(this.value)">'+[{value:-1,name:'사용 안 함'},...rarityName.slice(0,3).map((n,i)=>({value:i,name:n+' 이하'}))].map(o=>'<option value="'+o.value+'" '+(S.autoSalvageTier===o.value?'selected':'')+'>'+o.name+'</option>').join('')+'</select></label><p class="hint">새로 만든 미강화 일반 장비만 해당 · S 이상과 기존 보유 장비는 보호 · 누적 '+(S.salvagedCount||0)+'개</p></div>';
 }
-let storageTab='bag';
-function setStorageTab(value){if(value==='bag'||value==='warehouse'){storageTab=value;render()}}
+let storageTab='loadout';
+function setStorageTab(value){if(['loadout','bag','warehouse'].includes(value)){storageTab=value;render();const pane=document.getElementById('screen');if(pane)pane.scrollTop=0}}
 function renderWarehouse(){
- return '<div class="storageTabs"><button class="segbtn '+(storageTab==='bag'?'active':'')+'" onclick="setStorageTab(\'bag\')">🎒 가방</button><button class="segbtn '+(storageTab==='warehouse'?'active':'')+'" onclick="setStorageTab(\'warehouse\')">📦 창고</button></div>'+
+ return '<div class="storageTabs equipmentPages" role="group" aria-label="장비 화면"><button class="segbtn '+(storageTab==='loadout'?'active':'')+'" onclick="setStorageTab(\'loadout\')">⚔ 착용</button><button class="segbtn '+(storageTab==='bag'?'active':'')+'" onclick="setStorageTab(\'bag\')">🎒 가방 '+S.inventory.length+'</button><button class="segbtn '+(storageTab==='warehouse'?'active':'')+'" onclick="setStorageTab(\'warehouse\')">📦 창고 '+S.warehouse.length+'</button></div>'+
  (storageTab==='warehouse'?'<div class="warehouseGrid">'+(S.warehouse.length?S.warehouse.map((it,i)=>'<div class="warehouseItem tierGear tierGear'+it.tier+'"><img src="'+iconFor(it)+'" alt=""><div><strong>'+it.name+'</strong><small>'+rarityLetter[it.tier]+' · +'+itemPlus(it)+' · '+it.effect+'</small></div><button onclick="moveToBag('+i+')">가방으로</button></div>').join(''):'<p class="hint">보관 중인 장비가 없습니다.</p>')+'</div>':'');
 }
 function forgeElemental(){
@@ -1397,7 +1423,7 @@ function forgePanel(){
  if(forgeMode==='제작')return `
 ${introActive()&&S.intro.step===1?'<div class="introCraftGift">🎁 첫 무기 제작 · 고급 B 등급 확정 지급</div>':''}
 <div class="categoryTabs" style="margin:10px 0">${['weapon','armor','shield','ring'].map(k=>`<button class="segbtn ${S.craftTab===k?'active':''}" onclick="S.craftTab='${k}';render()">${kindLabel[k]}</button>`).join('')}</div>
-<div class="cardsRow">${recipeDefs.map(d=>recipeCard(d,d.kind===S.craftTab?6:2)).join('')}</div><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS 0.048% · L 0.002% 제작 확률</small></div>
+<div class="cardsRow">${recipeDefs.filter(d=>d.kind===S.craftTab).map(d=>recipeCard(d,6)).join('')}</div><details class="uxDisclosure forgeRates"><summary>등급별 확률 확인</summary><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS 0.048% · L 0.002% 제작 확률</small></div></details>
 <div class="sectiontitle" style="margin-top:14px">제작 집중 옵션</div>
 <div class="focusGrid">
  <div class="focusBox ${S.focus==='balanced'?'active neutral':''}" onclick="S.focus='balanced';render()"><strong>균형</strong><div class="tiny muted">균형 잡힌 능력치</div></div>
@@ -1405,7 +1431,7 @@ ${introActive()&&S.intro.step===1?'<div class="introCraftGift">🎁 첫 무기 �
  <div class="focusBox ${S.focus==='defense'?'active blue':''}" onclick="S.focus='defense';render()"><strong>방어</strong><div class="tiny muted">방어력 증가</div></div>
 </div>
 <div class="costRow"><span>⛏ ${recipeDefs.find(r=>r.kind===S.craftTab).ore} / 💎 ${recipeDefs.find(r=>r.kind===S.craftTab).crystal+(S.focus==='balanced'?0:1)}</span><span class="muted">${kindLabel[S.craftTab]} 제작</span></div>
-<button class="primaryBtn" onclick="craft()">🔨 제작하기</button><div class="craftGoal"><label>목표 등급 <select onchange="setAutoCraftGoal(this.value)">${rarityLetter.map((n,i)=>`<option value="${i}" ${S.autoCraftGoal===i?'selected':''}>${n} 이상</option>`).join('')}</select></label><button onclick="craftToGoal()">⚒ 목표 등급까지 제작 (최대 20회)</button><small>설정한 등급에 도달하거나 재료·공간이 부족하면 즉시 중단합니다. 성공 확률은 일반 제작과 같습니다.</small></div><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>탐험으로 모은 재료를 지역에 상관없이 사용할 수 있습니다.</p><div class="elementSelect">${REGIONS.map(r=>`<button class="elementChip ${forgeRegion().key===r.key?'selected':''}" onclick="selectForgeRegion('${r.key}')"><img src="assets/materials/${({water:'01',poison:'10',storm:'08',fire:'04',earth:'13'})[r.key]}.webp" alt=""><span>${r.material}</span><b>${S.materials?.[r.key]||0}</b></button>`).join('')}</div><p>${forgeRegion().name} 속성 부여 · 보유 <b>${S.materials?.[forgeRegion().key]||0}개</b></p><small>선택 재료 4개 · 일반 제작비 + 광석 12 · 결정 1</small><button onclick="forgeElemental()" ${(S.materials?.[forgeRegion().key]||0)<4?'disabled':''}>${forgeRegion().material}로 속성 장비 제작</button></div>`;
+<button class="primaryBtn" onclick="craft()">🔨 제작하기</button><details class="uxDisclosure forgeExtras"><summary>⚒ 연속 제작·속성 제작</summary><div class="uxDisclosureBody"><div class="craftGoal"><label>목표 등급 <select onchange="setAutoCraftGoal(this.value)">${rarityLetter.map((n,i)=>`<option value="${i}" ${S.autoCraftGoal===i?'selected':''}>${n} 이상</option>`).join('')}</select></label><button onclick="craftToGoal()">⚒ 목표 등급까지 제작 (최대 20회)</button><small>설정한 등급에 도달하거나 재료·공간이 부족하면 즉시 중단합니다. 성공 확률은 일반 제작과 같습니다.</small></div><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>탐험으로 모은 재료를 지역에 상관없이 사용할 수 있습니다.</p><div class="elementSelect">${REGIONS.map(r=>`<button class="elementChip ${forgeRegion().key===r.key?'selected':''}" onclick="selectForgeRegion('${r.key}')"><img src="assets/materials/${({water:'01',poison:'10',storm:'08',fire:'04',earth:'13'})[r.key]}.webp" alt=""><span>${r.material}</span><b>${S.materials?.[r.key]||0}</b></button>`).join('')}</div><p>${forgeRegion().name} 속성 부여 · 보유 <b>${S.materials?.[forgeRegion().key]||0}개</b></p><small>선택 재료 4개 · 일반 제작비 + 광석 12 · 결정 1</small><button onclick="forgeElemental()" ${(S.materials?.[forgeRegion().key]||0)<4?'disabled':''}>${forgeRegion().material}로 속성 장비 제작</button></div></div></details>`;
  const need=forgeMode==='분해'?50:forgeMode==='합성'?3:forgeMode==='승급'?2:1;
  const inventory=forgeMode==='분해'?dismantleCandidateList():forgeUsable();
  const info=forgeMode==='강화'?'장비를 강화하여 능력치를 높입니다. 최대 +20까지 강화 가능합니다.':
@@ -1502,7 +1528,7 @@ ${renderHeader('장비','🛡️')}
 ${renderIntro()}
 ${renderIntroEquip()}
 ${renderWarehouse()}
-${storageTab==='bag'?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
+${storageTab==='loadout'?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
   <div class="slotcol">
     <div class="slot">${eq('weapon')?`<img src="${iconFor(eq('weapon'))}"><span class="slotlabel">${rarityLetter[eq('weapon').tier]}</span>`:'무기'}</div>
     <div class="slot">${eq('ring')?`<img src="${iconFor(eq('ring'))}"><span class="slotlabel">${rarityLetter[eq('ring').tier]}</span>`:'반지'}</div>
@@ -1523,9 +1549,10 @@ ${storageTab==='bag'?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets
 </div>
 ${compactPanel('✦ 속성 세트 효과',renderSetPanel(),false,'uxSet')}
 ${compactPanel('🏆 업적 현황',renderLegendaryAchievements(),false,'uxAchievement')}
-<div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
+<div class="equipmentJump"><button onclick="setStorageTab('bag')">🎒 보유 장비 관리 →</button></div>`:''}
+${storageTab==='bag'?`<div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
 <div class="inventoryTools"><label>장비 찾기<input type="search" placeholder="이름·등급·속성 검색" value="${inventorySearch.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}" oninput="filterInventoryCards(this.value)"></label><label>정렬<select onchange="sortInventory(this.value)">${[['tier','등급 높은 순'],['power','능력치 높은 순'],['level','강화 높은 순'],['newest','최근 획득 순'],['oldest','오래된 순']].map(([v,l])=>`<option value="${v}" ${inventorySort===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="inventoryCount">표시 장비 <strong id="inventoryVisibleCount">${all.length}</strong>개 / 가방 ${S.inventory.length}개</div><div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" data-search="${[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"><div class="mini" style="background-image:url('${iconFor(it)}')"><span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div><button onclick="openEquipmentDetails(${idx})">상세</button><button onclick="moveToWarehouse(${idx})" ${isEquipped(idx)?'disabled':''}>보관</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>`:''}
-${compactPanel('🎒 보관 현황·확장·자동 분해',renderStorageControls()+renderExpansion(),false,'uxStorage')}
+${storageTab==='warehouse'?compactPanel('🎒 창고 확장 및 자동 분해 설정',renderStorageControls()+renderExpansion(),false,'uxStorage'):''}
 `;}
 function setCodexCollectionFilter(v){codexCollectionFilter=v;codexPage=0;render()}
 function codexSlots(kind){
