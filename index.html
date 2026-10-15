@@ -444,6 +444,57 @@ body{width:100%;min-width:0;overflow-x:clip}
 }
 @media(hover:hover) and (pointer:fine){.nav button:hover,.introQuest button:hover,.craftJourney button:hover{filter:brightness(1.14)}}
 @media(prefers-reduced-motion:reduce){.nav button,.craftModal{transition:none!important}}
+
+/* Day 28: stable viewport shell and two-page dungeon. Scrolling limited to active content pane. */
+html,body{height:100%;min-height:100%;overflow:hidden!important;overscroll-behavior:none}
+body{position:fixed;inset:0;overflow:hidden!important}
+#app{height:100vh;height:100dvh;min-height:0;max-height:100dvh;display:flex;flex-direction:column;overflow:hidden;padding-bottom:calc(var(--nav-height,68px) + env(safe-area-inset-bottom,0px) + 6px)}
+.topbrand{flex:none}
+.screen{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;overflow:hidden!important}
+#screen{flex:1 1 auto;min-height:0;max-height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#7e6446 transparent;touch-action:pan-y}
+.dungeonCombatPage[hidden],.dungeonTasksPage[hidden]{display:none!important}
+.dungeonSwitcher{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:3px 0 8px}
+.dungeonSwitcher button{border:1px solid #745d42;border-radius:10px;min-width:0;min-height:42px;background:#171e2b;color:#d9c7ac;font-weight:800;font-size:12px;touch-action:manipulation}
+.dungeonSwitcher button.active{background:linear-gradient(130deg,#916231,#46321f);color:#fff0cd;border-color:#f2b968}
+.taskDot{color:#ffe082;font-size:11px;margin-left:2px}
+.dungeonCombatPage{min-height:0}
+.dungeonCombatPage .battlefield{min-height:clamp(165px,26dvh,250px)!important}
+.dungeonCombatPage .combatActions.manualSticky{position:relative;bottom:auto;z-index:1}
+.dungeonCombatPage .combatSkill{height:clamp(50px,8dvh,70px)!important}
+.dungeonCombatPage .battleMode{margin:4px 0}
+.dungeonCombatPage .regionBadge{margin:3px 0!important}
+.dungeonCombatPage .combatInstruction{margin:4px 0}
+.dungeonTasksPage .uxDisclosure{margin:7px 0}
+.dungeonTasksPage .uxDisclosure[open]>.uxDisclosureBody{padding-bottom:9px}
+.forgeItemGrid,.warehouseGrid{max-height:min(49dvh,500px);overflow-y:auto;overscroll-behavior:contain}
+.inventoryGrid{max-height:min(48dvh,510px);overflow-y:auto;overscroll-behavior:contain;align-content:start}
+.codexGrid{max-height:min(53dvh,540px);overflow-y:auto;overscroll-behavior:contain}
+@media(max-width:599px){
+ .dungeonCombatPage .battlefield{min-height:clamp(150px,25dvh,225px)!important}
+ .dungeonCombatPage .battlefield .actor.hero img,.dungeonCombatPage .battlefield .actor.enemy img{height:clamp(105px,19dvh,160px)!important}
+ .dungeonCombatPage .combatSkill{height:clamp(48px,8dvh,61px)!important}
+ .dungeonCombatPage .introQuest{margin:3px 0}
+ .inventoryGrid{max-height:42dvh}
+}
+@media(max-height:680px){
+ .dungeonCombatPage .battlefield{min-height:clamp(128px,23dvh,174px)!important}
+ .dungeonCombatPage .battlefield .actor.hero img,.dungeonCombatPage .battlefield .actor.enemy img{height:clamp(88px,16dvh,120px)!important}
+ .dungeonCombatPage .battleMode small{display:none}
+ .dungeonCombatPage .regionBadge{display:none}
+ .dungeonCombatPage .combatInstruction{display:none}
+ .dungeonSwitcher button{min-height:38px}
+}
+@media(orientation:landscape) and (max-height:550px){
+ .dungeonCombatPage .battlefield{min-height:135px!important}
+ .dungeonCombatPage .combatSkill{height:44px!important}
+ .dungeonCombatPage .battleMode{padding:3px}
+ .dungeonTasksPage{padding-bottom:12px}
+}
+@media(min-width:900px){
+ .dungeonCombatPage .battlefield{min-height:clamp(270px,40dvh,440px)!important}
+ .dungeonCombatPage .combatSkill{height:75px!important}
+ .inventoryGrid,.codexGrid{max-height:57dvh}
+}
 </style>
 </head>
 <body>
@@ -1146,9 +1197,21 @@ function bossGuide(){
  const isHeal=next[0]==='회복 젤';
  return '<div class="bossGuide"><span>⚠ 다음 보스 패턴</span><strong>'+next[0]+'</strong><small>'+(isGuard?'방어 태세 중에는 공격 효율이 떨어집니다.':'')+(isHeal?'회복 패턴입니다. 강타로 빠르게 압박하세요.':!isGuard?'공격 예고가 뜨면 방어 스킬을 활용하세요.':'')+'</small></div>';
 }
+let dungeonPanel='fight';
+function setDungeonPanel(panel){
+ if(panel!=='fight'&&panel!=='tasks')return;
+ dungeonPanel=panel;render();
+ const content=document.getElementById('screen');if(content)content.scrollTop=0;
+}
+function renderDungeonTabs(){
+ const hasRewards=!!S.offlinePending||S.attendance.day!==dailyKey()||dailyClaimableCount()>0;
+ return '<div class="dungeonSwitcher" role="group" aria-label="던전 화면"><button aria-pressed="'+(dungeonPanel==='fight')+'" class="'+(dungeonPanel==='fight'?'active':'')+'" onclick="setDungeonPanel(\'fight\')">⚔ 전투</button><button aria-pressed="'+(dungeonPanel==='tasks')+'" class="'+(dungeonPanel==='tasks'?'active':'')+'" onclick="setDungeonPanel(\'tasks\')">🎁 보상·제작'+(hasRewards?' <span class="taskDot">●</span>':'')+'</button></div>';
+}
 function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100)); const ePct=Math.max(0,Math.min(100,S.enemyHp/getEnemyMax()*100)); return `
 ${renderHeader('던전','✦')}
 ${renderIntro()}
+${renderDungeonTabs()}
+<div class="dungeonCombatPage" ${dungeonPanel==='fight'?'':'hidden'}>
 ${bossGuide()}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div>
@@ -1177,11 +1240,13 @@ ${bossGuide()}
 <div class="battleMode"><div><strong>전투 모드</strong><small>${S.battleMode==='manual'?'직접 공격·강타·방어':'스킬과 기본 공격 자동 사용'}</small></div><div class="modeSwitch"><button class="${S.battleMode!=='manual'?'active':''}" onclick="setBattleMode('auto')">자동</button><button class="${S.battleMode==='manual'?'active':''}" onclick="setBattleMode('manual')">수동</button></div></div>
 <div class="regionBadge" style="--region-color:${regionInfo().tint}"><span class="zoneTag">지역 ${(S.stage-1)%5+1}/5 · ${Math.floor((S.stage-1)/5)+1}순환</span>⛏ 지역 재료 <b>${regionInfo().material} ${S.materials?.[regionInfo().key]||0}개</b> · 보스 ${regionInfo().boss}</div>
 <p class="combatInstruction">${S.battleMode==='manual'?'공격을 직접 누르고 적의 공격 예고에 맞춰 방어하세요.':'자동 모드는 일반 공격과 스킬을 상황에 맞춰 사용합니다.'}</p>
+</div><div class="dungeonTasksPage" ${dungeonPanel==='tasks'?'':'hidden'}>
 ${compactPanel('⚒ 지역 제작 · '+(S.materials?.[regionInfo().key]||0)+'/4',renderCraftJourney(),nextCraftGoal().ready,'uxQuest')}
 ${compactPanel('🧭 지역 속성 공략',`<div class="regionAffinity">${currentRegionAffinity().count>=2?`<strong>✦ ${regionInfo().name} 공명 활성</strong><span>피해 +6%${currentRegionAffinity().count>=4?' · 받는 피해 -4%':''}</span>`:`<span>같은 지역 속성 장비 2개 장착 시 피해 +6%</span>`}</div>`,false,'uxStrategy')}
 ${S.offlinePending?renderOfflineReward():''}
 ${S.attendance.day!==dailyKey()?compactPanel('🎁 오늘의 출석 보상',renderAttendance(),false,'uxAttendance'):''}
 ${compactPanel('📅 일일 임무 · 수령 가능 '+dailyClaimableCount()+'개',renderDaily(),false,'uxDaily')}
+</div>
 `;}
 
 /* Forge systems: persisted upgrades, safe dismantle, fusion and promotion */
