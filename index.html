@@ -329,7 +329,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
  .battlefield{min-height:210px!important}
  .combatSkill{height:55px!important}
 }
-</style>
+.introEquipQuick{display:flex;align-items:center;gap:9px;margin:8px 0;padding:9px;border-radius:11px;border:1px solid #d6aa57;background:linear-gradient(95deg,#393024,#1b2535)}.introEquipQuick img{width:52px;height:52px;object-fit:contain;background:#111c26;border-radius:8px}.introEquipQuick>div{flex:1;min-width:0}.introEquipQuick strong{font-size:12px;display:block;color:#ffe1a0}.introEquipQuick small{font-size:10px;display:block;color:#d5c2a5}.introEquipQuick button{min-height:42px;padding:8px 12px;border-radius:8px;background:#b2813e;color:#fff3db;font-weight:900}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -433,6 +433,13 @@ function renderIntro(){
  if(!introActive())return '';
  const step=S.intro.step,part=INTRO_STEPS[step];
  return '<section class="introQuest"><div class="introTop"><strong>첫 모험 가이드</strong><span>'+(step+1)+'/4</span></div><div class="introTicks">'+INTRO_STEPS.map((_,i)=>'<i class="'+(i<=step?'on':'')+'"></i>').join('')+'</div><strong>'+part.title+'</strong><p>'+part.tip+'</p><button onclick="introNavigate()">'+(part.tab===TAB?'진행 중':'→ '+part.tab+'으로 이동')+'</button></section>';
+}
+function renderIntroEquip(){
+ if(!introActive()||S.intro.step!==2)return '';
+ const index=S.inventory.findIndex(it=>it.id===S.intro.craftedId);
+ if(index<0)return '<p class="hint">제작한 장비가 가방에 없습니다. 창고에서 찾아 가방으로 이동해 주세요.</p>';
+ const item=S.inventory[index];
+ return '<div class="introEquipQuick"><img src="'+iconFor(item)+'" alt=""><div><strong>방금 만든 장비 장착</strong><small>'+rarityLetter[item.tier]+' · '+item.name+' · '+item.effect+'</small></div><button onclick="equipItem('+index+')">장착</button></div>';
 }
 function seedStarterItems(){
   const starters=[
@@ -1027,7 +1034,7 @@ function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100
 ${renderHeader('던전','✦')}
 ${renderIntro()}
 ${bossGuide()}
-<div class="panel stagebar"><div class="name">3-${S.stage} ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
+<div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div><div class="battleCondition" id="battleStatus">${combatStatus()}</div><div class="battleStats">⚔ 공격력 ${totalAtk().toLocaleString()} <span>🛡 방어력 ${totalDef().toLocaleString()}</span><span>❤ 최대 체력 ${getMaxHp().toLocaleString()}</span></div><div class="enemyMeter"><span id="enemyCharge"></span></div>
 <div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
   <div class="righticons">
@@ -1309,6 +1316,7 @@ function openEquipmentDetails(index){
 function renderEquipment(){const all=filteredInventory(); return `
 ${renderHeader('장비','🛡️')}
 ${renderIntro()}
+${renderIntroEquip()}
 ${renderWarehouse()}
 ${storageTab==='bag'?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
   <div class="slotcol">
