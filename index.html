@@ -579,8 +579,8 @@ function takeDamage(base){
 }
 function enemyDown(){
  const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;const pass=normalizePass();pass.xp=Math.min(100,pass.xp+(S.boss?5:1));
- const reward=awardBattleRewards(S.boss);S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
- if(eq('weapon')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+80);
+ const wasBoss=S.boss;const reward=awardBattleRewards(S.boss);S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
+ if(eq('weapon')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+80);introAdvance(wasBoss?'boss':'kill');
  if(S.boss){S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 스테이지 정복! '+reward.quantity+'개 지역 재료 · 광석 +'+reward.ore;bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
  else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
  S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;
@@ -833,8 +833,8 @@ function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  if(S.focus==='attack')item.power+=4;if(S.focus==='defense')item.defense+=5;
  const destination=storeNewItem(item,skipAuto);
  if(destination==='full'){S.ore+=needOre;S.crystals+=needCry;return toast('보관 공간이 부족합니다')}
- discover(item);
- if(destination==='bag'){const idx=S.inventory.length-1;if(S.equip[kind]===null||!eq(kind)||itemStrength(item)>itemStrength(eq(kind)))S.equip[kind]=idx}
+ discover(item);if(destination!=='salvaged')introAdvance('craft',item);
+ if(destination==='bag'){const idx=S.inventory.length-1;if(!introActive()){if(S.equip[kind]===null||!eq(kind)||itemStrength(item)>itemStrength(eq(kind)))S.equip[kind]=idx}}
  S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);
  if(!quiet){
   if(destination==='salvaged'){toast(rarityName[tier]+' 자동 분해 완료');save();render()}
@@ -932,7 +932,7 @@ function showLegendaryCutscene(item,detail=''){
 function closeLegendaryCutscene(){closeCraft()}
 function showCraft(item){if(item)return showTierReward(item);craftOverlayOpen=true;document.getElementById('craftModal').innerHTML=`<span class="beam">⚒ ✦</span><div class="grade ${rarityClass(item.tier)}">${rarityName[item.tier]} 제작 성공!</div><img class="craftedIcon" src="${iconFor(item)}" alt="제작된 장비"><div style="font-weight:900">${item.name}</div><p class="researchNote">특수 효과: ${item.effect}<br>공격 +${item.power} · 방어 +${item.defense}</p><button onclick="closeCraft()">확인</button>`;document.getElementById('craftOverlay').classList.add('show')}
 function closeCraft(){craftOverlayOpen=false;clearTimeout(legendaryVisualTimer);const overlay=document.getElementById('craftOverlay');overlay.classList.remove('show','legendaryReveal','legendaryReady','tierReveal');document.getElementById('craftModal').className='craftModal';document.getElementById('craftModal').style.removeProperty('--tier-color');document.getElementById('craftModal').style.removeProperty('--tier-rgb');document.body.classList.remove('legendaryLocked','tierLocked')}
-function equipItem(index){const it=S.inventory[index];if(!it)return toast('장비 없음');if(isEquipped(index)){S.equip[it.kind]=null;toast(it.name+' 장착 해제')}else{S.equip[it.kind]=index;toast(it.name+' 장착')}S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);save();render()}
+function equipItem(index){const it=S.inventory[index];if(!it)return toast('장비 없음');if(isEquipped(index)){S.equip[it.kind]=null;toast(it.name+' 장착 해제')}else{S.equip[it.kind]=index;introAdvance('equip',it);toast(it.name+' 장착')}S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);save();render()}
 function setInventoryFilter(v){inventoryFilter=v;render()}
 function filteredInventory(){
  const types={무기:'weapon',갑옷:'armor',방패:'shield',반지:'ring'};
