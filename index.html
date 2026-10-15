@@ -1117,6 +1117,7 @@ function showTierReward(item,detail='',title='제작 완료'){
  '<div class="tierResultName">'+item.name+'</div>'+
  '<p class="tierResultEffect">✦ '+item.effect+' · 공격 '+(item.power||0)+' · 방어 '+(item.defense||0)+'</p>'+
  '<p class="tierResultDetail">'+(detail||title)+'</p>'+
+ craftedEquipButton(item)+
  '<button class="tierResultConfirm" onclick="closeCraft()">확인</button>';
  overlay.classList.add('show','tierReveal');
  overlay.setAttribute('aria-label',rarityName[item.tier]+' 등급 장비 획득');
@@ -1147,7 +1148,7 @@ function showLegendaryCutscene(item,detail=''){
  <div class="legendaryIconFrame"><img src="${iconFor(item)}" alt="${item.name}"></div>
  <h2 class="legendaryHeading">${item.name}</h2><p class="legendaryPassive">✧ ${legendaryPassive(item)}</p>
  <p class="legendaryDetails">${item.firstLegendary?'🏆 최초 L 획득! 골드 +100,000 · 결정 +50':detail||'최고 등급 장비 획득'}</p>
- <button class="legendaryConfirm" onclick="closeLegendaryCutscene()">전설 장비 확인</button>
+ ${craftedEquipButton(item)}<button class="legendaryConfirm" onclick="closeLegendaryCutscene()">전설 장비 확인</button>
  <button class="legendarySkip" onclick="closeLegendaryCutscene()">연출 건너뛰기</button>`;
  overlay.classList.add('show','legendaryReveal');
  overlay.setAttribute('aria-label','레전드 등급 장비 획득');
@@ -1600,19 +1601,44 @@ function buyTokenOffer(id){
  if(offer.regional){const k=regionInfo().key;S.materials[k]=(S.materials[k]||0)+offer.regional}
  save();render();toast(offer.name+' 구매 완료');
 }
+let shopSection='exchange';
+function setShopSection(value){
+ if(!['exchange','journey','future'].includes(value))return;
+ shopSection=value;render();const pane=document.getElementById('screen');if(pane)pane.scrollTop=0;
+}
+function renderShopNav(){
+ return '<div class="compactNav" role="group" aria-label="상점 메뉴">'+
+ [['exchange','✧ 별빛 교환'],['journey','🎖 장인 여정'],['future','🔒 준비 중']].map(([v,label])=>
+ '<button class="'+(shopSection===v?'active':'')+'" aria-pressed="'+(shopSection===v)+'" onclick="setShopSection(\''+v+'\')">'+label+'</button>').join('')+'</div>';
+}
+function equipCraftedById(id){
+ const index=S.inventory.findIndex(item=>item.id===id);
+ if(index<0)return toast('장비가 가방에 없습니다. 창고를 확인해 주세요');
+ const item=S.inventory[index];
+ if(isEquipped(index)){closeCraft();return toast('이미 장착 중인 장비입니다')}
+ closeCraft();equipItem(index);
+}
+function craftedEquipButton(item){
+ if(!item||!item.id)return '';
+ const index=S.inventory.findIndex(it=>it.id===item.id);
+ if(index<0)return S.warehouse.some(it=>it.id===item.id)?'<p class="hint">📦 창고에 보관된 장비입니다.</p>':'';
+ if(isEquipped(index))return '<p class="craftEquipped">✓ 자동 장착 완료</p>';
+ return '<button class="craftQuickEquip" onclick="equipCraftedById(\''+item.id+'\')">⚔ 지금 장착하기</button>';
+}
 function renderShop(){return `
 ${renderHeader('상점','🛒')}
-${renderPass()}
-<div class="shopHero"><div class="msg">✧ 별빛 상점<br><small>오늘의 도전으로 획득한 별빛 ${S.premiumTokens.toLocaleString()}개</small></div></div>
-<div class="shopIntro">별빛은 <strong>게임 플레이로 획득하는 재화</strong>이며 실제 돈으로 구매할 수 없습니다. 확장권·재료 상품을 게임 내에서 교환할 수 있습니다.</div>
-<div class="shopGrid">
-${TOKEN_OFFERS.map(o=>`<div class="shopItem"><h4>${o.name}</h4><p>${o.detail}</p><button ${S.premiumTokens<o.cost?'disabled':''} onclick="buyTokenOffer('${o.id}')">✧ ${o.cost}개 교환</button></div>`).join('')}
-</div>
-<div class="monetizationRoadmap"><div class="sectiontitle">출시 예정 상품</div>
- <div class="shopItem"><h4>광고 보상 부스터</h4><p>광고 시청 후 재화를 추가 지급하는 보상형 광고 슬롯입니다. 광고 SDK 미연동 상태로 아직 이용할 수 없습니다.</p><button disabled>광고 연동 준비 중</button></div>
- <div class="shopItem"><h4>장인 편의 패스</h4><p>추후 광고 제거·장비 프리셋 저장·자동 제작 편의 기능을 제공할 예정입니다. 전투 능력치 판매는 포함하지 않습니다.</p><button disabled>결제 시스템 준비 중</button></div>
- <p class="hint">실제 결제, 광고 시청 및 구매 복원 기능은 아직 제공되지 않습니다. 결제 금액이나 구매 성공 여부를 표시하지 않습니다.</p>
-</div>`;}
+${renderShopNav()}
+${shopSection==='exchange'?`
+<div class="shopBalance"><strong>✧ 보유 별빛 ${S.premiumTokens.toLocaleString()}개</strong><small>게임 플레이로 획득하는 재화 · 현금 구매 불가</small></div>
+<div class="shopGrid">${TOKEN_OFFERS.map(o=>`<div class="shopItem"><h4>${o.name}</h4><p>${o.detail}</p><button ${S.premiumTokens<o.cost?'disabled':''} onclick="buyTokenOffer('${o.id}')">✧ ${o.cost}개 교환</button></div>`).join('')}</div>`:
+shopSection==='journey'?renderPass():`
+<div class="monetizationRoadmap"><div class="sectiontitle">출시 예정 편의 기능</div>
+ <div class="shopItem"><h4>광고 보상 부스터</h4><p>보상형 광고 SDK 연동 후 이용할 수 있습니다.</p><button disabled>광고 연동 준비 중</button></div>
+ <div class="shopItem"><h4>장인 편의 패스</h4><p>추후 광고 제거·프리셋 편의 기능을 제공할 예정입니다.</p><button disabled>결제 시스템 준비 중</button></div>
+ <p class="hint">현재 현금 결제·광고 시청·구매 복원은 지원하지 않습니다.</p>
+</div>`}
+`;}
+
 let previousRenderedTab=null;
 function switchMainTab(next){if(!navTabs.includes(next))return;if(next==='던전')dungeonPanel='fight';TAB=next;render();}
 function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}} }
