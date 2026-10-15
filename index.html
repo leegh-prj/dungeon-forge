@@ -376,6 +376,38 @@ if(!hasSavedGame){ seedStarterItems(); }
 normalizeState();
 if(hasSavedGame){prepareOfflineReward(S.last);save()}
 function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1;S.premiumTokens=Math.max(0,Number(S.premiumTokens)||0);S.daily=S.daily&&typeof S.daily==='object'?S.daily:{day:'',kills:0,bosses:0,claimed:[]};S.daily.claimed=Array.isArray(S.daily.claimed)?S.daily.claimed:[];S.autoCraftGoal=Number.isInteger(S.autoCraftGoal)?Math.max(0,Math.min(6,S.autoCraftGoal)):2;S.bagUpgrades=Number.isInteger(S.bagUpgrades)?S.bagUpgrades:0;S.warehouseUpgrades=Number.isInteger(S.warehouseUpgrades)?S.warehouseUpgrades:0;S.attendance=S.attendance&&typeof S.attendance==='object'?S.attendance:{day:'',streak:0,claimed:false};S.presets=Array.isArray(S.presets)?S.presets.slice(0,3):[null,null,null];while(S.presets.length<3)S.presets.push(null);S.passProgress=S.passProgress&&typeof S.passProgress==='object'?S.passProgress:{season:'',xp:0,claimed:[]};S.passProgress.claimed=Array.isArray(S.passProgress.claimed)?S.passProgress.claimed:[]; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
+const INTRO_STEPS=[
+ {title:'첫 몬스터를 처치하세요',tip:'공격 또는 강타를 사용해 보세요.',tab:'던전'},
+ {title:'첫 장비를 제작하세요',tip:'대장간에서 무기를 제작하세요.',tab:'대장간'},
+ {title:'만든 장비를 장착하세요',tip:'장비 메뉴에서 새 장비를 직접 장착하세요.',tab:'장비'},
+ {title:'첫 보스를 격파하세요',tip:'일반 몬스터 3마리 처치 후 보스에 도전하세요.',tab:'던전'}
+];
+function introActive(){return !!S.intro&&!S.intro.completed&&S.intro.step<4}
+function introAdvance(event,item){
+ if(!introActive())return;
+ const p=S.intro;
+ if(event==='kill'&&p.step===0)p.step=1;
+ if(event==='craft'&&p.step===1&&item){p.craftedId=item.id;p.step=2}
+ if(event==='equip'&&p.step===2&&item&&item.id===p.craftedId)p.step=3;
+ if(event==='boss'&&p.step===3){
+  p.step=4;p.completed=true;S.gold+=4000;S.ore+=90;S.crystals+=5;
+  stageRewardText='🎉 첫 모험 완료! 골드 +4,000 · 광석 +90 · 결정 +5';
+  stageRewardUntil=Date.now()+7000;
+ }
+ save();
+}
+function introNavigate(){
+ const part=INTRO_STEPS[S.intro?.step||0];if(!part)return;
+ TAB=part.tab;
+ if(TAB==='대장간'){forgeMode='제작';S.craftTab='weapon'}
+ if(TAB==='장비')storageTab='bag';
+ render();
+}
+function renderIntro(){
+ if(!introActive())return '';
+ const step=S.intro.step,part=INTRO_STEPS[step];
+ return '<section class="introQuest"><div class="introTop"><strong>첫 모험 가이드</strong><span>'+(step+1)+'/4</span></div><div class="introTicks">'+INTRO_STEPS.map((_,i)=>'<i class="'+(i<=step?'on':'')+'"></i>').join('')+'</div><strong>'+part.title+'</strong><p>'+part.tip+'</p><button onclick="introNavigate()">'+(part.tab===TAB?'진행 중':'→ '+part.tab+'으로 이동')+'</button></section>';
+}
 function seedStarterItems(){
   const starters=[
     mkItem(recipeDefs[0],0,'화상'), mkItem(recipeDefs[0],0,'흡혈'), mkItem(recipeDefs[1],0,'견고함'), mkItem(recipeDefs[2],0,'보호막'), mkItem(recipeDefs[3],0,'반격'), mkItem(recipeDefs[3],0,'냉기')
