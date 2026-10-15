@@ -329,7 +329,122 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
  .battlefield{min-height:210px!important}
  .combatSkill{height:55px!important}
 }
-.introEquipQuick{display:flex;align-items:center;gap:9px;margin:8px 0;padding:9px;border-radius:11px;border:1px solid #d6aa57;background:linear-gradient(95deg,#393024,#1b2535)}.introEquipQuick img{width:52px;height:52px;object-fit:contain;background:#111c26;border-radius:8px}.introEquipQuick>div{flex:1;min-width:0}.introEquipQuick strong{font-size:12px;display:block;color:#ffe1a0}.introEquipQuick small{font-size:10px;display:block;color:#d5c2a5}.introEquipQuick button{min-height:42px;padding:8px 12px;border-radius:8px;background:#b2813e;color:#fff3db;font-weight:900}.battleQuickStatus{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;margin:4px 0;border:1px solid #696653;border-radius:8px;background:#161d2b;color:#d8cfad;font-size:10px;font-weight:750}.introCraftGift{margin:7px 0;padding:10px;border:1px solid #e4bb74;border-radius:10px;background:linear-gradient(90deg,#56401c,#2b2f39);color:#ffe3a4;font-size:12px;font-weight:850;text-align:center}@media(max-width:499px){.enemyMeter{margin:3px 0;height:5px}.battlefield{min-height:clamp(185px,30dvh,235px)!important}.combatActions.manualSticky{bottom:calc(54px + env(safe-area-inset-bottom))}.combatSkill{min-height:52px}.uxDisclosure>summary{min-height:42px;touch-action:manipulation}.introQuest{margin:5px 0}.introQuest p{font-size:10px}.screen{overflow:visible}}@media(max-height:700px) and (max-width:499px){.battlefield{min-height:190px!important}.combatSkill{height:54px!important}.introQuest{padding:7px}.introTicks{margin:3px 0}.topbrand{min-height:22px;margin-bottom:2px}}.introQuest .introSkip{display:inline-block;width:auto;min-height:28px;padding:4px 7px;margin-left:6px;background:#ffffff12;border:1px solid #a98b5f;border-radius:6px;color:#ead2ab;font-weight:600;font-size:10px}@media(max-width:370px){.introQuest .introSkip{min-height:26px;padding:3px 5px;font-size:9px}}</style>
+.introEquipQuick{display:flex;align-items:center;gap:9px;margin:8px 0;padding:9px;border-radius:11px;border:1px solid #d6aa57;background:linear-gradient(95deg,#393024,#1b2535)}.introEquipQuick img{width:52px;height:52px;object-fit:contain;background:#111c26;border-radius:8px}.introEquipQuick>div{flex:1;min-width:0}.introEquipQuick strong{font-size:12px;display:block;color:#ffe1a0}.introEquipQuick small{font-size:10px;display:block;color:#d5c2a5}.introEquipQuick button{min-height:42px;padding:8px 12px;border-radius:8px;background:#b2813e;color:#fff3db;font-weight:900}.battleQuickStatus{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;margin:4px 0;border:1px solid #696653;border-radius:8px;background:#161d2b;color:#d8cfad;font-size:10px;font-weight:750}.introCraftGift{margin:7px 0;padding:10px;border:1px solid #e4bb74;border-radius:10px;background:linear-gradient(90deg,#56401c,#2b2f39);color:#ffe3a4;font-size:12px;font-weight:850;text-align:center}@media(max-width:499px){.enemyMeter{margin:3px 0;height:5px}.battlefield{min-height:clamp(185px,30dvh,235px)!important}.combatActions.manualSticky{bottom:calc(54px + env(safe-area-inset-bottom))}.combatSkill{min-height:52px}.uxDisclosure>summary{min-height:42px;touch-action:manipulation}.introQuest{margin:5px 0}.introQuest p{font-size:10px}.screen{overflow:visible}}@media(max-height:700px) and (max-width:499px){.battlefield{min-height:190px!important}.combatSkill{height:54px!important}.introQuest{padding:7px}.introTicks{margin:3px 0}.topbrand{min-height:22px;margin-bottom:2px}}.introQuest .introSkip{display:inline-block;width:auto;min-height:28px;padding:4px 7px;margin-left:6px;background:#ffffff12;border:1px solid #a98b5f;border-radius:6px;color:#ead2ab;font-weight:600;font-size:10px}@media(max-width:370px){.introQuest .introSkip{min-height:26px;padding:3px 5px;font-size:9px}}
+/* DAY 27 — fluid responsive layout. Rules intentionally override prior fixed 460/480px mobile layout. */
+:root{--layout-max:920px;--nav-height:68px}
+html{width:100%;overflow-x:clip;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{width:100%;min-width:0;overflow-x:clip}
+#app{width:min(100%,var(--layout-max));max-width:var(--layout-max);min-width:0;padding:clamp(6px,1.3vw,18px);padding-bottom:calc(var(--nav-height) + 22px + env(safe-area-inset-bottom,0px));margin-inline:auto}
+.screen{min-width:0;overflow:visible}
+#screen{width:100%;min-width:0}
+#screen>*,.screenheader,.resources,.inventoryTools,.forgeTabs,.battlefield,.shopGrid,.inventoryGrid,.forgeItemGrid{min-width:0;max-width:100%}
+.screenheader{display:flex;gap:clamp(3px,1vw,12px);flex-wrap:wrap;align-items:center}
+.headerleft{min-width:0;flex:0 1 auto}
+.resources{margin-left:auto;min-width:0;flex:0 1 auto;display:flex;gap:clamp(2px,.6vw,8px);flex-wrap:nowrap}
+.reschip{min-width:0;padding:6px clamp(4px,1vw,10px);white-space:nowrap;font-size:clamp(10px,1.6vw,14px);font-variant-numeric:tabular-nums}
+.reschip small{font-size:clamp(10px,1.4vw,13px)}
+.nav{width:min(100%,var(--layout-max));max-width:var(--layout-max);bottom:0;z-index:110;padding:6px max(6px,env(safe-area-inset-left,0px)) max(7px,env(safe-area-inset-bottom,0px)) max(6px,env(safe-area-inset-right,0px));gap:clamp(2px,.8vw,9px)}
+.nav button{min-width:0;min-height:48px;touch-action:manipulation;white-space:nowrap}
+.nav button .icon{font-size:clamp(18px,2.4vw,24px)}
+.battlefield{width:100%;min-height:clamp(235px,42dvh,390px)!important;isolation:isolate}
+.battlefield .actor.hero img,.battlefield .actor.enemy img{height:clamp(132px,24dvh,205px)!important;max-height:55%!important;max-width:100%;object-fit:contain}
+.battleActions,.combatActions{min-width:0}
+.combatActions{grid-template-columns:repeat(3,minmax(0,1fr))}
+.combatSkill{min-width:0;min-height:54px;touch-action:manipulation}
+.combatActions.manualSticky{position:sticky;bottom:calc(var(--nav-height) + env(safe-area-inset-bottom,0px));z-index:95}
+.forgeTabs{grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(2px,.65vw,7px)}
+.forgeTabs .segbtn{min-width:0;overflow-wrap:anywhere}
+.cardsRow{grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(3px,1vw,12px)}
+.forgeItemGrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr))}
+.inventoryGrid,.codexGrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,102px),1fr));gap:clamp(5px,.9vw,12px)}
+.invItem{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.invItem .txt{max-width:100%;overflow-wrap:anywhere}
+.invItem button{touch-action:manipulation}
+.shopGrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,175px),1fr))}
+.inventoryTools{display:flex;flex-wrap:wrap}
+.inventoryTools label{min-width:min(100%,130px)}
+.charwrap{grid-template-columns:clamp(56px,12vw,100px) minmax(0,1fr) clamp(56px,12vw,100px)}
+.charstage{min-width:0}
+.craftOverlay{padding:max(8px,env(safe-area-inset-top,0px)) max(8px,env(safe-area-inset-right,0px)) max(8px,env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));overflow-y:auto;overscroll-behavior:contain}
+.craftModal{width:min(100%,480px);max-width:min(480px,100%);max-height:calc(100dvh - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;overscroll-behavior:contain}
+.craftModal button,.gearDetailActions button{min-height:42px}
+.uxDisclosure>summary,.craftJourney button,.introQuest button{touch-action:manipulation}
+@media(max-width:359px){
+ :root{--nav-height:63px}
+ #app{padding-inline:5px;padding-bottom:calc(var(--nav-height) + 19px + env(safe-area-inset-bottom,0px))}
+ .screen{padding:5px!important}
+ .brandtitle{font-size:15px}.brandsub{font-size:8px}
+ .screenheader{gap:3px}.screentitle{font-size:14px}
+ .reschip{font-size:9px;padding:4px 3px;gap:2px}.reschip small{font-size:9px}
+ .resources{gap:2px}.reschip.plus{min-width:15px}
+ .battlefield{min-height:clamp(184px,31dvh,245px)!important}
+ .battlefield .actor.hero img,.battlefield .actor.enemy img{height:clamp(104px,19dvh,138px)!important}
+ .battlefield .righticons{top:18px;right:2px}
+ .sideicon{width:39px;height:41px}
+ .combatSkill{height:54px!important;font-size:11px!important}
+ .combatActions.manualSticky{bottom:calc(var(--nav-height) + env(safe-area-inset-bottom,0px))}
+ .nav button{font-size:9px;min-height:44px;padding-inline:0}
+ .nav button .icon{font-size:17px}
+ .inventoryGrid,.codexGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .cardsRow{gap:3px}
+ .forgeTabs .segbtn{font-size:10px;padding:8px 0}
+ .attendanceDay span{font-size:7px}
+}
+@media(min-width:360px) and (max-width:599px){
+ :root{--nav-height:66px}
+ #app{padding-inline:clamp(7px,2vw,12px)}
+ .battlefield{min-height:clamp(214px,34dvh,290px)!important}
+ .battlefield .actor.hero img,.battlefield .actor.enemy img{height:clamp(120px,22dvh,165px)!important}
+ .inventoryGrid,.codexGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .combatActions.manualSticky{bottom:calc(var(--nav-height) + env(safe-area-inset-bottom,0px))}
+ .nav button{font-size:10px}
+}
+@media(min-width:600px) and (max-width:899px){
+ :root{--nav-height:76px}
+ #app{max-width:760px;padding-inline:18px}
+ .screen{padding:16px!important;border-radius:20px}
+ .topbrand{margin:4px 0 12px}.brandtitle{font-size:25px}
+ .screenheader{margin-bottom:12px}.screentitle{font-size:22px}
+ .battlefield{min-height:clamp(320px,43dvh,430px)!important}
+ .battlefield .actor.hero img,.battlefield .actor.enemy img{height:clamp(170px,26dvh,235px)!important}
+ .inventoryGrid,.codexGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .forgeItemGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .nav{max-width:760px}.nav button{font-size:13px;min-height:56px}
+ .combatSkill{height:82px!important;font-size:15px!important}
+ .charstage{min-height:220px}
+}
+@media(min-width:900px){
+ :root{--nav-height:78px}
+ #app{width:min(100%,920px);padding-inline:24px}
+ .screen{padding:20px!important;border-radius:23px}
+ .topbrand{margin:8px 0 14px}.brandtitle{font-size:28px}
+ .screentitle{font-size:23px}
+ .battlefield{min-height:440px!important}
+ .battlefield .actor.hero img,.battlefield .actor.enemy img{height:235px!important}
+ .combatSkill{height:85px!important}
+ .inventoryGrid,.codexGrid{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .forgeItemGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .cardsRow{gap:13px}
+ .shopGrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .nav button{font-size:13px;min-height:57px}
+ .charstage{min-height:255px}
+}
+@media(orientation:landscape) and (max-height:550px){
+ :root{--nav-height:57px}
+ #app{padding-top:4px;padding-bottom:calc(var(--nav-height) + 12px + env(safe-area-inset-bottom,0px))}
+ .topbrand{margin-bottom:2px}.brandtitle{font-size:15px}
+ .screen{padding:8px!important}
+ .battlefield{min-height:190px!important}
+ .battlefield .actor.hero img,.battlefield .actor.enemy img{height:116px!important}
+ .combatSkill{height:48px!important;min-height:46px}
+ .combatActions.manualSticky{bottom:calc(var(--nav-height) + env(safe-area-inset-bottom,0px))}
+ .nav{padding-top:2px;padding-bottom:max(3px,env(safe-area-inset-bottom,0px))}
+ .nav button{min-height:43px;padding-block:2px}
+ .introQuest{padding:6px 8px}.introQuest p{margin:3px 0}
+}
+@media(hover:hover) and (pointer:fine){.nav button:hover,.introQuest button:hover,.craftJourney button:hover{filter:brightness(1.14)}}
+@media(prefers-reduced-motion:reduce){.nav button,.craftModal{transition:none!important}}
+</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
