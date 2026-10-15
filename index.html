@@ -515,7 +515,7 @@ function runBossPattern(name,rawDamage){
  takeDamage(dmg);
 }
 let bossGuardUntil=0;
-function rollBattleRewards(boss){const scale=1+Math.floor(Math.max(1,S.stage)/5)*.12,early=S.stage<=3?1.8:S.stage<=12?Math.max(1,1.8-(S.stage-3)*.07):1;return {gold:Math.round((boss?360:68)*scale*early),ore:Math.round((boss?46:11)*scale*early),crystals:boss?(S.stage<=3?6:4):(Math.random()<(S.stage<=3?.3:.17)?1:0),type:regionInfo().key,quantity:boss?6:1+Math.floor(Math.random()*2)}}
+function rollBattleRewards(boss){const scale=Math.max(1.8,1+Math.floor(Math.max(1,S.stage)/5)*.12),early=1;return {gold:Math.round((boss?360:68)*scale*early),ore:Math.round((boss?46:11)*scale*early),crystals:boss?(S.stage<=3?6:4):(Math.random()<(S.stage<=3?.3:.17)?1:0),type:regionInfo().key,quantity:boss?6:1+Math.floor(Math.random()*2)}}
 function awardBattleRewards(boss){const reward=rollBattleRewards(boss);S.gold+=reward.gold;S.ore+=reward.ore;S.crystals+=reward.crystals;S.materials=S.materials||{};S.materials[reward.type]=(S.materials[reward.type]||0)+reward.quantity;return reward}
 function discover(item){
  const key=[item.kind,item.name,item.tier,item.effect].join('|');
