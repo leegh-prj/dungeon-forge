@@ -568,6 +568,7 @@ body{position:fixed;inset:0;overflow:hidden!important}
 <nav id="nav" class="nav"></nav>
 <script>
 const K='dungeon-forge-ui-v2';
+let itemIdSerial=0;
 const rarityName=['일반','고급','희귀','영웅','전설','신화','레전드'];
 const rarityLetter=['C','B','A','S','SS','SSS','L'];
 const MAX_TIER=rarityLetter.length-1;
@@ -672,7 +673,6 @@ function seedStarterItems(){
   starters.forEach(it=>{const idx=S.inventory.push(it)-1;if(S.equip[it.kind]===null)S.equip[it.kind]=idx;discover(it)});
 }
 function mkItem(def,tier,effect){const t=Math.max(0,Math.min(MAX_TIER,tier));return {name:def.name,kind:def.kind,tier:t,effect,power:def.atk[t],defense:def.def[t],img:def.img,id:cryptoRandom()};}
-let itemIdSerial=0;
 function cryptoRandom(){
  let id;
  do{
