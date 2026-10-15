@@ -521,7 +521,7 @@ body{position:fixed;inset:0;overflow:hidden!important}
  .cardsRow:has(> .equipCard:only-child){grid-template-columns:minmax(0,min(42%,155px))}
  .inventoryGrid{max-height:calc(100dvh - var(--nav-height,68px) - 235px)}
 }
-</style>
+.forgeExtras .primaryBtn{min-height:44px}.equipmentPages button.active{border-color:#e6bd79;background:linear-gradient(120deg,#70502a,#35291e);color:#fff4d3}.equipCard{min-width:0}.forgeRates summary,.forgeExtras summary{font-weight:800}.equipmentJump button{touch-action:manipulation}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -1423,7 +1423,7 @@ function forgePanel(){
  if(forgeMode==='제작')return `
 ${introActive()&&S.intro.step===1?'<div class="introCraftGift">🎁 첫 무기 제작 · 고급 B 등급 확정 지급</div>':''}
 <div class="categoryTabs" style="margin:10px 0">${['weapon','armor','shield','ring'].map(k=>`<button class="segbtn ${S.craftTab===k?'active':''}" onclick="S.craftTab='${k}';render()">${kindLabel[k]}</button>`).join('')}</div>
-<div class="cardsRow">${recipeDefs.filter(d=>d.kind===S.craftTab).map(d=>recipeCard(d,6)).join('')}</div><details class="uxDisclosure forgeRates"><summary>등급별 확률 확인</summary><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS 0.048% · L 0.002% 제작 확률</small></div></details>
+<div class="cardsRow">${recipeDefs.filter(d=>d.kind===S.craftTab).map(d=>recipeCard(d,introActive()&&S.intro.step===1?1:0)).join('')}</div><details class="uxDisclosure forgeRates"><summary>등급별 확률 확인</summary><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS 0.048% · L 0.002% 제작 확률</small></div></details>
 <div class="sectiontitle" style="margin-top:14px">제작 집중 옵션</div>
 <div class="focusGrid">
  <div class="focusBox ${S.focus==='balanced'?'active neutral':''}" onclick="S.focus='balanced';render()"><strong>균형</strong><div class="tiny muted">균형 잡힌 능력치</div></div>
