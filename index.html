@@ -329,7 +329,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
  .battlefield{min-height:210px!important}
  .combatSkill{height:55px!important}
 }
-.introEquipQuick{display:flex;align-items:center;gap:9px;margin:8px 0;padding:9px;border-radius:11px;border:1px solid #d6aa57;background:linear-gradient(95deg,#393024,#1b2535)}.introEquipQuick img{width:52px;height:52px;object-fit:contain;background:#111c26;border-radius:8px}.introEquipQuick>div{flex:1;min-width:0}.introEquipQuick strong{font-size:12px;display:block;color:#ffe1a0}.introEquipQuick small{font-size:10px;display:block;color:#d5c2a5}.introEquipQuick button{min-height:42px;padding:8px 12px;border-radius:8px;background:#b2813e;color:#fff3db;font-weight:900}.battleQuickStatus{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;margin:4px 0;border:1px solid #696653;border-radius:8px;background:#161d2b;color:#d8cfad;font-size:10px;font-weight:750}.introCraftGift{margin:7px 0;padding:10px;border:1px solid #e4bb74;border-radius:10px;background:linear-gradient(90deg,#56401c,#2b2f39);color:#ffe3a4;font-size:12px;font-weight:850;text-align:center}@media(max-width:499px){.enemyMeter{margin:3px 0;height:5px}.battlefield{min-height:clamp(185px,30dvh,235px)!important}.combatActions.manualSticky{bottom:calc(54px + env(safe-area-inset-bottom))}.combatSkill{min-height:52px}.uxDisclosure>summary{min-height:42px;touch-action:manipulation}.introQuest{margin:5px 0}.introQuest p{font-size:10px}.screen{overflow:visible}}@media(max-height:700px) and (max-width:499px){.battlefield{min-height:190px!important}.combatSkill{height:54px!important}.introQuest{padding:7px}.introTicks{margin:3px 0}.topbrand{min-height:22px;margin-bottom:2px}}</style>
+.introEquipQuick{display:flex;align-items:center;gap:9px;margin:8px 0;padding:9px;border-radius:11px;border:1px solid #d6aa57;background:linear-gradient(95deg,#393024,#1b2535)}.introEquipQuick img{width:52px;height:52px;object-fit:contain;background:#111c26;border-radius:8px}.introEquipQuick>div{flex:1;min-width:0}.introEquipQuick strong{font-size:12px;display:block;color:#ffe1a0}.introEquipQuick small{font-size:10px;display:block;color:#d5c2a5}.introEquipQuick button{min-height:42px;padding:8px 12px;border-radius:8px;background:#b2813e;color:#fff3db;font-weight:900}.battleQuickStatus{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;margin:4px 0;border:1px solid #696653;border-radius:8px;background:#161d2b;color:#d8cfad;font-size:10px;font-weight:750}.introCraftGift{margin:7px 0;padding:10px;border:1px solid #e4bb74;border-radius:10px;background:linear-gradient(90deg,#56401c,#2b2f39);color:#ffe3a4;font-size:12px;font-weight:850;text-align:center}@media(max-width:499px){.enemyMeter{margin:3px 0;height:5px}.battlefield{min-height:clamp(185px,30dvh,235px)!important}.combatActions.manualSticky{bottom:calc(54px + env(safe-area-inset-bottom))}.combatSkill{min-height:52px}.uxDisclosure>summary{min-height:42px;touch-action:manipulation}.introQuest{margin:5px 0}.introQuest p{font-size:10px}.screen{overflow:visible}}@media(max-height:700px) and (max-width:499px){.battlefield{min-height:190px!important}.combatSkill{height:54px!important}.introQuest{padding:7px}.introTicks{margin:3px 0}.topbrand{min-height:22px;margin-bottom:2px}}.introQuest .introSkip{display:inline-block;width:auto;min-height:28px;padding:4px 7px;margin-left:6px;background:#ffffff12;border:1px solid #a98b5f;border-radius:6px;color:#ead2ab;font-weight:600;font-size:10px}@media(max-width:370px){.introQuest .introSkip{min-height:26px;padding:3px 5px;font-size:9px}}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -422,6 +422,7 @@ function introAdvance(event,item){
  }
  save();
 }
+function skipIntro(){if(!introActive())return;S.intro.completed=true;S.intro.step=4;save();render();}
 function introNavigate(){
  const part=INTRO_STEPS[S.intro?.step||0];if(!part)return;
  TAB=part.tab;
@@ -432,7 +433,7 @@ function introNavigate(){
 function renderIntro(){
  if(!introActive())return '';
  const step=S.intro.step,part=INTRO_STEPS[step];
- return '<section class="introQuest"><div class="introTop"><strong>첫 모험 가이드</strong><span>'+(step+1)+'/4</span></div><div class="introTicks">'+INTRO_STEPS.map((_,i)=>'<i class="'+(i<=step?'on':'')+'"></i>').join('')+'</div><strong>'+part.title+'</strong><p>'+part.tip+'</p><button onclick="introNavigate()">'+(part.tab===TAB?'진행 중':'→ '+part.tab+'으로 이동')+'</button></section>';
+ return '<section class="introQuest"><div class="introTop"><strong>첫 모험 가이드</strong><span>'+(step+1)+'/4 <button class="introSkip" onclick="skipIntro()">건너뛰기</button></span></div><div class="introTicks">'+INTRO_STEPS.map((_,i)=>'<i class="'+(i<=step?'on':'')+'"></i>').join('')+'</div><strong>'+part.title+'</strong><p>'+part.tip+'</p><button onclick="introNavigate()">'+(part.tab===TAB?'진행 중':'→ '+part.tab+'으로 이동')+'</button></section>';
 }
 function renderIntroEquip(){
  if(!introActive()||S.intro.step!==2)return '';
@@ -478,7 +479,7 @@ function renderSetPanel(){
  return '<div class="setLine"><strong>'+name+' <small>'+count+'/4</small></strong><div><span class="'+(count>=2?'unlocked':'')+'">2세트 '+description[0]+'</span><span class="'+(count>=4?'unlocked':'')+'">4세트 '+description[1]+'</span></div></div>';
  }).join('')+'</div>';
 }
-function getEnemyMax(){if(S.stage<=3)return (S.boss?400:150)+S.stage*(S.boss?80:50);return 880+S.stage*25+(S.boss?520:0)}
+function getEnemyMax(){if(S.stage<=3)return (S.boss?400:150)+S.stage*(S.boss?80:50);if(S.stage<=12)return S.boss?640+(S.stage-3)*95:300+(S.stage-3)*85;return 880+S.stage*25+(S.boss?520:0)}
 const REGIONS=[
 {name:'물의 성당',key:'water',enemy:'왕관 슬라임',boss:'물의 왕 슬라임',material:'물의 결정',tint:'#368ec6',background:'assets/art/dungeon.webp',patterns:[['물방울 돌진',1],['파도 밀치기',1.3],['회복 젤',.6]]},
 {name:'독성 늪지',key:'poison',enemy:'포자 정령',boss:'독성 버섯 군주',material:'독 포자',tint:'#5f9c38',background:'assets/art/dungeon.webp',patterns:[['독 포자 분사',.85],['버섯 폭발',1.4],['독안개',.75]]},
@@ -514,7 +515,7 @@ function runBossPattern(name,rawDamage){
  takeDamage(dmg);
 }
 let bossGuardUntil=0;
-function rollBattleRewards(boss){const scale=1+Math.floor(Math.max(1,S.stage)/5)*.12,early=S.stage<=3?1.8:1;return {gold:Math.round((boss?360:68)*scale*early),ore:Math.round((boss?46:11)*scale*early),crystals:boss?(S.stage<=3?6:4):(Math.random()<(S.stage<=3?.3:.17)?1:0),type:regionInfo().key,quantity:boss?6:1+Math.floor(Math.random()*2)}}
+function rollBattleRewards(boss){const scale=1+Math.floor(Math.max(1,S.stage)/5)*.12,early=S.stage<=3?1.8:S.stage<=12?Math.max(1,1.8-(S.stage-3)*.07):1;return {gold:Math.round((boss?360:68)*scale*early),ore:Math.round((boss?46:11)*scale*early),crystals:boss?(S.stage<=3?6:4):(Math.random()<(S.stage<=3?.3:.17)?1:0),type:regionInfo().key,quantity:boss?6:1+Math.floor(Math.random()*2)}}
 function awardBattleRewards(boss){const reward=rollBattleRewards(boss);S.gold+=reward.gold;S.ore+=reward.ore;S.crystals+=reward.crystals;S.materials=S.materials||{};S.materials[reward.type]=(S.materials[reward.type]||0)+reward.quantity;return reward}
 function discover(item){
  const key=[item.kind,item.name,item.tier,item.effect].join('|');
