@@ -672,7 +672,14 @@ function seedStarterItems(){
   starters.forEach(it=>{const idx=S.inventory.push(it)-1;if(S.equip[it.kind]===null)S.equip[it.kind]=idx;discover(it)});
 }
 function mkItem(def,tier,effect){const t=Math.max(0,Math.min(MAX_TIER,tier));return {name:def.name,kind:def.kind,tier:t,effect,power:def.atk[t],defense:def.def[t],img:def.img,id:cryptoRandom()};}
-function cryptoRandom(){return Math.random().toString(36).slice(2)+Date.now().toString(36).slice(-4)}
+let itemIdSerial=0;
+function cryptoRandom(){
+ let id;
+ do{
+  id='gear-'+Date.now().toString(36)+'-'+(++itemIdSerial).toString(36)+'-'+Math.random().toString(36).slice(2,9);
+ }while(S.inventory.some(it=>it.id===id)||S.warehouse.some(it=>it.id===id));
+ return id;
+}
 function save(){S.last=Date.now();localStorage.setItem(K,JSON.stringify(S));}
 function toast(t){logs.unshift(t);logs=logs.slice(0,3);const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1700); save(); render();}
 function eq(kind){return S.equip[kind]!==null?S.inventory[S.equip[kind]]:null}
