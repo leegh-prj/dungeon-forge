@@ -329,7 +329,7 @@ body::after{content:"";position:fixed;inset:0;background:radial-gradient(circle 
  .battlefield{min-height:210px!important}
  .combatSkill{height:55px!important}
 }
-.introEquipQuick{display:flex;align-items:center;gap:9px;margin:8px 0;padding:9px;border-radius:11px;border:1px solid #d6aa57;background:linear-gradient(95deg,#393024,#1b2535)}.introEquipQuick img{width:52px;height:52px;object-fit:contain;background:#111c26;border-radius:8px}.introEquipQuick>div{flex:1;min-width:0}.introEquipQuick strong{font-size:12px;display:block;color:#ffe1a0}.introEquipQuick small{font-size:10px;display:block;color:#d5c2a5}.introEquipQuick button{min-height:42px;padding:8px 12px;border-radius:8px;background:#b2813e;color:#fff3db;font-weight:900}</style>
+.introEquipQuick{display:flex;align-items:center;gap:9px;margin:8px 0;padding:9px;border-radius:11px;border:1px solid #d6aa57;background:linear-gradient(95deg,#393024,#1b2535)}.introEquipQuick img{width:52px;height:52px;object-fit:contain;background:#111c26;border-radius:8px}.introEquipQuick>div{flex:1;min-width:0}.introEquipQuick strong{font-size:12px;display:block;color:#ffe1a0}.introEquipQuick small{font-size:10px;display:block;color:#d5c2a5}.introEquipQuick button{min-height:42px;padding:8px 12px;border-radius:8px;background:#b2813e;color:#fff3db;font-weight:900}.battleQuickStatus{display:flex;justify-content:space-between;gap:8px;padding:5px 8px;margin:4px 0;border:1px solid #696653;border-radius:8px;background:#161d2b;color:#d8cfad;font-size:10px;font-weight:750}.introCraftGift{margin:7px 0;padding:10px;border:1px solid #e4bb74;border-radius:10px;background:linear-gradient(90deg,#56401c,#2b2f39);color:#ffe3a4;font-size:12px;font-weight:850;text-align:center}@media(max-width:499px){.enemyMeter{margin:3px 0;height:5px}.battlefield{min-height:clamp(185px,30dvh,235px)!important}.combatActions.manualSticky{bottom:calc(54px + env(safe-area-inset-bottom))}.combatSkill{min-height:52px}.uxDisclosure>summary{min-height:42px;touch-action:manipulation}.introQuest{margin:5px 0}.introQuest p{font-size:10px}.screen{overflow:visible}}@media(max-height:700px) and (max-width:499px){.battlefield{min-height:190px!important}.combatSkill{height:54px!important}.introQuest{padding:7px}.introTicks{margin:3px 0}.topbrand{min-height:22px;margin-bottom:2px}}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -861,7 +861,7 @@ function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  const extra=S.focus==='balanced'?0:1,needOre=def.ore,needCry=def.crystal+extra;
  if(S.ore<needOre||S.crystals<needCry)return toast('재료가 부족합니다');
  S.ore-=needOre;S.crystals-=needCry;
- const roll=Math.random(),tier=roll>=.99998?6:roll>=.9995?5:roll>=.992?4:roll>=.94?3:roll>=.82?2:roll>=.57?1:0;
+ const roll=Math.random(),tutorialBonus=introActive()&&S.intro.step===1&&kind==='weapon';const tier=tutorialBonus?1:roll>=.99998?6:roll>=.9995?5:roll>=.992?4:roll>=.94?3:roll>=.82?2:roll>=.57?1:0;
  const item=mkItem(def,tier,effects[Math.floor(Math.random()*effects.length)]);
  if(S.focus==='attack')item.power+=4;if(S.focus==='defense')item.defense+=5;
  const destination=storeNewItem(item,skipAuto);
@@ -1035,7 +1035,7 @@ ${renderHeader('던전','✦')}
 ${renderIntro()}
 ${bossGuide()}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
-<div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div><div class="battleCondition" id="battleStatus">${combatStatus()}</div><div class="battleStats">⚔ 공격력 ${totalAtk().toLocaleString()} <span>🛡 방어력 ${totalDef().toLocaleString()}</span><span>❤ 최대 체력 ${getMaxHp().toLocaleString()}</span></div><div class="enemyMeter"><span id="enemyCharge"></span></div>
+<div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div>
 <div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
   <div class="righticons">
     <button class="sideicon" onclick="setBattleMode(S.battleMode==='manual'?'auto':'manual')">⚔<span>${S.battleMode==='manual'?'수동 전투':'자동 전투'}</span></button>
@@ -1056,6 +1056,8 @@ ${bossGuide()}
  <button class="combatSkill strong" onclick="strike()" ${S.battleMode!=='manual'?'disabled':''}>🔥 강타<small id="strikeTimer">준비 완료</small></button>
  <button class="combatSkill guard" onclick="guard()" ${S.battleMode!=='manual'?'disabled':''}>🛡 방어<small id="guardTimer">준비 완료</small></button>
 </div>
+<div class="battleQuickStatus"><span id="battleStatus">${combatStatus()}</span><span>⚔ ${totalAtk().toLocaleString()} · 🛡 ${totalDef().toLocaleString()}</span></div>
+<div class="enemyMeter"><span id="enemyCharge"></span></div>
 <div class="battleMode"><div><strong>전투 모드</strong><small>${S.battleMode==='manual'?'직접 공격·강타·방어':'스킬과 기본 공격 자동 사용'}</small></div><div class="modeSwitch"><button class="${S.battleMode!=='manual'?'active':''}" onclick="setBattleMode('auto')">자동</button><button class="${S.battleMode==='manual'?'active':''}" onclick="setBattleMode('manual')">수동</button></div></div>
 <div class="regionBadge" style="--region-color:${regionInfo().tint}"><span class="zoneTag">지역 ${(S.stage-1)%5+1}/5 · ${Math.floor((S.stage-1)/5)+1}순환</span>⛏ 지역 재료 <b>${regionInfo().material} ${S.materials?.[regionInfo().key]||0}개</b> · 보스 ${regionInfo().boss}</div>
 <p class="combatInstruction">${S.battleMode==='manual'?'공격을 직접 누르고 적의 공격 예고에 맞춰 방어하세요.':'자동 모드는 일반 공격과 스킬을 상황에 맞춰 사용합니다.'}</p>
@@ -1212,6 +1214,7 @@ function forgeItemCard(entry){
 }
 function forgePanel(){
  if(forgeMode==='제작')return `
+${introActive()&&S.intro.step===1?'<div class="introCraftGift">🎁 첫 무기 제작 · 고급 B 등급 확정 지급</div>':''}
 <div class="categoryTabs" style="margin:10px 0">${['weapon','armor','shield','ring'].map(k=>`<button class="segbtn ${S.craftTab===k?'active':''}" onclick="S.craftTab='${k}';render()">${kindLabel[k]}</button>`).join('')}</div>
 <div class="cardsRow">${recipeDefs.map(d=>recipeCard(d,d.kind===S.craftTab?6:2)).join('')}</div><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS 0.048% · L 0.002% 제작 확률</small></div>
 <div class="sectiontitle" style="margin-top:14px">제작 집중 옵션</div>
@@ -1402,7 +1405,8 @@ ${TOKEN_OFFERS.map(o=>`<div class="shopItem"><h4>${o.name}</h4><p>${o.detail}</p
  <div class="shopItem"><h4>장인 편의 패스</h4><p>추후 광고 제거·장비 프리셋 저장·자동 제작 편의 기능을 제공할 예정입니다. 전투 능력치 판매는 포함하지 않습니다.</p><button disabled>결제 시스템 준비 중</button></div>
  <p class="hint">실제 결제, 광고 시청 및 구매 복원 기능은 아직 제공되지 않습니다. 결제 금액이나 구매 성공 여부를 표시하지 않습니다.</p>
 </div>`;}
-function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="TAB='${t}';render()"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join(''); }
+let previousRenderedTab=null;
+function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="TAB='${t}';render()"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;try{window.scrollTo?.(0,0)}catch(e){}} }
 render();
 setInterval(battleTick,180);
 setInterval(save,10000);
