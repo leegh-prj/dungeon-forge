@@ -396,7 +396,7 @@ let TAB='던전';
 let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Date.now()+3200,combatFX='',combatDamage=0,combatFxUntil=0,enemyFxUntil=0,enemyPose='idle',bossPatternStep=0,stageRewardUntil=0,stageRewardText='',lastFrameUpdate=0,battleEnemyId='',battleLastPattern='',battlePoisonUntil=0,battleStunUntil=0,lastPoisonTick=0,bossSpecialUntil=0;
 let logs=[];
 let hasSavedGame=false;
-try{const saved=JSON.parse(localStorage.getItem(K)); if(saved){hasSavedGame=true;S={...stateInit(),...saved};}}
+try{const saved=JSON.parse(localStorage.getItem(K)); if(saved){hasSavedGame=true;S={...stateInit(),...saved};if(!Object.prototype.hasOwnProperty.call(saved,'intro'))S.intro=null;}}
 catch(e){}
 if(!hasSavedGame){ seedStarterItems(); }
 normalizeState();
