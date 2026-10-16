@@ -957,9 +957,9 @@ function takeDamage(base){
 }
 function enemyDown(){
  const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;const pass=normalizePass();pass.xp=Math.min(100,pass.xp+(S.boss?5:1));
- const wasBoss=S.boss;const reward=awardBattleRewards(S.boss);S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
+ const wasBoss=S.boss,defeatedRegion=regionInfo();const reward=awardBattleRewards(S.boss);S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
  introAdvance(wasBoss?'boss':'kill');
- if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+regionInfo().material+' +'+reward.quantity+' · 체력 일부 회복';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
+ if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+defeatedRegion.material+' +'+reward.quantity+' · 체력 일부 회복';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
  else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
  S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();
  scheduleEnemyAttack(true);save();render();
@@ -979,7 +979,9 @@ function battleTick(){
    enemyPose='attack';enemyFxUntil=now+500;
    if(S.boss){
      const [name,power]=getBossPattern();const damage=Math.round((105+S.stage*6.5)*power);
-     battleLastPattern=name;runBossPattern(name,damage);bossPatternStep++;
+     battleLastPattern=name;const stageAtAttack=S.stage,killsAtAttack=S.kills;
+     runBossPattern(name,damage);
+     if(S.stage===stageAtAttack&&S.kills===killsAtAttack)bossPatternStep++;
    }else takeDamage(65+S.stage*4);
    scheduleEnemyAttack();
  }
