@@ -559,7 +559,18 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .invItem .mini .rar,.equipThumb .tierbadge{z-index:2}
 .codexItem img,.warehouseItem img,.forgeRow img,.tierRewardItem img,.legendaryIconFrame img,.gearDetailArt img,.slot img,.craftedIcon,.introEquipQuick img{object-fit:contain!important;object-position:center!important;max-width:100%;display:block}
 .graphicFallbackUsed{object-fit:contain!important;background:#141c2a;border-radius:9px}
-.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}/* Day32 boss telegraph */.combatAlert.danger{border-color:#ffcd66!important;background:rgba(131,31,17,.94)!important;color:#fff3cd!important;animation:bossTelegraphPulse .48s ease-in-out infinite alternate}@keyframes bossTelegraphPulse{from{box-shadow:0 0 2px #e69f46;transform:translateY(0)}to{box-shadow:0 0 16px #ffbb55;transform:translateY(-2px)}}.guardSuccess{color:#dcffc7;text-shadow:0 1px 4px #162d1b;font-weight:900}@media(prefers-reduced-motion:reduce){.combatAlert.danger{animation:none!important;outline:3px solid #ffce74}}.enemyStatusText{font-size:10px;min-height:14px;color:#d8ddaa;text-align:center;margin:2px 0;line-height:1.25}@media(max-height:680px){.enemyStatusText{font-size:9px;min-height:11px;margin:0}}.stageRewardNote{overflow-wrap:anywhere;line-height:1.35;font-size:clamp(10px,2.5vw,12px)}.bossGuide{padding:7px 10px!important;margin:5px 0!important}.bossGuide small{font-size:10px}@media(max-height:680px){.bossGuide small{display:none}}</style>
+.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}/* Day32 boss telegraph */.combatAlert.danger{border-color:#ffcd66!important;background:rgba(131,31,17,.94)!important;color:#fff3cd!important;animation:bossTelegraphPulse .48s ease-in-out infinite alternate}@keyframes bossTelegraphPulse{from{box-shadow:0 0 2px #e69f46;transform:translateY(0)}to{box-shadow:0 0 16px #ffbb55;transform:translateY(-2px)}}.guardSuccess{color:#dcffc7;text-shadow:0 1px 4px #162d1b;font-weight:900}@media(prefers-reduced-motion:reduce){.combatAlert.danger{animation:none!important;outline:3px solid #ffce74}}.enemyStatusText{font-size:10px;min-height:14px;color:#d8ddaa;text-align:center;margin:2px 0;line-height:1.25}@media(max-height:680px){.enemyStatusText{font-size:9px;min-height:11px;margin:0}}.stageRewardNote{overflow-wrap:anywhere;line-height:1.35;font-size:clamp(10px,2.5vw,12px)}.bossGuide{padding:7px 10px!important;margin:5px 0!important}.bossGuide small{font-size:10px}@media(max-height:680px){.bossGuide small{display:none}}/* Day 35 boss-exclusive craft objectives */
+.bossForgeIntro{font-size:11px;line-height:1.4;padding:6px;color:#d8c8af}
+.bossForgeList{max-height:min(47dvh,420px);overflow-y:auto;overscroll-behavior:contain;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:8px;padding:4px}
+.bossForgeCard{background:#171d2b;border:1px solid var(--boss-accent,#a88152);border-radius:10px;padding:8px;min-width:0}
+.bossForgeCardHead{display:flex;align-items:center;gap:7px;min-width:0}
+.bossForgeCardHead img{width:49px;height:49px;object-fit:contain;flex:none}
+.bossForgeCardHead div{min-width:0}.bossForgeCardHead strong{display:block;font-size:12px;color:#ffe7b4}.bossForgeCardHead small{display:block;font-size:10px;color:#cfbea4}
+.bossForgeCosts{display:flex;flex-direction:column;gap:3px;padding:7px 0;font-size:10px;color:#e2c89a}
+.bossForgeCard button{width:100%;min-height:40px;background:#8b602f;color:#fff6d7;border:1px solid #cfa160;border-radius:8px;font-weight:800;touch-action:manipulation}
+.bossForgeCard button:disabled{opacity:.52;filter:grayscale(.4)}
+@media(max-width:599px){.bossForgeList{grid-template-columns:1fr;max-height:42dvh}}
+</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -651,7 +662,7 @@ function graphicImage(src,kind='weapon',tier=0,alt='',extra=''){
 }
 function iconFor(item){return tierArtwork(item)}
 let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
-const stateInit=()=>({gold:2000,ore:180,crystals:12,stage:1,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'manual',materials:{},stageKills:null,forgeRegionKey:null,warehouse:[],bagCapacity:120,warehouseCapacity:200,autoSalvageTier:-1,premiumTokens:0,daily:{day:'',kills:0,bosses:0,claimed:[]},autoCraftGoal:2,bagUpgrades:0,warehouseUpgrades:0,attendance:{day:'',streak:0,claimed:false},presets:[null,null,null],offlinePending:null,passProgress:{season:'',xp:0,claimed:[]},intro:{step:0,kills:0,craftedId:null,completed:false},last:Date.now()});
+const stateInit=()=>({gold:2000,ore:180,crystals:12,stage:1,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'manual',materials:{},bossTrophies:{},stageKills:null,forgeRegionKey:null,warehouse:[],bagCapacity:120,warehouseCapacity:200,autoSalvageTier:-1,premiumTokens:0,daily:{day:'',kills:0,bosses:0,claimed:[]},autoCraftGoal:2,bagUpgrades:0,warehouseUpgrades:0,attendance:{day:'',streak:0,claimed:false},presets:[null,null,null],offlinePending:null,passProgress:{season:'',xp:0,claimed:[]},intro:{step:0,kills:0,craftedId:null,completed:false},last:Date.now()});
 let S=stateInit();
 let TAB='던전';
 let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Date.now()+3200,combatFX='',combatDamage=0,combatFxUntil=0,enemyFxUntil=0,enemyPose='idle',bossPatternStep=0,stageRewardUntil=0,stageRewardText='',lastFrameUpdate=0,battleEnemyId='',battleLastPattern='',battlePoisonUntil=0,battleStunUntil=0,lastPoisonTick=0,bossSpecialUntil=0;
@@ -662,7 +673,7 @@ catch(e){}
 if(!hasSavedGame){ seedStarterItems(); }
 normalizeState();
 if(hasSavedGame){prepareOfflineReward(S.last);save()}
-function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1;S.premiumTokens=Math.max(0,Number(S.premiumTokens)||0);S.daily=S.daily&&typeof S.daily==='object'?S.daily:{day:'',kills:0,bosses:0,claimed:[]};S.daily.claimed=Array.isArray(S.daily.claimed)?S.daily.claimed:[];S.autoCraftGoal=Number.isInteger(S.autoCraftGoal)?Math.max(0,Math.min(6,S.autoCraftGoal)):2;S.bagUpgrades=Number.isInteger(S.bagUpgrades)?S.bagUpgrades:0;S.warehouseUpgrades=Number.isInteger(S.warehouseUpgrades)?S.warehouseUpgrades:0;S.attendance=S.attendance&&typeof S.attendance==='object'?S.attendance:{day:'',streak:0,claimed:false};S.presets=Array.isArray(S.presets)?S.presets.slice(0,3):[null,null,null];while(S.presets.length<3)S.presets.push(null);S.passProgress=S.passProgress&&typeof S.passProgress==='object'?S.passProgress:{season:'',xp:0,claimed:[]};S.passProgress.claimed=Array.isArray(S.passProgress.claimed)?S.passProgress.claimed:[]; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
+function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.bossTrophies=S.bossTrophies&&typeof S.bossTrophies==='object'&&!Array.isArray(S.bossTrophies)?S.bossTrophies:{};S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1;S.premiumTokens=Math.max(0,Number(S.premiumTokens)||0);S.daily=S.daily&&typeof S.daily==='object'?S.daily:{day:'',kills:0,bosses:0,claimed:[]};S.daily.claimed=Array.isArray(S.daily.claimed)?S.daily.claimed:[];S.autoCraftGoal=Number.isInteger(S.autoCraftGoal)?Math.max(0,Math.min(6,S.autoCraftGoal)):2;S.bagUpgrades=Number.isInteger(S.bagUpgrades)?S.bagUpgrades:0;S.warehouseUpgrades=Number.isInteger(S.warehouseUpgrades)?S.warehouseUpgrades:0;S.attendance=S.attendance&&typeof S.attendance==='object'?S.attendance:{day:'',streak:0,claimed:false};S.presets=Array.isArray(S.presets)?S.presets.slice(0,3):[null,null,null];while(S.presets.length<3)S.presets.push(null);S.passProgress=S.passProgress&&typeof S.passProgress==='object'?S.passProgress:{season:'',xp:0,claimed:[]};S.passProgress.claimed=Array.isArray(S.passProgress.claimed)?S.passProgress.claimed:[]; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
 const INTRO_STEPS=[
  {title:'첫 몬스터를 처치하세요',tip:'공격 또는 강타를 사용해 보세요.',tab:'던전'},
  {title:'첫 장비를 제작하세요',tip:'대장간에서 무기를 제작하세요.',tab:'대장간'},
@@ -955,11 +966,57 @@ function takeDamage(base){
  if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();enemyAttackAt=Date.now()+3400;toast('패배 · 재화 손실 없이 재도전')}
  refreshCombatNumbers();updateSpriteFrames(true);save();
 }
+const BOSS_FORGE_RECIPES=[
+ {key:'water',kind:'shield',name:'수왕의 방패',effect:'보호막',trophy:'수왕의 핵'},
+ {key:'poison',kind:'ring',name:'포자 군주의 반지',effect:'흡혈',trophy:'군주의 포자핵'},
+ {key:'storm',kind:'weapon',name:'뇌전 그리핀 창',effect:'번개',trophy:'그리핀의 뇌핵'},
+ {key:'fire',kind:'weapon',name:'용암 군주의 검',effect:'화상',trophy:'용암의 심장'},
+ {key:'earth',kind:'armor',name:'고대 골렘 갑주',effect:'견고함',trophy:'골렘의 마력핵'}
+];
+const BOSS_FORGE_COST={trophies:2,materials:6,ore:75,crystals:3};
+function bossRecipe(key){return BOSS_FORGE_RECIPES.find(x=>x.key===key)}
+function bossForgeRequirements(recipe){
+ if(!recipe)return null;
+ return {trophies:Math.max(0,Number(S.bossTrophies?.[recipe.key])||0),materials:Math.max(0,Number(S.materials?.[recipe.key])||0),ore:S.ore,crystals:S.crystals};
+}
+function canCraftBossGear(recipe){
+ const v=bossForgeRequirements(recipe),cost=BOSS_FORGE_COST;
+ return !!v&&v.trophies>=cost.trophies&&v.materials>=cost.materials&&v.ore>=cost.ore&&v.crystals>=cost.crystals
+  &&(S.inventory.length<S.bagCapacity||S.warehouse.length<S.warehouseCapacity);
+}
+function forgeBossGear(key){
+ const recipe=bossRecipe(key);if(!recipe)return toast('보스 제작식을 찾을 수 없습니다');
+ if(!canCraftBossGear(recipe))return toast('보스 전리품·지역 재료·재화 또는 보관 공간이 부족합니다');
+ const cost=BOSS_FORGE_COST,def=recipeDefs.find(x=>x.kind===recipe.kind);
+ if(!def)return toast('제작 가능한 장비 종류가 없습니다');
+ const tier=Math.random()<.15?3:2; // guaranteed A, 15% S bonus
+ const item=mkItem(def,tier,recipe.effect);
+ item.name=recipe.name;item.infusion=recipe.key;item.bossCraft=true;
+ item.power+=(recipe.kind==='weapon'||recipe.kind==='ring'?Math.round(28+tier*9):0);
+ item.defense+=(recipe.kind==='armor'||recipe.kind==='shield'||recipe.kind==='ring'?Math.round(26+tier*8):0);
+ const dest=storeNewItem(item,true);if(dest==='full')return toast('가방 또는 창고에 여유 공간이 필요합니다');
+ S.bossTrophies[recipe.key]-=cost.trophies;S.materials[recipe.key]-=cost.materials;
+ S.ore-=cost.ore;S.crystals-=cost.crystals;
+ discover(item);save();render();
+ showForgeSummary('보스 전리품 제작 완료',[item],recipe.trophy+' '+cost.trophies+'개 소모 · '+(dest==='warehouse'?'창고 보관':'가방 보관'));
+ return item;
+}
+function renderBossForge(){
+ const cost=BOSS_FORGE_COST;
+ return '<div class="bossForgeIntro">👑 보스를 처치해 전용 핵을 모으고 <b>A등급 이상</b> 특별 장비를 제작하세요. A 85% · S 15%</div>'+
+ '<div class="bossForgeList">'+BOSS_FORGE_RECIPES.map(recipe=>{
+  const r=bossForgeRequirements(recipe),region=REGIONS.find(x=>x.key===recipe.key),ready=canCraftBossGear(recipe);
+  return '<div class="bossForgeCard" style="--boss-accent:'+region.tint+'">'+
+  '<div class="bossForgeCardHead">'+graphicImage(iconFor({kind:recipe.kind,tier:2}),recipe.kind,2,recipe.name)+'<div><strong>'+recipe.name+'</strong><small>'+region.boss+' · '+recipe.effect+'</small></div></div>'+
+  '<div class="bossForgeCosts"><span>'+recipe.trophy+' '+r.trophies+'/'+cost.trophies+'</span><span>'+region.material+' '+r.materials+'/'+cost.materials+'</span><span>⛏ '+cost.ore+' · 💎 '+cost.crystals+'</span></div>'+
+  '<button '+(ready?'':'disabled')+' onclick="forgeBossGear(\''+recipe.key+'\')">'+(ready?'⚒ 특별 장비 제작':'전리품 수집 중')+'</button></div>';
+ }).join('')+'</div>';
+}
 function enemyDown(){
  const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;const pass=normalizePass();pass.xp=Math.min(100,pass.xp+(S.boss?5:1));
- const wasBoss=S.boss,defeatedRegion=regionInfo();const reward=awardBattleRewards(S.boss);S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
+ const wasBoss=S.boss,defeatedRegion=regionInfo();const reward=awardBattleRewards(S.boss);if(wasBoss)S.bossTrophies[defeatedRegion.key]=(S.bossTrophies[defeatedRegion.key]||0)+1;S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
  introAdvance(wasBoss?'boss':'kill');
- if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+defeatedRegion.material+' +'+reward.quantity+' · 체력 일부 회복';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
+ if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+defeatedRegion.material+' +'+reward.quantity+' · '+bossRecipe(defeatedRegion.key).trophy+' +1 · 체력 일부 회복';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
  else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
  S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();
  scheduleEnemyAttack(true);save();render();
@@ -1430,6 +1487,7 @@ ${bossGuide()}
 <p class="combatInstruction">${S.battleMode==='manual'?'공격을 직접 누르고 적의 공격 예고에 맞춰 방어하세요.':'자동 모드는 일반 공격과 스킬을 상황에 맞춰 사용합니다.'}</p>
 </div><div class="dungeonTasksPage" ${dungeonPanel==='tasks'?'':'hidden'}>
 ${compactPanel('⚒ 지역 제작 · '+(S.materials?.[regionInfo().key]||0)+'/4',renderCraftJourney(),nextCraftGoal().ready,'uxQuest')}
+${compactPanel('👑 보스 전리품 '+(S.bossTrophies?.[regionInfo().key]||0)+'개',renderBossForge(),false,'uxBossQuest')}
 ${compactPanel('🧭 지역 속성 공략',`<div class="regionAffinity">${currentRegionAffinity().count>=2?`<strong>✦ ${regionInfo().name} 공명 활성</strong><span>피해 +6%${currentRegionAffinity().count>=4?' · 받는 피해 -4%':''}</span>`:`<span>같은 지역 속성 장비 2개 장착 시 피해 +6%</span>`}</div>`,false,'uxStrategy')}
 ${S.offlinePending?renderOfflineReward():''}
 ${S.attendance.day!==dailyKey()?compactPanel('🎁 오늘의 출석 보상',renderAttendance(),false,'uxAttendance'):''}
@@ -1619,6 +1677,7 @@ ${renderIntro()}
  ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${x}</button>`).join('')}
 </div>
 ${forgePanel()}
+${compactPanel('👑 보스 전리품 특별 제작',renderBossForge(),false,'uxBossForge')}
 ${compactPanel('🧪 지역 재료 확인',`<div class="materialVault"><strong>지역 재료 보관함</strong><div class="materialVaultGrid">${REGIONS.map((region,i)=>`<div class="matSlot"><img src="assets/materials/${['01','10','08','04','13'][i]}.webp" alt="" loading="lazy"><span>${region.material}<b>${S.materials?.[region.key]||0}개</b></span></div>`).join('')}</div></div>`,false,'uxMaterials')}
 ${compactPanel('🎒 보관 공간·자동 분해 설정',renderStorageControls()+renderExpansion(),false,'uxStorage')}
 `;}
