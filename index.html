@@ -559,7 +559,7 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .invItem .mini .rar,.equipThumb .tierbadge{z-index:2}
 .codexItem img,.warehouseItem img,.forgeRow img,.tierRewardItem img,.legendaryIconFrame img,.gearDetailArt img,.slot img,.craftedIcon,.introEquipQuick img{object-fit:contain!important;object-position:center!important;max-width:100%;display:block}
 .graphicFallbackUsed{object-fit:contain!important;background:#141c2a;border-radius:9px}
-.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}/* Day32 boss telegraph */.combatAlert.danger{border-color:#ffcd66!important;background:rgba(131,31,17,.94)!important;color:#fff3cd!important;animation:bossTelegraphPulse .48s ease-in-out infinite alternate}@keyframes bossTelegraphPulse{from{box-shadow:0 0 2px #e69f46;transform:translateY(0)}to{box-shadow:0 0 16px #ffbb55;transform:translateY(-2px)}}.guardSuccess{color:#dcffc7;text-shadow:0 1px 4px #162d1b;font-weight:900}@media(prefers-reduced-motion:reduce){.combatAlert.danger{animation:none!important;outline:3px solid #ffce74}}</style>
+.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}/* Day32 boss telegraph */.combatAlert.danger{border-color:#ffcd66!important;background:rgba(131,31,17,.94)!important;color:#fff3cd!important;animation:bossTelegraphPulse .48s ease-in-out infinite alternate}@keyframes bossTelegraphPulse{from{box-shadow:0 0 2px #e69f46;transform:translateY(0)}to{box-shadow:0 0 16px #ffbb55;transform:translateY(-2px)}}.guardSuccess{color:#dcffc7;text-shadow:0 1px 4px #162d1b;font-weight:900}@media(prefers-reduced-motion:reduce){.combatAlert.danger{animation:none!important;outline:3px solid #ffce74}}.enemyStatusText{font-size:10px;min-height:14px;color:#d8ddaa;text-align:center;margin:2px 0;line-height:1.25}@media(max-height:680px){.enemyStatusText{font-size:9px;min-height:11px;margin:0}}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -783,6 +783,7 @@ function runBossPattern(name,rawDamage){
  if(name==='천둥 포효'&&Date.now()<guardActiveUntil){battleFxText=perfectGuardRewarded?'✨ 완벽 방어! 감전 차단 · 광석 +3':'⚡ 방어 성공 · 감전 차단';battleFxUntil=Date.now()+1300}
 }
 let bossGuardUntil=0;
+let enemyBurnUntil=0,enemyPoisonUntil=0,enemyChillUntil=0,lastEnemyStatusTick=0,enemyStatusNote='',enemyStatusNoteUntil=0;
 let manualGuardWindow=false,perfectGuardRewarded=false,battleFxText='';
 function rollBattleRewards(boss){const scale=Math.max(1.8,1+Math.floor(Math.max(1,S.stage)/5)*.12),early=1;return {gold:Math.round((boss?360:68)*scale*early),ore:Math.round((boss?46:11)*scale*early),crystals:boss?(S.stage<=3?6:4):(Math.random()<(S.stage<=3?.3:.17)?1:0),type:regionInfo().key,quantity:boss?6:1+Math.floor(Math.random()*2)}}
 function awardBattleRewards(boss){const reward=rollBattleRewards(boss);S.gold+=reward.gold;S.ore+=reward.ore;S.crystals+=reward.crystals;S.materials=S.materials||{};S.materials[reward.type]=(S.materials[reward.type]||0)+reward.quantity;return reward}
@@ -885,7 +886,45 @@ function guard(auto=false){
  perfectGuardRewarded=false;
  effectCombat('guard');if(!auto)toast(manualGuardWindow?'정확한 방어 타이밍!':'방어 자세!');
 }
-function damageEnemy(d){let final=d;final=Math.round(final*(1+setBonuses().damage+currentRegionAffinity().damage));if(eq('weapon')?.tier===MAX_TIER)final=Math.round(final*1.12);if(eq('ring')?.tier===MAX_TIER)S.hp=Math.min(getMaxHp(),S.hp+Math.max(1,Math.round(final*.05)));if(eq('weapon')?.effect==='화상')final+=Math.max(3,Math.round(totalAtk()*.08));if(eq('weapon')?.effect==='번개')final+=Math.round(totalAtk()*.10);if(eq('weapon')?.effect==='독')final+=Math.round(totalAtk()*.06);if(eq('ring')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+Math.max(2,Math.floor(final*.04)));if(eq('ring')?.effect==='냉기')enemyAttackAt+=Math.min(180,Math.max(0,3000-(enemyAttackAt-Date.now())));if(Date.now()<bossGuardUntil&&S.boss)final=Math.round(final*.45);S.enemyHp-=final;if(S.enemyHp<=0){enemyDown()}else{refreshCombatNumbers();updateSpriteFrames(true)}save()}
+function resetEnemyStatuses(){enemyBurnUntil=0;enemyPoisonUntil=0;enemyChillUntil=0;lastEnemyStatusTick=0;enemyStatusNote='';enemyStatusNoteUntil=0}
+function applyWeaponStatus(effect,now=Date.now()){
+ const atk=totalAtk();
+ if(effect==='화상'){enemyBurnUntil=Math.max(enemyBurnUntil,now+3000);enemyStatusNote='🔥 화상 · 지속 피해'}
+ if(effect==='독'){enemyPoisonUntil=Math.max(enemyPoisonUntil,now+4500);enemyStatusNote='☠ 독 · 지속 피해'}
+ if(effect==='냉기'){enemyChillUntil=Math.max(enemyChillUntil,now+2800);enemyStatusNote='❄ 냉기 · 공격 지연'}
+ if(effect==='번개'){enemyStatusNote='⚡ 번개 · 추가 타격'}
+ if(['화상','독','냉기','번개'].includes(effect))enemyStatusNoteUntil=now+1400;
+}
+function enemyStatusTick(now=Date.now()){
+ if(!S.enemyHp||S.enemyHp<=0)return;
+ if(now-lastEnemyStatusTick<1000)return;
+ lastEnemyStatusTick=now;
+ const atk=totalAtk();
+ const burn=now<enemyBurnUntil?Math.max(4,Math.round(atk*.06)):0;
+ const poison=now<enemyPoisonUntil?Math.max(3,Math.round(atk*.045)):0;
+ if(burn||poison){
+  S.enemyHp=Math.max(0,S.enemyHp-burn-poison);
+  enemyStatusNote='✦ 상태 피해 -'+(burn+poison);
+  enemyStatusNoteUntil=now+850;
+  if(S.enemyHp<=0)enemyDown();else refreshCombatNumbers();
+ }
+}
+function damageEnemy(d){
+ const now=Date.now();let final=Math.round(d*(1+setBonuses().damage+currentRegionAffinity().damage));
+ if(eq('weapon')?.tier===MAX_TIER)final=Math.round(final*1.12);
+ if(eq('ring')?.tier===MAX_TIER)S.hp=Math.min(getMaxHp(),S.hp+Math.max(1,Math.round(final*.05)));
+ const weaponEffect=eq('weapon')?.effect,ringEffect=eq('ring')?.effect;
+ if(weaponEffect==='번개')final+=Math.max(3,Math.round(totalAtk()*.12));
+ if(ringEffect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+Math.max(2,Math.floor(final*.04)));
+ if(weaponEffect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+Math.max(2,Math.floor(final*.035)));
+ if(weaponEffect==='냉기'&&now>=enemyChillUntil)enemyAttackAt+=Math.min(500,Math.max(0,2000-(enemyAttackAt-now)));
+ if(ringEffect==='냉기'&&now>=enemyChillUntil)enemyAttackAt+=Math.min(240,Math.max(0,2500-(enemyAttackAt-now)));
+ applyWeaponStatus(weaponEffect,now);
+ if(now<bossGuardUntil&&S.boss)final=Math.round(final*.45);
+ S.enemyHp-=final;
+ if(S.enemyHp<=0)enemyDown();else{refreshCombatNumbers();updateSpriteFrames(true)}
+ save();
+}
 function takeDamage(base){
  let dmg=base*100/(100+totalDef())*(1-setBonuses().mitigation)*(1-currentRegionAffinity().mitigation),blocked=Date.now()<guardActiveUntil;
  if(blocked){
@@ -899,21 +938,22 @@ function takeDamage(base){
  S.hp-=dmg;effectCombat(blocked?'guard':'hurt',dmg);
  if(eq('ring')?.effect==='반격')S.enemyHp-=Math.max(10,Math.round(totalDef()*.055));
  if(S.enemyHp<=0)enemyDown();
- if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;enemyAttackAt=Date.now()+3400;toast('패배 · 재화 손실 없이 재도전')}
+ if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();enemyAttackAt=Date.now()+3400;toast('패배 · 재화 손실 없이 재도전')}
  refreshCombatNumbers();updateSpriteFrames(true);save();
 }
 function enemyDown(){
  const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;const pass=normalizePass();pass.xp=Math.min(100,pass.xp+(S.boss?5:1));
  const wasBoss=S.boss;const reward=awardBattleRewards(S.boss);S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
- if(eq('weapon')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+80);introAdvance(wasBoss?'boss':'kill');
+ introAdvance(wasBoss?'boss':'kill');
  if(S.boss){S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 스테이지 정복! '+reward.quantity+'개 지역 재료 · 광석 +'+reward.ore;bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
  else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
- S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;
+ S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();
  enemyAttackAt=Date.now()+(S.boss?5100:3200);pendingBossAttack=enemyAttackAt;save();render();
 }
 function battleTick(){
  if(TAB!=='던전')return;
  const now=Date.now();
+ enemyStatusTick(now);
  if(now<battlePoisonUntil&&now-lastPoisonTick>=1000){lastPoisonTick=now;S.hp=Math.max(1,S.hp-(9+Math.floor(S.stage*1.25)));refreshCombatNumbers()}
  if(S.battleMode!=='manual'&&S.enemyHp>0){
    if(S.boss&&enemyAttackAt-now>0&&enemyAttackAt-now<1200&&now>=guardReady)guard(true);
@@ -947,7 +987,7 @@ function updateBattleHUD(){
   al.textContent=urgent?'⚠ '+pattern+'! 지금 방어!':'⏳ '+pattern+' · '+(remain/1000).toFixed(1)+'초';
  }
  for(const [id,at] of [['attackTimer',basicReady],['strikeTimer',strikeReady],['guardTimer',guardReady]]){const el=document.getElementById(id);if(el)el.textContent=now>=at?'준비 완료':Math.ceil((at-now)/1000)+'초'}
- const status=document.getElementById('battleStatus');if(status)status.textContent=combatStatus();refreshCombatNumbers();
+ const status=document.getElementById('battleStatus');if(status)status.textContent=combatStatus();const statusEnemy=document.getElementById('enemyStatusText');if(statusEnemy)statusEnemy.textContent=(now<enemyBurnUntil?'🔥 화상 ':'')+(now<enemyPoisonUntil?'☠ 독 ':'')+(now<enemyChillUntil?'❄ 둔화 ':'')+(now<enemyStatusNoteUntil?'· '+enemyStatusNote:'');refreshCombatNumbers();
  const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/(S.boss?5300:3200))))+'%';
  const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">'+battleFxText+'</span>':'';const reward=document.getElementById('stageRewardNote');if(reward)reward.style.display=now<stageRewardUntil?'block':'none';
 }
@@ -1365,7 +1405,7 @@ ${bossGuide()}
  <button class="combatSkill strong" onclick="strike()" ${S.battleMode!=='manual'?'disabled':''}>🔥 강타<small id="strikeTimer">준비 완료</small></button>
  <button class="combatSkill guard" onclick="guard()" ${S.battleMode!=='manual'?'disabled':''}>🛡 방어<small id="guardTimer">준비 완료</small></button>
 </div>
-<div class="battleQuickStatus"><span id="battleStatus">${combatStatus()}</span><span>⚔ ${totalAtk().toLocaleString()} · 🛡 ${totalDef().toLocaleString()}</span></div>
+<div class="enemyStatusText" id="enemyStatusText" role="status" aria-live="polite"></div><div class="battleQuickStatus"><span id="battleStatus">${combatStatus()}</span><span>⚔ ${totalAtk().toLocaleString()} · 🛡 ${totalDef().toLocaleString()}</span></div>
 <div class="enemyMeter"><span id="enemyCharge"></span></div>
 <div class="battleMode"><div><strong>전투 모드</strong><small>${S.battleMode==='manual'?'직접 공격·강타·방어':'스킬과 기본 공격 자동 사용'}</small></div><div class="modeSwitch"><button class="${S.battleMode!=='manual'?'active':''}" onclick="setBattleMode('auto')">자동</button><button class="${S.battleMode==='manual'?'active':''}" onclick="setBattleMode('manual')">수동</button></div></div>
 <div class="regionBadge" style="--region-color:${regionInfo().tint}"><span class="zoneTag">지역 ${(S.stage-1)%5+1}/5 · ${Math.floor((S.stage-1)/5)+1}순환</span>⛏ 지역 재료 <b>${regionInfo().material} ${S.materials?.[regionInfo().key]||0}개</b> · 보스 ${regionInfo().boss}</div>
