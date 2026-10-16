@@ -953,7 +953,9 @@ function enemyDown(){
 function battleTick(){
  if(TAB!=='던전')return;
  const now=Date.now();
+ const stageBeforeTick=S.stage,killsBeforeTick=S.kills;
  enemyStatusTick(now);
+ if(S.stage!==stageBeforeTick||S.kills!==killsBeforeTick){updateBattleHUD();return}
  if(now<battlePoisonUntil&&now-lastPoisonTick>=1000){lastPoisonTick=now;S.hp=Math.max(1,S.hp-(9+Math.floor(S.stage*1.25)));refreshCombatNumbers()}
  if(S.battleMode!=='manual'&&S.enemyHp>0){
    if(S.boss&&enemyAttackAt-now>0&&enemyAttackAt-now<1200&&now>=guardReady)guard(true);
