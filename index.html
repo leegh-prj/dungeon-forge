@@ -559,7 +559,7 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .invItem .mini .rar,.equipThumb .tierbadge{z-index:2}
 .codexItem img,.warehouseItem img,.forgeRow img,.tierRewardItem img,.legendaryIconFrame img,.gearDetailArt img,.slot img,.craftedIcon,.introEquipQuick img{object-fit:contain!important;object-position:center!important;max-width:100%;display:block}
 .graphicFallbackUsed{object-fit:contain!important;background:#141c2a;border-radius:9px}
-</style>
+.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -630,14 +630,21 @@ function graphicFallback(kind='weapon',tier=0){
  const uri='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
  GRAPHIC_PLACEHOLDERS.set(key,uri);return uri;
 }
-function handleGraphicError(img){
+function handleGraphicError(img,forcedKind){
  if(!img||img.dataset?.fallbackUsed==='1')return;
- const kind=img.dataset?.graphicKind||'weapon';
+ const kind=forcedKind||img.dataset?.graphicKind||'weapon';
  const tier=Number(img.dataset?.graphicTier||0);
  if(img.dataset)img.dataset.fallbackUsed='1';
  img.onerror=null;
  img.src=graphicFallback(kind,tier);
  img.classList?.add('graphicFallbackUsed');
+}
+function fallbackFromElement(img){
+ if(!img||img.dataset?.fallbackUsed==='1')return;
+ const src=img.getAttribute?.('src')||img.src||'';
+ let kind=img.dataset?.graphicKind||'';
+ if(!kind){if(/hero|guard/i.test(src))kind='hero';else if(/slime|magma|assets\/hd\//i.test(src))kind='monster';else kind='weapon'}
+ handleGraphicError(img,kind);
 }
 function graphicImage(src,kind='weapon',tier=0,alt='',extra=''){
  return '<img src="'+src+'" alt="'+String(alt).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')+'" data-graphic-kind="'+kind+'" data-graphic-tier="'+Math.max(0,Math.min(MAX_TIER,Number(tier)||0))+'" onerror="handleGraphicError(this)" loading="lazy" decoding="async" '+extra+'>';
@@ -1613,15 +1620,15 @@ ${renderIntroEquip()}
 ${renderWarehouse()}
 ${storageTab==='loadout'?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
   <div class="slotcol">
-    <div class="slot">${eq('weapon')?`<img src="${iconFor(eq('weapon'))}"><span class="slotlabel">${rarityLetter[eq('weapon').tier]}</span>`:'무기'}</div>
-    <div class="slot">${eq('ring')?`<img src="${iconFor(eq('ring'))}"><span class="slotlabel">${rarityLetter[eq('ring').tier]}</span>`:'반지'}</div>
+    <div class="slot">${eq('weapon')?`${graphicImage(iconFor(eq('weapon')),'weapon',eq('weapon').tier,'착용 weapon')}<span class="slotlabel">${rarityLetter[eq('weapon').tier]}</span>`:'무기'}</div>
+    <div class="slot">${eq('ring')?`${graphicImage(iconFor(eq('ring')),'ring',eq('ring').tier,'착용 ring')}<span class="slotlabel">${rarityLetter[eq('ring').tier]}</span>`:'반지'}</div>
   </div>
   <div>
     <div class="charstage"><img src="assets/art/hero_guard.webp" alt="hero"></div>
   </div>
   <div class="slotcol">
-    <div class="slot">${eq('armor')?`<img src="${iconFor(eq('armor'))}"><span class="slotlabel">${rarityLetter[eq('armor').tier]}</span>`:'갑옷'}</div>
-    <div class="slot">${eq('shield')?`<img src="${iconFor(eq('shield'))}"><span class="slotlabel">${rarityLetter[eq('shield').tier]}</span>`:'방패'}</div>
+    <div class="slot">${eq('armor')?`${graphicImage(iconFor(eq('armor')),'armor',eq('armor').tier,'착용 armor')}<span class="slotlabel">${rarityLetter[eq('armor').tier]}</span>`:'갑옷'}</div>
+    <div class="slot">${eq('shield')?`${graphicImage(iconFor(eq('shield')),'shield',eq('shield').tier,'착용 shield')}<span class="slotlabel">${rarityLetter[eq('shield').tier]}</span>`:'방패'}</div>
   </div>
 </div>
 <div class="statsBox">
@@ -1661,7 +1668,7 @@ function renderCodex(){
 }
 function renderMonsterCodex(){
  const regions=REGIONS;
- const grid=regions.map((r,i)=>`<div class="panel" style="padding:12px"><img src="assets/hd/${r.key==='fire'?'magma':r.key}/idle-0.webp" onerror="this.onerror=null;this.src='assets/art/${i===3?'magma':'slime'}.webp'" alt="${r.boss}"><strong>${r.boss}</strong><p class="researchNote">${r.name} · 보스<br>${S.stage>i+1?'진행 기록 있음':'도전 가능'}</p><p class="researchNote">보상: ${r.material}</p></div>`).join('');
+ const grid=regions.map((r,i)=>`<div class="panel" style="padding:12px"><img src="assets/hd/${r.key==='fire'?'magma':r.key}/idle-0.webp" onerror="handleGraphicError(this,'monster')" alt="${r.boss}"><strong>${r.boss}</strong><p class="researchNote">${r.name} · 보스<br>${S.stage>i+1?'진행 기록 있음':'도전 가능'}</p><p class="researchNote">보상: ${r.material}</p></div>`).join('');
  return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">몬스터 도감</div><div class="codexMonsterGrid">${grid}</div>`;
 }
 function renderRegionCodex(){
@@ -1729,4 +1736,6 @@ setInterval(battleTick,180);
 setInterval(save,10000);
 window.addEventListener('beforeunload',save);
 document.addEventListener('visibilitychange',()=>document.hidden&&save());
+// Capture errors from older raw <img> markup too, not only new graphicImage elements.
+document.addEventListener('error',event=>{const img=event.target;if(img?.tagName==='IMG')fallbackFromElement(img)},true);
 </script></body></html>
