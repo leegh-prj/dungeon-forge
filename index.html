@@ -780,6 +780,7 @@ function runBossPattern(name,rawDamage){
  if(name==='파도 밀치기')basicReady=Math.max(basicReady,Date.now()+750);
  if(name==='용암 내려찍기')dmg=Math.round(dmg*1.12);
  takeDamage(dmg);
+ if(name==='천둥 포효'&&Date.now()<guardActiveUntil){battleFxText=perfectGuardRewarded?'✨ 완벽 방어! 감전 차단 · 광석 +3':'⚡ 방어 성공 · 감전 차단';battleFxUntil=Date.now()+1300}
 }
 let bossGuardUntil=0;
 let manualGuardWindow=false,perfectGuardRewarded=false,battleFxText='';
