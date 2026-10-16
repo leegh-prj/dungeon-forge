@@ -559,7 +559,7 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .invItem .mini .rar,.equipThumb .tierbadge{z-index:2}
 .codexItem img,.warehouseItem img,.forgeRow img,.tierRewardItem img,.legendaryIconFrame img,.gearDetailArt img,.slot img,.craftedIcon,.introEquipQuick img{object-fit:contain!important;object-position:center!important;max-width:100%;display:block}
 .graphicFallbackUsed{object-fit:contain!important;background:#141c2a;border-radius:9px}
-.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}</style>
+.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}/* Day32 boss telegraph */.combatAlert.danger{border-color:#ffcd66!important;background:rgba(131,31,17,.94)!important;color:#fff3cd!important;animation:bossTelegraphPulse .48s ease-in-out infinite alternate}@keyframes bossTelegraphPulse{from{box-shadow:0 0 2px #e69f46;transform:translateY(0)}to{box-shadow:0 0 16px #ffbb55;transform:translateY(-2px)}}.guardSuccess{color:#dcffc7;text-shadow:0 1px 4px #162d1b;font-weight:900}@media(prefers-reduced-motion:reduce){.combatAlert.danger{animation:none!important;outline:3px solid #ffce74}}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -774,7 +774,7 @@ function runBossPattern(name,rawDamage){
  if(name==='회복 젤'){S.enemyHp=Math.min(getEnemyMax(),S.enemyHp+Math.round(getEnemyMax()*.095));stageRewardText='💧 물의 왕이 체력을 회복했습니다';stageRewardUntil=Date.now()+1800;return}
  if(name==='방어 태세'){S.enemyHp=Math.min(getEnemyMax(),S.enemyHp+Math.round(getEnemyMax()*.045));bossGuardUntil=Date.now()+2400;stageRewardText='🪨 골렘 방어 태세 · 받는 피해 감소';stageRewardUntil=Date.now()+2400;return}
  if(name.includes('독')){if(Date.now()>=guardActiveUntil)battlePoisonUntil=Math.max(battlePoisonUntil,Date.now())+4200;else{stageRewardText='🛡 독성 공격 방어 성공';stageRewardUntil=Date.now()+1500}}
- if(name==='천둥 포효'){battleStunUntil=Date.now()+1250}
+ if(name==='천둥 포효'){if(Date.now()>=guardActiveUntil)battleStunUntil=Date.now()+1250;else{battleFxText='⚡ 방어 성공 · 감전 차단';battleFxUntil=Date.now()+1300}}
  if(name==='번개 깃털'){takeDamage(Math.round(dmg*.53));takeDamage(Math.round(dmg*.53));return}
  if(name==='연속 할퀴기'){takeDamage(Math.round(dmg*.54));takeDamage(Math.round(dmg*.54));return}
  if(name==='파도 밀치기')basicReady=Math.max(basicReady,Date.now()+750);
@@ -782,6 +782,7 @@ function runBossPattern(name,rawDamage){
  takeDamage(dmg);
 }
 let bossGuardUntil=0;
+let manualGuardWindow=false,perfectGuardRewarded=false,battleFxText='';
 function rollBattleRewards(boss){const scale=Math.max(1.8,1+Math.floor(Math.max(1,S.stage)/5)*.12),early=1;return {gold:Math.round((boss?360:68)*scale*early),ore:Math.round((boss?46:11)*scale*early),crystals:boss?(S.stage<=3?6:4):(Math.random()<(S.stage<=3?.3:.17)?1:0),type:regionInfo().key,quantity:boss?6:1+Math.floor(Math.random()*2)}}
 function awardBattleRewards(boss){const reward=rollBattleRewards(boss);S.gold+=reward.gold;S.ore+=reward.ore;S.crystals+=reward.crystals;S.materials=S.materials||{};S.materials[reward.type]=(S.materials[reward.type]||0)+reward.quantity;return reward}
 function discover(item){
@@ -877,13 +878,21 @@ function strike(auto=false){
 function guard(auto=false){
  if(!auto&&S.battleMode!=='manual')return;
  if(Date.now()<guardReady){if(!auto)toast('방어 재사용 대기 중');return}
- guardReady=Date.now()+5500;guardActiveUntil=Date.now()+1600;
- effectCombat('guard');if(!auto)toast('방어 자세!');
+ const now=Date.now();
+ guardReady=now+5500;guardActiveUntil=now+1600;
+ manualGuardWindow=!auto&&S.boss&&enemyAttackAt-now>=0&&enemyAttackAt-now<=1000;
+ perfectGuardRewarded=false;
+ effectCombat('guard');if(!auto)toast(manualGuardWindow?'정확한 방어 타이밍!':'방어 자세!');
 }
 function damageEnemy(d){let final=d;final=Math.round(final*(1+setBonuses().damage+currentRegionAffinity().damage));if(eq('weapon')?.tier===MAX_TIER)final=Math.round(final*1.12);if(eq('ring')?.tier===MAX_TIER)S.hp=Math.min(getMaxHp(),S.hp+Math.max(1,Math.round(final*.05)));if(eq('weapon')?.effect==='화상')final+=Math.max(3,Math.round(totalAtk()*.08));if(eq('weapon')?.effect==='번개')final+=Math.round(totalAtk()*.10);if(eq('weapon')?.effect==='독')final+=Math.round(totalAtk()*.06);if(eq('ring')?.effect==='흡혈')S.hp=Math.min(getMaxHp(),S.hp+Math.max(2,Math.floor(final*.04)));if(eq('ring')?.effect==='냉기')enemyAttackAt+=Math.min(180,Math.max(0,3000-(enemyAttackAt-Date.now())));if(Date.now()<bossGuardUntil&&S.boss)final=Math.round(final*.45);S.enemyHp-=final;if(S.enemyHp<=0){enemyDown()}else{refreshCombatNumbers();updateSpriteFrames(true)}save()}
 function takeDamage(base){
  let dmg=base*100/(100+totalDef())*(1-setBonuses().mitigation)*(1-currentRegionAffinity().mitigation),blocked=Date.now()<guardActiveUntil;
- if(blocked){dmg*=0.25;if(S.boss){S.ore+=2;battleFxUntil=Date.now()+1000}}
+ if(blocked){
+  const perfect=S.boss&&manualGuardWindow&&Date.now()<=guardActiveUntil&&Date.now()>=enemyAttackAt-180;
+  dmg*=perfect?.12:.25;
+  if(perfect&&!perfectGuardRewarded){perfectGuardRewarded=true;S.ore+=3;battleFxText='✨ 완벽 방어! 피해 88% 감소 · 광석 +3';battleFxUntil=Date.now()+1700}
+  else if(S.boss&&!perfect){battleFxText='🛡 방어 성공 · 피해 75% 감소';battleFxUntil=Date.now()+950}
+ }
  if(eq('shield')?.effect==='보호막')dmg*=0.88;
  if(eq('armor')?.effect==='견고함')dmg*=0.90;if(eq('armor')?.tier===MAX_TIER)dmg*=.92;if(eq('shield')?.tier===MAX_TIER)dmg*=.90;
  S.hp-=dmg;effectCombat(blocked?'guard':'hurt',dmg);
@@ -931,11 +940,15 @@ function updateBattleHUD(){
  if(TAB!=='던전')return;
  const now=Date.now(),remain=Math.max(0,enemyAttackAt-now);
  const al=document.getElementById('combatAlert');
- if(al){al.style.display='block';al.classList.toggle('danger',remain<1250);const pattern=S.boss?'⚠ '+getBossPattern()[0]:'⚔ '+regionInfo().enemy+' 돌진';al.textContent=remain<1250?'⚠ '+pattern+' 임박! 방어!':pattern+'까지 '+(remain/1000).toFixed(1)+'초'}
+ if(al){
+  const urgent=remain<=1000,pattern=S.boss?getBossPattern()[0]:regionInfo().enemy+' 돌진';
+  al.style.display='block';al.classList.toggle('danger',urgent);
+  al.textContent=urgent?'⚠ '+pattern+'! 지금 방어!':'⏳ '+pattern+' · '+(remain/1000).toFixed(1)+'초';
+ }
  for(const [id,at] of [['attackTimer',basicReady],['strikeTimer',strikeReady],['guardTimer',guardReady]]){const el=document.getElementById(id);if(el)el.textContent=now>=at?'준비 완료':Math.ceil((at-now)/1000)+'초'}
  const status=document.getElementById('battleStatus');if(status)status.textContent=combatStatus();refreshCombatNumbers();
  const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/(S.boss?5300:3200))))+'%';
- const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">완벽 방어! 광석 +2</span>':'';const reward=document.getElementById('stageRewardNote');if(reward)reward.style.display=now<stageRewardUntil?'block':'none';
+ const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">'+battleFxText+'</span>':'';const reward=document.getElementById('stageRewardNote');if(reward)reward.style.display=now<stageRewardUntil?'block':'none';
 }
 function forgeRegion(){return REGIONS.find(r=>r.key===S.forgeRegionKey)||regionInfo()}
 function selectForgeRegion(key){if(!REGIONS.some(r=>r.key===key))return;S.forgeRegionKey=key;save();render()}
