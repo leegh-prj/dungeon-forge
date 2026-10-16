@@ -552,6 +552,13 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .craftEquipped{font-size:12px;color:#aee5a5;padding:6px;border:1px solid #4a7950;border-radius:8px}
 @media(max-width:359px){.shopBalance{padding:7px}.shopBalance strong{font-size:12px}.shopBalance small{font-size:9px}.compactCodex .codexSide .sideTab{font-size:10px}.compactCodex .codexGrid{max-height:calc(100dvh - var(--nav-height,63px) - 262px)}}
 @media(min-width:600px){.shopGrid{grid-template-columns:repeat(3,minmax(0,1fr))}.codexMonsterGrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* Phase 1-2 visual stability: keep full gear icon art visible across all contexts */
+.equipThumb,.invItem .mini,.codexItem,.warehouseItem img,.forgeRow img,.tierRewardItem,.legendaryIconFrame,.gearDetailArt{min-width:0;isolation:isolate}
+.equipThumb,.invItem .mini{display:grid;place-items:center;background:#101722;overflow:hidden}
+.equipThumb>img,.invItem .mini>img{width:100%;height:100%;min-width:0;min-height:0;object-fit:contain;object-position:center;display:block}
+.invItem .mini .rar,.equipThumb .tierbadge{z-index:2}
+.codexItem img,.warehouseItem img,.forgeRow img,.tierRewardItem img,.legendaryIconFrame img,.gearDetailArt img,.slot img,.craftedIcon,.introEquipQuick img{object-fit:contain!important;object-position:center!important;max-width:100%;display:block}
+.graphicFallbackUsed{object-fit:contain!important;background:#141c2a;border-radius:9px}
 </style>
 </head>
 <body>
@@ -611,6 +618,29 @@ function tierArtwork(item){
  const svg='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">'+defs+'<circle cx="128" cy="128" r="104" fill="'+metal+'" opacity=".15" filter="url(#glow)"/>'+runes+wings+shape+corners+'</svg>';
  const uri='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
  ICON_CACHE.set(key,uri);return uri;
+}
+const GRAPHIC_PLACEHOLDERS=new Map();
+function graphicFallback(kind='weapon',tier=0){
+ const slot=['weapon','armor','shield','ring','monster','hero'].includes(kind)?kind:'weapon';
+ const key=slot+':'+Math.max(0,Math.min(MAX_TIER,Number(tier)||0));
+ if(GRAPHIC_PLACEHOLDERS.has(key))return GRAPHIC_PLACEHOLDERS.get(key);
+ const palette=TIER_METALS[Math.max(0,Math.min(MAX_TIER,Number(tier)||0))]||TIER_METALS[0];
+ const sign={weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇',monster:'☄',hero:'✦'}[slot];
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><defs><radialGradient id="g"><stop stop-color="'+palette[0]+'"/><stop offset="1" stop-color="#111827"/></radialGradient></defs><rect width="256" height="256" rx="34" fill="#192332"/><rect x="12" y="12" width="232" height="232" rx="25" fill="url(#g)" stroke="'+palette[2]+'" stroke-width="6"/><circle cx="128" cy="120" r="69" stroke="'+palette[2]+'" stroke-width="5" fill="#091322" fill-opacity=".48"/><text x="128" y="156" text-anchor="middle" font-size="90" fill="'+palette[2]+'" font-family="sans-serif">'+sign+'</text></svg>';
+ const uri='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
+ GRAPHIC_PLACEHOLDERS.set(key,uri);return uri;
+}
+function handleGraphicError(img){
+ if(!img||img.dataset?.fallbackUsed==='1')return;
+ const kind=img.dataset?.graphicKind||'weapon';
+ const tier=Number(img.dataset?.graphicTier||0);
+ if(img.dataset)img.dataset.fallbackUsed='1';
+ img.onerror=null;
+ img.src=graphicFallback(kind,tier);
+ img.classList?.add('graphicFallbackUsed');
+}
+function graphicImage(src,kind='weapon',tier=0,alt='',extra=''){
+ return '<img src="'+src+'" alt="'+String(alt).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')+'" data-graphic-kind="'+kind+'" data-graphic-tier="'+Math.max(0,Math.min(MAX_TIER,Number(tier)||0))+'" onerror="handleGraphicError(this)" loading="lazy" decoding="async" '+extra+'>';
 }
 function iconFor(item){return tierArtwork(item)}
 let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
@@ -783,7 +813,21 @@ function spriteFrame(who,pose,now){
  return 'assets/hd/'+who+'/'+pose+'-'+Math.floor(now/(pose==='attack'?175:350)%length)+'.webp';
 }
 let lastHeroAnim='',lastEnemyAnim='',heroAnimStart=Date.now(),enemyAnimStart=Date.now();
-const missingHD={};function setSprite(el,path,fallback){if(!el)return;if(missingHD[path]){if(el.getAttribute('src')!==fallback)el.setAttribute('src',fallback);return}el.onerror=function(){missingHD[path]=true;this.onerror=null;this.src=fallback};if(el.getAttribute('src')!==path)el.setAttribute('src',path)}
+const missingHD={};function setSprite(el,path,fallback){
+ if(!el)return;
+ const kind=el.id==='heroSprite'?'hero':'monster';
+ const target=missingHD[path]?fallback:path;
+ if(el.getAttribute('src')===target)return;
+ el.onerror=function(){
+  if(this.dataset?.fallbackUsed==='1')return;
+  missingHD[path]=true;
+  if(this.getAttribute('src')===fallback){handleGraphicError(this);return}
+  this.onerror=function(){handleGraphicError(this)};
+  this.src=fallback;
+ };
+ if(el.dataset){el.dataset.graphicKind=kind;el.dataset.graphicTier='0';el.dataset.fallbackUsed='0'}
+ el.setAttribute('src',target);
+}
 function animationFrame(who,pose,elapsed){
  const count=(HD_FRAMES[who]&&HD_FRAMES[who][pose])||1;
  const frameDuration=pose==='attack'?170:pose==='special'?240:pose==='hurt'?330:pose==='guard'?400:360;
@@ -1170,7 +1214,7 @@ function showForgeSummary(title,items,detail){
  }
  craftOverlayOpen=true;
  const modal=document.getElementById('craftModal');modal.className='craftModal';
- modal.innerHTML=`<span class="beam">✦ ⚒ ✦</span><div class="grade">${title}</div><div class="forgeResults">${items.map(it=>`<div><img src="${iconFor(it)}" alt=""><small class="${rarityClass(it.tier)}">${rarityLetter[it.tier]} ${it.name}${itemPlus(it)?' +'+itemPlus(it):''}</small></div>`).join('')}</div><p class="researchNote">${detail}</p><button onclick="closeCraft()">확인</button>`;
+ modal.innerHTML=`<span class="beam">✦ ⚒ ✦</span><div class="grade">${title}</div><div class="forgeResults">${items.map(it=>`<div>${graphicImage(iconFor(it),it.kind,it.tier,it.name)}<small class="${rarityClass(it.tier)}">${rarityLetter[it.tier]} ${it.name}${itemPlus(it)?' +'+itemPlus(it):''}</small></div>`).join('')}</div><p class="researchNote">${detail}</p><button onclick="closeCraft()">확인</button>`;
  document.getElementById('craftOverlay').classList.add('show');
 }
 function bulkDismantle(){selectDismantleAll();if(forgeSelection.length)confirmDismantle();else toast('분해 가능한 장비가 없습니다')}
@@ -1183,7 +1227,7 @@ function showLegendaryCutscene(item,detail=''){
  modal.className='craftModal legendaryScene';
  modal.innerHTML=`<div class="legendaryHalo" aria-hidden="true"></div><div class="legendaryParticles" aria-hidden="true">${Array.from({length:18},(_,i)=>'<i style="--i:'+i+'"></i>').join('')}</div>
  <div class="legendaryKicker">✦ LEGENDARY ✦</div><div class="legendarySigil">L</div>
- <div class="legendaryIconFrame"><img src="${iconFor(item)}" alt="${item.name}"></div>
+ <div class="legendaryIconFrame">${graphicImage(iconFor(item),item.kind,item.tier,item.name)}</div>
  <h2 class="legendaryHeading">${item.name}</h2><p class="legendaryPassive">✧ ${legendaryPassive(item)}</p>
  <p class="legendaryDetails">${item.firstLegendary?'🏆 최초 L 획득! 골드 +100,000 · 결정 +50':detail||'최고 등급 장비 획득'}</p>
  ${craftedEquipButton(item)}<button class="legendaryConfirm" onclick="closeLegendaryCutscene()">전설 장비 확인</button>
@@ -1232,7 +1276,7 @@ function repairStats(){
 }
 
 function filteredItems(kind=null){return S.inventory.filter(it=>!kind||it.kind===kind)}
-function recipeCard(def,tier=4){return `<div class="equipCard tierGear tierGear${tier}"><div class="equipThumb" style="background-image:url('${iconFor({kind:def.kind,tier})}')"><span class="tierbadge ${rarityClass(tier)}">${rarityLetter[tier]}</span></div><div class="name">${def.name}</div></div>`}
+function recipeCard(def,tier=4){return `<div class="equipCard tierGear tierGear${tier}"><div class="equipThumb">${graphicImage(iconFor({kind:def.kind,tier}),def.kind,tier,def.name)}<span class="tierbadge ${rarityClass(tier)}">${rarityLetter[tier]}</span></div><div class="name">${def.name}</div></div>`}
 function renderResources(){return `<div class="resources"><div class="reschip"><small>🪙</small>${S.gold.toLocaleString()}</div><div class="reschip"><small>⛏</small>${S.ore.toLocaleString()}</div><div class="reschip"><small>💎</small>${S.crystals.toLocaleString()}</div><div class="reschip plus">＋</div></div>`}
 function renderHeader(title,icon='✦'){return `<div class="screenheader"><div class="headerleft"><div class="emblem">${icon}</div><div class="screentitle">${title}</div></div>${renderResources()}</div>`}
 function openStageInfo(){
@@ -1590,7 +1634,7 @@ ${compactPanel('✦ 속성 세트 효과',renderSetPanel(),false,'uxSet')}
 ${compactPanel('🏆 업적 현황',renderLegendaryAchievements(),false,'uxAchievement')}
 <div class="equipmentJump"><button onclick="setStorageTab('bag')">🎒 보유 장비 관리 →</button></div>`:''}
 ${storageTab==='bag'?`<div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
-<div class="inventoryTools"><label>장비 찾기<input type="search" placeholder="이름·등급·속성 검색" value="${inventorySearch.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}" oninput="filterInventoryCards(this.value)"></label><label>정렬<select onchange="sortInventory(this.value)">${[['tier','등급 높은 순'],['power','능력치 높은 순'],['level','강화 높은 순'],['newest','최근 획득 순'],['oldest','오래된 순']].map(([v,l])=>`<option value="${v}" ${inventorySort===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="inventoryCount">표시 장비 <strong id="inventoryVisibleCount">${all.length}</strong>개 / 가방 ${S.inventory.length}개</div><div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" data-search="${[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"><div class="mini" style="background-image:url('${iconFor(it)}')"><span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div><button onclick="openEquipmentDetails(${idx})">상세</button><button onclick="moveToWarehouse(${idx})" ${isEquipped(idx)?'disabled':''}>보관</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>`:''}
+<div class="inventoryTools"><label>장비 찾기<input type="search" placeholder="이름·등급·속성 검색" value="${inventorySearch.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}" oninput="filterInventoryCards(this.value)"></label><label>정렬<select onchange="sortInventory(this.value)">${[['tier','등급 높은 순'],['power','능력치 높은 순'],['level','강화 높은 순'],['newest','최근 획득 순'],['oldest','오래된 순']].map(([v,l])=>`<option value="${v}" ${inventorySort===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="inventoryCount">표시 장비 <strong id="inventoryVisibleCount">${all.length}</strong>개 / 가방 ${S.inventory.length}개</div><div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" data-search="${[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"><div class="mini">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}<span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div><button onclick="openEquipmentDetails(${idx})">상세</button><button onclick="moveToWarehouse(${idx})" ${isEquipped(idx)?'disabled':''}>보관</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>`:''}
 ${storageTab==='warehouse'?compactPanel('🎒 창고 확장 및 자동 분해 설정',renderStorageControls()+renderExpansion(),false,'uxStorage'):''}
 `;}
 function setCodexCollectionFilter(v){codexCollectionFilter=v;codexPage=0;render()}
@@ -1606,7 +1650,7 @@ function renderCodex(){
  const cats=['weapon','armor','shield','ring'],all=codexSlots(S.codexSide),found=S.discovered.filter(k=>k.startsWith(S.codexSide+'|'));
  const pages=Math.max(1,Math.ceil(all.length/12));codexPage=Math.min(codexPage,pages-1);
  const grid=all.slice(codexPage*12,(codexPage+1)*12).map(slot=>slot.found?
-   `<div class="codexItem collected"><img src="${iconFor({kind:S.codexSide,tier:Number(slot.key.split('|')[2])})}" alt="수집한 장비"><span class="label ${rarityClass(Number(slot.key.split('|')[2]))}">✓ ${rarityLetter[Number(slot.key.split('|')[2])]}</span></div>`:
+   `<div class="codexItem collected">${graphicImage(iconFor({kind:S.codexSide,tier:Number(slot.key.split('|')[2])}),S.codexSide,Number(slot.key.split('|')[2]),"수집한 장비")}<span class="label ${rarityClass(Number(slot.key.split('|')[2]))}">✓ ${rarityLetter[Number(slot.key.split('|')[2])]}</span></div>`:
    `<div class="codexItem undiscovered"><span class="codexQuestion">?</span><span class="label">미수집</span></div>`).join('');
  return `${renderHeader('도감','📖')}
 <div class="codexTabs compactNav" style="margin-bottom:7px">${codexTabButtons()}</div>
