@@ -559,7 +559,7 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .invItem .mini .rar,.equipThumb .tierbadge{z-index:2}
 .codexItem img,.warehouseItem img,.forgeRow img,.tierRewardItem img,.legendaryIconFrame img,.gearDetailArt img,.slot img,.craftedIcon,.introEquipQuick img{object-fit:contain!important;object-position:center!important;max-width:100%;display:block}
 .graphicFallbackUsed{object-fit:contain!important;background:#141c2a;border-radius:9px}
-.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}/* Day32 boss telegraph */.combatAlert.danger{border-color:#ffcd66!important;background:rgba(131,31,17,.94)!important;color:#fff3cd!important;animation:bossTelegraphPulse .48s ease-in-out infinite alternate}@keyframes bossTelegraphPulse{from{box-shadow:0 0 2px #e69f46;transform:translateY(0)}to{box-shadow:0 0 16px #ffbb55;transform:translateY(-2px)}}.guardSuccess{color:#dcffc7;text-shadow:0 1px 4px #162d1b;font-weight:900}@media(prefers-reduced-motion:reduce){.combatAlert.danger{animation:none!important;outline:3px solid #ffce74}}.enemyStatusText{font-size:10px;min-height:14px;color:#d8ddaa;text-align:center;margin:2px 0;line-height:1.25}@media(max-height:680px){.enemyStatusText{font-size:9px;min-height:11px;margin:0}}</style>
+.slot img,.charstage img,.codexItem img{object-fit:contain!important;object-position:center!important}.slot img{width:100%;height:100%}.codexMonsterGrid img{object-fit:contain!important}/* Day32 boss telegraph */.combatAlert.danger{border-color:#ffcd66!important;background:rgba(131,31,17,.94)!important;color:#fff3cd!important;animation:bossTelegraphPulse .48s ease-in-out infinite alternate}@keyframes bossTelegraphPulse{from{box-shadow:0 0 2px #e69f46;transform:translateY(0)}to{box-shadow:0 0 16px #ffbb55;transform:translateY(-2px)}}.guardSuccess{color:#dcffc7;text-shadow:0 1px 4px #162d1b;font-weight:900}@media(prefers-reduced-motion:reduce){.combatAlert.danger{animation:none!important;outline:3px solid #ffce74}}.enemyStatusText{font-size:10px;min-height:14px;color:#d8ddaa;text-align:center;margin:2px 0;line-height:1.25}@media(max-height:680px){.enemyStatusText{font-size:9px;min-height:11px;margin:0}}.stageRewardNote{overflow-wrap:anywhere;line-height:1.35;font-size:clamp(10px,2.5vw,12px)}.bossGuide{padding:7px 10px!important;margin:5px 0!important}.bossGuide small{font-size:10px}@media(max-height:680px){.bossGuide small{display:none}}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -760,6 +760,20 @@ function currentRegionAffinity(){const r=getStageData(S.stage),count=equippedSet
 function regionInfo(){return getStageData(S.stage)}
 function currentEnemyName(){return S.boss?regionInfo().boss:regionInfo().enemy}
 function currentEnemyImg(){return S.boss?'assets/art/magma.webp':'assets/art/slime.webp'}
+const BOSS_SLOW_PATTERNS=new Set(['용암 내려찍기','암석 분쇄','전격 강하','버섯 폭발','파도 밀치기']);
+const BOSS_FAST_PATTERNS=new Set(['회복 젤','방어 태세','독안개','번개 깃털','연속 할퀴기']);
+function bossAttackInterval(name=getBossPattern()[0]){
+ if(BOSS_SLOW_PATTERNS.has(name))return 6200;
+ if(BOSS_FAST_PATTERNS.has(name))return 4600;
+ return 5300;
+}
+let enemyAttackInterval=3200;
+function scheduleEnemyAttack(initial=false){
+ const name=S.boss?getBossPattern()[0]:'';
+ enemyAttackInterval=S.boss?bossAttackInterval(name):3200;
+ const delay=initial&&S.boss?Math.max(4900,enemyAttackInterval):enemyAttackInterval;
+ enemyAttackAt=Date.now()+delay;pendingBossAttack=enemyAttackAt;
+}
 function getBossPattern(){return regionInfo().patterns[bossPatternStep%3]}
 function nextPatternHint(){if(!S.boss)return '기본 공격';return getBossPattern()[0]}
 function combatStatus(){
@@ -945,10 +959,10 @@ function enemyDown(){
  const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;const pass=normalizePass();pass.xp=Math.min(100,pass.xp+(S.boss?5:1));
  const wasBoss=S.boss;const reward=awardBattleRewards(S.boss);S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
  introAdvance(wasBoss?'boss':'kill');
- if(S.boss){S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 스테이지 정복! '+reward.quantity+'개 지역 재료 · 광석 +'+reward.ore;bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
- else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
+ if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+regionInfo().material+' +'+reward.quantity+' · 체력 일부 회복';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
+ else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
  S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();
- enemyAttackAt=Date.now()+(S.boss?5100:3200);pendingBossAttack=enemyAttackAt;save();render();
+ scheduleEnemyAttack(true);save();render();
 }
 function battleTick(){
  if(TAB!=='던전')return;
@@ -967,7 +981,7 @@ function battleTick(){
      const [name,power]=getBossPattern();const damage=Math.round((105+S.stage*6.5)*power);
      battleLastPattern=name;runBossPattern(name,damage);bossPatternStep++;
    }else takeDamage(65+S.stage*4);
-   enemyAttackAt=Date.now()+(S.boss?5300:3200);pendingBossAttack=enemyAttackAt;
+   scheduleEnemyAttack();
  }
  updateBattleHUD();updateSpriteFrames();
 }
@@ -990,7 +1004,7 @@ function updateBattleHUD(){
  }
  for(const [id,at] of [['attackTimer',basicReady],['strikeTimer',strikeReady],['guardTimer',guardReady]]){const el=document.getElementById(id);if(el)el.textContent=now>=at?'준비 완료':Math.ceil((at-now)/1000)+'초'}
  const status=document.getElementById('battleStatus');if(status)status.textContent=combatStatus();const statusEnemy=document.getElementById('enemyStatusText');if(statusEnemy)statusEnemy.textContent=(now<enemyBurnUntil?'🔥 화상 ':'')+(now<enemyPoisonUntil?'☠ 독 ':'')+(now<enemyChillUntil?'❄ 둔화 ':'')+(now<enemyStatusNoteUntil?'· '+enemyStatusNote:'');refreshCombatNumbers();
- const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/(S.boss?5300:3200))))+'%';
+ const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/Math.max(1,enemyAttackInterval))))+'%';
  const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">'+battleFxText+'</span>':'';const reward=document.getElementById('stageRewardNote');if(reward)reward.style.display=now<stageRewardUntil?'block':'none';
 }
 function forgeRegion(){return REGIONS.find(r=>r.key===S.forgeRegionKey)||regionInfo()}
@@ -1367,7 +1381,7 @@ function bossGuide(){
  const next=getBossPattern();
  const isGuard=next[0]==='방어 태세';
  const isHeal=next[0]==='회복 젤';
- return '<div class="bossGuide"><span>⚠ 다음 보스 패턴</span><strong>'+next[0]+'</strong><small>'+(isGuard?'방어 태세 중에는 공격 효율이 떨어집니다.':'')+(isHeal?'회복 패턴입니다. 강타로 빠르게 압박하세요.':!isGuard?'공격 예고가 뜨면 방어 스킬을 활용하세요.':'')+'</small></div>';
+ return '<div class="bossGuide"><span>⚠ 다음 보스 패턴 · '+(bossAttackInterval(next[0])/1000).toFixed(1)+'초 주기</span><strong>'+next[0]+'</strong><small>'+(isGuard?'방어 태세 중에는 공격 효율이 떨어집니다.':'')+(isHeal?'회복 패턴입니다. 강타로 빠르게 압박하세요.':!isGuard?'공격 예고가 뜨면 방어 스킬을 활용하세요.':'')+'</small></div>';
 }
 let dungeonPanel='fight';
 function setDungeonPanel(panel){
