@@ -1013,6 +1013,7 @@ function collectedBossKeys(){
  BOSS_FORGE_RECIPES.forEach(recipe=>{if(names.has(recipe.name))known.add(recipe.key)});
  return BOSS_FORGE_RECIPES.filter(recipe=>known.has(recipe.key)).map(recipe=>recipe.key);
 }
+function pendingBossCollectionReward(){return BOSS_COLLECTION_REWARDS.some(x=>collectedBossKeys().length>=x.count&&!(S.bossCollectionClaimed||[]).includes(x.count))}
 function trackBossCraft(item){
  const recipe=BOSS_FORGE_RECIPES.find(recipe=>recipe.name===item?.name&&recipe.kind===item?.kind);
  if(!recipe)return;
@@ -1060,7 +1061,7 @@ function forgeBossGear(key){
  S.bossTrophies[recipe.key]-=cost.trophies;S.materials[recipe.key]-=cost.materials;
  S.ore-=cost.ore;S.crystals-=cost.crystals;
  discover(item);trackBossCraft(item);save();render();
- showForgeSummary('보스 전리품 제작 완료',[item],recipe.trophy+' '+cost.trophies+'개 소모 · '+(dest==='warehouse'?'창고 보관':'가방 보관'));
+ showForgeSummary('보스 전리품 제작 완료',[item],recipe.trophy+' '+cost.trophies+'개 소모 · '+(dest==='warehouse'?'창고 보관':'가방 보관')+' · 수집 '+collectedBossKeys().length+'/5'+(pendingBossCollectionReward()?' · 👑 도감 수집 보상 수령 가능':''));
  return item;
 }
 function renderBossForge(){
@@ -1869,7 +1870,7 @@ function renderRegionCodex(){
  const grid=REGIONS.map((r,i)=>`<div class="panel" style="padding:14px;border-color:${r.tint}"><div style="font-size:30px">${['💧','☠','⚡','🔥','⛰'][i]}</div><strong>${r.name}</strong><p class="researchNote">${r.enemy} / ${r.boss}<br>재료: ${r.material} · 보유 ${S.materials?.[r.key]||0}개</p></div>`).join('');
  return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">지역 도감</div><div class="codexMonsterGrid">${grid}</div>`;
 }
-function codexTabButtons(){return [{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'},{v:'boss',t:'보스 장비'}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}
+function codexTabButtons(){return [{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'},{v:'boss',t:'보스 장비'+(pendingBossCollectionReward()?' ●':'')}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}
 const TOKEN_OFFERS=[
  {id:'ore',name:'광석 보급 상자',cost:5,detail:'광석 250개',ore:250},
  {id:'crystal',name:'마력 결정 상자',cost:8,detail:'마력 결정 35개',crystals:35},
