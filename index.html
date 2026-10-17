@@ -610,6 +610,10 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .heroLoadoutCount{position:absolute;z-index:3;left:50%;bottom:3px;transform:translateX(-50%);white-space:nowrap;padding:2px 6px;font-size:10px;color:#f5dbab;background:#0a101cd9;border:1px solid #8b6a42;border-radius:8px}
 @media(max-width:359px){.heroLoadoutGear{width:29px;height:29px;border-radius:7px}.heroLoadoutTier{font-size:8px}.heroLoadoutStage .heroEquipmentArt{max-width:80%}}
 @media(prefers-reduced-motion:reduce){.heroLoadoutAura{animation:none!important}}
+/* Day40: keep generated SVG crisp with no rogue pseudo borders */
+.heroLoadoutGear.equipped{background:radial-gradient(circle at 50% 42%,rgba(240,187,98,.15),rgba(10,15,24,.95) 72%);border-color:rgba(237,191,112,.55)}
+.heroLoadoutGear .heroLoadoutIcon,.gearSlot .slotGearArt{filter:none!important;image-rendering:auto}
+@media(max-width:359px){.heroLoadoutGear.equipped{border-width:1px}}
 /* Day39: remove lingering lower-right rarity badges, keep main top-right slot badge */
 .heroLoadoutGear .heroLoadoutTier{display:none!important;border:0!important;box-shadow:none!important}
 .heroLoadoutGear:after,.heroLoadoutGear:before{content:none!important}
@@ -654,7 +658,7 @@ const TIER_METALS=[
 ];
 const ICON_CACHE=new Map();
 function visualEffect(item){
- const text=String(item?.effect||item?.option||'')+' '+String(item?.name||'');
+ const text=String(item?.effect||item?.option||item?.affix||'') || String(item?.name||'');
  if(/화상|화염|불꽃|fire/i.test(text))return 'fire';
  if(/흡혈|생명력 흡수|leech/i.test(text))return 'leech';
  if(/보호막|shield|barrier/i.test(text))return 'barrier';
@@ -702,7 +706,16 @@ function tierArtwork(item){
  effect==='fortify'?'<path d="M128 93 L157 111 L145 148 L111 148 L99 111Z" fill="none" stroke="'+accent+'" stroke-width="8"/>':
  effect==='lightning'?'<path d="M135 91 L110 128 H131 L119 155 L151 116 H129Z" fill="'+accent+'"/>':
  effect==='poison'?'<circle cx="128" cy="126" r="21" fill="none" stroke="'+accent+'" stroke-width="8"/><circle cx="118" cy="119" r="5" fill="'+accent+'"/><circle cx="138" cy="134" r="5" fill="'+accent+'"/>':'';
- const svg='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">'+defs+'<circle cx="128" cy="128" r="104" fill="'+metal+'" opacity=".15" filter="url(#glow)"/>'+runes+wings+aura+shape+sigil+corners+'</svg>';
+ const profile=effect==='fire'?'<path d="M88 56 L71 31 L108 49 M168 56 L185 31 L148 49" fill="'+accent+'" stroke="'+hi+'" stroke-width="3"/>':
+ effect==='ice'?'<path d="M73 66 L61 38 L94 56 M183 66 L195 38 L162 56" fill="'+accent+'" stroke="'+hi+'" stroke-width="3"/>':
+ effect==='leech'?'<path d="M89 88 Q62 91 66 114 L89 105 M167 88 Q194 91 190 114 L167 105" fill="'+accent+'" stroke="'+hi+'" stroke-width="3"/>':
+ effect==='barrier'?'<path d="M83 60 L52 67 L46 91 L70 85 M173 60 L204 67 L210 91 L186 85" fill="'+accent+'" stroke="'+hi+'" stroke-width="3"/>':
+ effect==='counter'?'<path d="M74 70 L43 92 L70 101 M182 70 L213 92 L186 101" fill="none" stroke="'+accent+'" stroke-width="10"/>':
+ effect==='fortify'?'<path d="M72 74 L42 73 L42 99 L68 106 M184 74 L214 73 L214 99 L188 106" fill="'+accent+'" stroke="'+hi+'" stroke-width="3"/>':
+ effect==='lightning'?'<path d="M78 55 L52 92 L74 89 L58 121 M178 55 L204 92 L182 89 L198 121" fill="none" stroke="'+accent+'" stroke-width="8"/>':
+ effect==='poison'?'<path d="M79 57 Q41 53 48 94 Q65 69 84 77 M177 57 Q215 53 208 94 Q191 69 172 77" fill="'+accent+'" stroke="'+hi+'" stroke-width="3"/>':'';
+ const crown=tier>=3?'<path d="M80 46 L91 '+(tier>=5?'12':'28')+' L112 39 L128 '+(tier===6?'4':'21')+' L144 39 L165 '+(tier>=5?'12':'28')+' L176 46" stroke="'+hi+'" stroke-width="'+(tier>=5?7:4)+'" fill="none" stroke-linejoin="round"/>':'';
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">'+defs+'<circle cx="128" cy="128" r="104" fill="'+metal+'" opacity=".15" filter="url(#glow)"/>'+runes+wings+profile+crown+aura+shape+sigil+corners+'</svg>';
  const uri='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
  ICON_CACHE.set(key,uri);return uri;
 }
