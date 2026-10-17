@@ -596,7 +596,21 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .charstage{min-width:0}.charstage .heroEquipmentArt{max-width:80%;max-height:clamp(110px,22dvh,214px);width:auto;height:auto;object-fit:contain!important;object-position:center bottom!important}
 .warehouseItem>img,.gearDetailArt>img,.tierRewardItem>img,.legendaryIconFrame>img{object-fit:contain!important;max-width:100%;max-height:100%}
 @media(max-width:359px){.charwrap{grid-template-columns:minmax(0,57px) minmax(0,1fr) minmax(0,57px);gap:5px}.gearSlot{padding:3px}.gearSlot .slotlabel{font-size:9px}}
-.gearSlot img[loading=eager]{content-visibility:visible!important}.inventoryGrid .invItem[hidden]{display:none!important}</style>
+.gearSlot img[loading=eager]{content-visibility:visible!important}.inventoryGrid .invItem[hidden]{display:none!important}/* DAY38: Character equipment preview: independent vector gear overlays, no risky sprite cropping */
+.heroLoadoutStage{isolation:isolate;min-height:clamp(168px,29dvh,228px)}
+.heroLoadoutStage .heroEquipmentArt{position:relative;z-index:1;max-width:76%;max-height:clamp(114px,21dvh,205px);filter:drop-shadow(0 8px 10px #000)}
+.heroLoadoutAura{position:absolute;inset:15% 12% 2%;z-index:0;background:radial-gradient(ellipse at 50% 65%,rgba(216,161,64,.28),transparent 67%);pointer-events:none}
+.heroLoadoutGear{position:absolute;z-index:2;width:clamp(32px,8vw,46px);height:clamp(32px,8vw,46px);display:grid;place-items:center;border-radius:10px;background:linear-gradient(145deg,rgba(39,48,64,.97),rgba(10,15,24,.97));border:1px solid rgba(237,191,112,.6);box-shadow:0 3px 10px #0009;pointer-events:none}
+.heroLoadoutGear.empty{opacity:.42;border-style:dashed}
+.heroLoadout-weapon{left:3px;top:18%}.heroLoadout-armor{right:3px;top:18%}
+.heroLoadout-shield{left:3px;bottom:19%}.heroLoadout-ring{right:3px;bottom:19%}
+.heroLoadoutGear .heroLoadoutIcon{width:90%;height:90%;object-fit:contain!important;display:block}
+.heroLoadoutTier{position:absolute;right:-2px;bottom:-4px;padding:1px 3px;line-height:1.1;font-size:9px;background:#101620;border:1px solid #ae8548;border-radius:5px}
+.heroLoadoutPlaceholder{font-size:20px;color:#c8b38b}
+.heroLoadoutCount{position:absolute;z-index:3;left:50%;bottom:3px;transform:translateX(-50%);white-space:nowrap;padding:2px 6px;font-size:10px;color:#f5dbab;background:#0a101cd9;border:1px solid #8b6a42;border-radius:8px}
+@media(max-width:359px){.heroLoadoutGear{width:29px;height:29px;border-radius:7px}.heroLoadoutTier{font-size:8px}.heroLoadoutStage .heroEquipmentArt{max-width:80%}}
+@media(prefers-reduced-motion:reduce){.heroLoadoutAura{animation:none!important}}
+</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -1824,6 +1838,22 @@ function renderEquipSlot(kind){
  (item?graphicImage(iconFor(item),kind,tier,item.name,'class="slotGearArt" loading="eager"')+'<span class="slotlabel '+rarityClass(tier)+'">'+rarityLetter[tier]+'</span>':
  '<span class="emptyGearArt" aria-hidden="true">'+({weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇'})[kind]+'</span><small class="emptyGearLabel">'+name+'</small>')+'</div>';
 }
+function renderHeroLoadout(){
+ const kinds=['weapon','armor','shield','ring'];
+ const active=kinds.map(kind=>({kind,item:equippedItem(kind)})).filter(entry=>entry.item);
+ const strongest=active.length?Math.max(...active.map(entry=>Math.max(0,Math.min(MAX_TIER,Number(entry.item.tier)||0)))):0;
+ const overlays=kinds.map(kind=>{
+   const item=equippedItem(kind);
+   const grade=item?Math.max(0,Math.min(MAX_TIER,Number(item.tier)||0)):0;
+   return '<div class="heroLoadoutGear heroLoadout-'+kind+(item?' equipped':' empty')+'" aria-label="'+(item?kindLabel[kind]+' 장착: '+String(item.name).replace(/[<>"']/g,''):kindLabel[kind]+' 미착용')+'">'+
+     (item?graphicImage(iconFor(item),kind,grade,item.name,'class="heroLoadoutIcon" loading="eager"')+'<b class="heroLoadoutTier '+rarityClass(grade)+'">'+rarityLetter[grade]+'</b>':
+     '<span class="heroLoadoutPlaceholder" aria-hidden="true">'+({weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇'})[kind]+'</span>')+'</div>';
+ }).join('');
+ return '<div class="charstage heroLoadoutStage tierGear tierGear'+strongest+'" role="group" aria-label="캐릭터 착용 장비 미리보기">'+
+    '<div class="heroLoadoutAura" aria-hidden="true"></div>'+
+    graphicImage('assets/art/hero_guard.webp','hero',0,'대장장이','class="heroEquipmentArt" loading="eager"')+
+    overlays+'<div class="heroLoadoutCount" aria-label="장착 장비 '+active.length+'개">장착 '+active.length+'/4</div></div>';
+}
 function renderEquipment(){const all=filteredInventory(); return `
 ${renderHeader('장비','🛡️')}
 ${renderIntro()}
@@ -1834,7 +1864,7 @@ ${storageTab==='loadout'?`${compactPanel('⚔ 장비 프리셋 관리',renderPre
     ${renderEquipSlot('weapon')}
     ${renderEquipSlot('ring')}
   </div>
-  <div><div class="charstage">${graphicImage('assets/art/hero_guard.webp','hero',0,'대장장이','class="heroEquipmentArt" loading="eager"')}</div></div>
+  <div>${renderHeroLoadout()}</div>
   <div class="slotcol">
     ${renderEquipSlot('armor')}
     ${renderEquipSlot('shield')}
