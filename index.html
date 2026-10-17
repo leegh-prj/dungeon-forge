@@ -610,6 +610,12 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .heroLoadoutCount{position:absolute;z-index:3;left:50%;bottom:3px;transform:translateX(-50%);white-space:nowrap;padding:2px 6px;font-size:10px;color:#f5dbab;background:#0a101cd9;border:1px solid #8b6a42;border-radius:8px}
 @media(max-width:359px){.heroLoadoutGear{width:29px;height:29px;border-radius:7px}.heroLoadoutTier{font-size:8px}.heroLoadoutStage .heroEquipmentArt{max-width:80%}}
 @media(prefers-reduced-motion:reduce){.heroLoadoutAura{animation:none!important}}
+/* Day39: remove lingering lower-right rarity badges, keep main top-right slot badge */
+.heroLoadoutGear .heroLoadoutTier{display:none!important;border:0!important;box-shadow:none!important}
+.heroLoadoutGear:after,.heroLoadoutGear:before{content:none!important}
+.heroLoadoutGear .heroLoadoutIcon,.gearSlot .slotGearArt{object-fit:contain!important;object-position:center!important}
+.heroLoadoutStage .heroLoadoutGear{overflow:hidden}
+.gearSlot .slotlabel{top:3px;right:3px;bottom:auto;border:0;box-shadow:none}
 </style>
 </head>
 <body>
@@ -647,10 +653,23 @@ const TIER_METALS=[
  ['#ad88eb','#53357d','#ead3ff'],['#f8b65d','#93521c','#ffedbe'],['#ff88db','#9d327f','#ffe0f6'],['#ffe6a4','#a76b22','#fffcef']
 ];
 const ICON_CACHE=new Map();
+function visualEffect(item){
+ const text=String(item?.effect||item?.option||'')+' '+String(item?.name||'');
+ if(/화상|화염|불꽃|fire/i.test(text))return 'fire';
+ if(/흡혈|생명력 흡수|leech/i.test(text))return 'leech';
+ if(/보호막|shield|barrier/i.test(text))return 'barrier';
+ if(/반격|counter/i.test(text))return 'counter';
+ if(/견고|방어력|fortif/i.test(text))return 'fortify';
+ if(/냉기|빙결|frost|ice/i.test(text))return 'ice';
+ if(/번개|뇌전|lightning/i.test(text))return 'lightning';
+ if(/독|포자|poison/i.test(text))return 'poison';
+ return 'neutral';
+}
 function tierArtwork(item){
- const tier=Math.min(MAX_TIER,Math.max(0,item?.tier||0)),kind=item?.kind||'weapon';
+ const tier=Math.min(MAX_TIER,Math.max(0,Number(item?.tier)||0)),kind=['weapon','armor','shield','ring'].includes(item?.kind)?item.kind:'weapon';
+ const effect=visualEffect(item);
  // QC37: all rarity tiers use consistent crisp scalable SVG artwork.
- const key=kind+':'+tier;
+ const key=kind+':'+tier+':'+effect;
  if(ICON_CACHE.has(key))return ICON_CACHE.get(key);
  const [light,metal,hi]=TIER_METALS[tier],ornaments=tier>=5?4:tier>=4?3:2;
  const jewel=tier===6?'#9af5ff':tier===5?'#ffccf2':tier===4?'#fff2ab':'#cb9fff';
@@ -665,7 +684,25 @@ function tierArtwork(item){
  else shape='<circle cx="128" cy="130" r="77" fill="none" stroke="'+metal+'" stroke-width="35"/><circle cx="128" cy="130" r="77" fill="none" stroke="url(#blade)" stroke-width="22"/><circle cx="128" cy="130" r="51" fill="none" stroke="'+hi+'" stroke-width="4"/><path d="M96 64 L128 25 L160 64 L143 96 L113 96Z" fill="url(#blade)" stroke="'+hi+'" stroke-width="5"/>'+gem(128,57,1.45)+(tier>=5?'<path d="M57 90 L23 80 L59 117 M199 90 L233 80 L197 117" fill="none" stroke="'+hi+'" stroke-width="7"/>':'');
  const runes=tier>=4?'<circle cx="128" cy="128" r="108" fill="none" stroke="'+light+'" stroke-width="'+(tier>=6?2:1)+'" stroke-dasharray="6 9" opacity=".55"/>':'';
  const wings=tier===6?'<path d="M74 164 Q15 160 14 96 Q43 120 67 105 M182 164 Q241 160 242 96 Q213 120 189 105" fill="none" stroke="'+hi+'" stroke-width="6" opacity=".7"/>':'';
- const svg='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">'+defs+'<circle cx="128" cy="128" r="104" fill="'+metal+'" opacity=".15" filter="url(#glow)"/>'+runes+wings+shape+corners+'</svg>';
+ const accent=({fire:'#ff6637',leech:'#ed4173',barrier:'#5dd7ff',counter:'#ffd36c',fortify:'#8de4a2',ice:'#75dbff',lightning:'#d5bcff',poison:'#b3ed68',neutral:'#e1d0a9'})[effect];
+ const aura=effect==='fire'?'<path d="M38 194 Q12 157 43 112 Q38 158 74 151 M210 194 Q244 149 213 105 Q217 157 183 151" fill="none" stroke="'+accent+'" stroke-width="9" stroke-linecap="round"/>':
+ effect==='ice'?'<path d="M36 90 L58 100 L47 119 M220 90 L198 100 L209 119 M128 8 L128 33 M116 21 L140 21" fill="none" stroke="'+accent+'" stroke-width="8"/>':
+ effect==='leech'?'<path d="M42 104 Q54 71 72 91 Q76 116 54 127 M214 104 Q202 71 184 91 Q180 116 202 127" fill="none" stroke="'+accent+'" stroke-width="9"/>':
+ effect==='barrier'?'<path d="M128 7 L232 70 L215 190 L128 249 L41 190 L24 70Z" fill="none" stroke="'+accent+'" stroke-width="8" stroke-dasharray="35 8"/>':
+ effect==='counter'?'<path d="M44 145 L17 123 L45 105 M212 145 L239 123 L211 105 M20 123 H65 M236 123 H191" fill="none" stroke="'+accent+'" stroke-width="9" stroke-linejoin="round"/>':
+ effect==='fortify'?'<path d="M25 78 L55 53 L77 72 M231 78 L201 53 L179 72 M24 177 L57 200 L80 179 M232 177 L199 200 L176 179" stroke="'+accent+'" stroke-width="11" fill="none" stroke-linejoin="round"/>':
+ effect==='lightning'?'<path d="M51 53 L25 112 L62 107 L38 175 M202 53 L230 112 L192 107 L218 175" fill="none" stroke="'+accent+'" stroke-width="11"/>':
+ effect==='poison'?'<circle cx="37" cy="146" r="14" fill="'+accent+'"/><circle cx="217" cy="146" r="10" fill="'+accent+'"/><circle cx="47" cy="183" r="7" fill="'+accent+'"/>':
+ '<path d="M32 129 H49 M207 129 H224" stroke="'+accent+'" stroke-width="5"/>';
+ const sigil=effect==='fire'?'<path d="M128 89 Q103 116 116 143 Q123 129 135 120 Q132 140 147 146 Q159 117 128 89Z" fill="'+accent+'"/>':
+ effect==='ice'?'<path d="M128 89 V151 M101 105 L155 135 M101 135 L155 105" stroke="'+accent+'" stroke-width="7" fill="none"/>':
+ effect==='leech'?'<path d="M128 153 C93 126 107 100 128 115 C149 100 163 126 128 153Z" fill="'+accent+'"/>':
+ effect==='barrier'?'<path d="M128 91 L154 104 L149 139 L128 156 L107 139 L102 104Z" fill="none" stroke="'+accent+'" stroke-width="7"/>':
+ effect==='counter'?'<path d="M110 105 L146 141 M146 105 L110 141" stroke="'+accent+'" stroke-width="9"/>':
+ effect==='fortify'?'<path d="M128 93 L157 111 L145 148 L111 148 L99 111Z" fill="none" stroke="'+accent+'" stroke-width="8"/>':
+ effect==='lightning'?'<path d="M135 91 L110 128 H131 L119 155 L151 116 H129Z" fill="'+accent+'"/>':
+ effect==='poison'?'<circle cx="128" cy="126" r="21" fill="none" stroke="'+accent+'" stroke-width="8"/><circle cx="118" cy="119" r="5" fill="'+accent+'"/><circle cx="138" cy="134" r="5" fill="'+accent+'"/>':'';
+ const svg='<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 256 256">'+defs+'<circle cx="128" cy="128" r="104" fill="'+metal+'" opacity=".15" filter="url(#glow)"/>'+runes+wings+aura+shape+sigil+corners+'</svg>';
  const uri='data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(svg);
  ICON_CACHE.set(key,uri);return uri;
 }
@@ -1846,7 +1883,7 @@ function renderHeroLoadout(){
    const item=equippedItem(kind);
    const grade=item?Math.max(0,Math.min(MAX_TIER,Number(item.tier)||0)):0;
    return '<div class="heroLoadoutGear heroLoadout-'+kind+(item?' equipped':' empty')+'" aria-label="'+(item?kindLabel[kind]+' 장착: '+String(item.name).replace(/[<>"']/g,''):kindLabel[kind]+' 미착용')+'">'+
-     (item?graphicImage(iconFor(item),kind,grade,item.name,'class="heroLoadoutIcon" loading="eager"')+'<b class="heroLoadoutTier '+rarityClass(grade)+'">'+rarityLetter[grade]+'</b>':
+     (item?graphicImage(iconFor(item),kind,grade,item.name,'class="heroLoadoutIcon" loading="eager"')+':
      '<span class="heroLoadoutPlaceholder" aria-hidden="true">'+({weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇'})[kind]+'</span>')+'</div>';
  }).join('');
  return '<div class="charstage heroLoadoutStage tierGear tierGear'+strongest+'" role="group" aria-label="캐릭터 착용 장비 미리보기">'+
