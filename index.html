@@ -1883,7 +1883,7 @@ function renderHeroLoadout(){
    const item=equippedItem(kind);
    const grade=item?Math.max(0,Math.min(MAX_TIER,Number(item.tier)||0)):0;
    return '<div class="heroLoadoutGear heroLoadout-'+kind+(item?' equipped':' empty')+'" aria-label="'+(item?kindLabel[kind]+' 장착: '+String(item.name).replace(/[<>"']/g,''):kindLabel[kind]+' 미착용')+'">'+
-     (item?graphicImage(iconFor(item),kind,grade,item.name,'class="heroLoadoutIcon" loading="eager"')+':
+     (item?graphicImage(iconFor(item),kind,grade,item.name,'class="heroLoadoutIcon" loading="eager"'):
      '<span class="heroLoadoutPlaceholder" aria-hidden="true">'+({weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇'})[kind]+'</span>')+'</div>';
  }).join('');
  return '<div class="charstage heroLoadoutStage tierGear tierGear'+strongest+'" role="group" aria-label="캐릭터 착용 장비 미리보기">'+
