@@ -737,7 +737,7 @@ function renderIntroEquip(){
  const index=S.inventory.findIndex(it=>it.id===S.intro.craftedId);
  if(index<0)return '<p class="hint">제작한 장비가 가방에 없습니다. 창고에서 찾아 가방으로 이동해 주세요.</p>';
  const item=S.inventory[index];
- return '<div class="introEquipQuick"><img src="'+iconFor(item)+'" alt=""><div><strong>방금 만든 장비 장착</strong><small>'+rarityLetter[item.tier]+' · '+item.name+' · '+item.effect+'</small></div><button onclick="equipItem('+index+')">장착</button></div>';
+ return '<div class="introEquipQuick">'+graphicImage(iconFor(item),item.kind,item.tier,item.name)+'<div><strong>방금 만든 장비 장착</strong><small>'+rarityLetter[item.tier]+' · '+item.name+' · '+item.effect+'</small></div><button onclick="equipItem('+index+')">장착</button></div>';
 }
 function seedStarterItems(){
   const starters=[
@@ -1446,7 +1446,7 @@ function showLegendaryCutscene(item,detail=''){
  legendaryVisualTimer=setTimeout(()=>overlay.classList.add('legendaryReady'),950);
 }
 function closeLegendaryCutscene(){closeCraft()}
-function showCraft(item){if(item)return showTierReward(item);craftOverlayOpen=true;document.getElementById('craftModal').innerHTML=`<span class="beam">⚒ ✦</span><div class="grade ${rarityClass(item.tier)}">${rarityName[item.tier]} 제작 성공!</div><img class="craftedIcon" src="${iconFor(item)}" alt="제작된 장비"><div style="font-weight:900">${item.name}</div><p class="researchNote">특수 효과: ${item.effect}<br>공격 +${item.power} · 방어 +${item.defense}</p><button onclick="closeCraft()">확인</button>`;document.getElementById('craftOverlay').classList.add('show')}
+function showCraft(item){if(item)return showTierReward(item);craftOverlayOpen=true;document.getElementById('craftModal').innerHTML=`<span class="beam">⚒ ✦</span><div class="grade ${rarityClass(item.tier)}">${rarityName[item.tier]} 제작 성공!</div>${graphicImage(iconFor(item),item.kind,item.tier,item.name,'class="craftedIcon"')}<div style="font-weight:900">${item.name}</div><p class="researchNote">특수 효과: ${item.effect}<br>공격 +${item.power} · 방어 +${item.defense}</p><button onclick="closeCraft()">확인</button>`;document.getElementById('craftOverlay').classList.add('show')}
 function closeCraft(){craftOverlayOpen=false;clearTimeout(legendaryVisualTimer);const overlay=document.getElementById('craftOverlay');overlay.classList.remove('show','legendaryReveal','legendaryReady','tierReveal');document.getElementById('craftModal').className='craftModal';document.getElementById('craftModal').style.removeProperty('--tier-color');document.getElementById('craftModal').style.removeProperty('--tier-rgb');document.body.classList.remove('legendaryLocked','tierLocked')}
 function equipItem(index){const it=S.inventory[index];if(!it)return toast('장비 없음');if(isEquipped(index)){S.equip[it.kind]=null;toast(it.name+' 장착 해제')}else{S.equip[it.kind]=index;introAdvance('equip',it);toast(it.name+' 장착')}S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);save();render()}
 function setInventoryFilter(v){inventoryFilter=v;render()}
@@ -1707,7 +1707,7 @@ function finishForge(item,message,detail=''){
 }
 function forgeItemCard(entry){
  const it=entry.item,idx=entry.index,selected=forgeSelection.includes(idx);
- return `<button type="button" class="forgeItem ${selected?'selected':''} tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" onclick="selectForgeItem(${idx})"><img src="${iconFor(it)}" alt=""><span class="rarity ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span><strong>${it.name} ${itemPlus(it)?'+'+itemPlus(it):''}</strong><small>공격 ${it.power||0} · 방어 ${it.defense||0} ${itemPlus(it)?'· 강화 +'+itemPlus(it):''}</small><span>${selected?'✓ 선택됨':'선택하기'}</span></button>`;
+ return `<button type="button" class="forgeItem ${selected?'selected':''} tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" onclick="selectForgeItem(${idx})">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}<span class="rarity ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span><strong>${it.name} ${itemPlus(it)?'+'+itemPlus(it):''}</strong><small>공격 ${it.power||0} · 방어 ${it.defense||0} ${itemPlus(it)?'· 강화 +'+itemPlus(it):''}</small><span>${selected?'✓ 선택됨':'선택하기'}</span></button>`;
 }
 function forgePanel(){
  if(forgeMode==='제작')return `
@@ -1839,6 +1839,7 @@ ${storageTab==='loadout'?`${compactPanel('⚔ 장비 프리셋 관리',renderPre
     ${renderEquipSlot('armor')}
     ${renderEquipSlot('shield')}
   </div>
+</div>
 <div class="statsBox">
   <div class="sectiontitle">Lv.32 대장장이 <span class="tiny muted">상세 스탯</span></div>
   <div class="statrow"><span>⚔ 공격력</span><span>${totalAtk().toLocaleString()} <span class="up">(+${(eq('weapon')?.power||0)+(eq('ring')?.power||0)})</span></span></div>
