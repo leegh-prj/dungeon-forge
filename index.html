@@ -587,6 +587,15 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .bossCollectionItem>span{font-size:10px;white-space:nowrap;color:#a9dba5}.bossCollectionItem.missing{opacity:.65}.bossCollectionItem.missing>span{color:#d2c2b2}
 @media(max-width:599px){.bossCollectionGrid{grid-template-columns:1fr;max-height:calc(100dvh - var(--nav-height,68px) - 355px)}.codexTabs.compactNav button{font-size:10px}}
 @media(max-height:680px){.bossCollectionSummary small{display:none}.bossCollectionReward{padding:4px 6px}.bossCollectionReward button{min-height:31px}.bossCollectionGrid{max-height:calc(100dvh - var(--nav-height,68px) - 300px)}}
+/* QC37: equipped gear image stability and reliable vector icon sizing */
+.gearSlot{width:100%;height:clamp(50px,10dvh,76px);min-height:50px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;isolation:isolate;background:radial-gradient(circle at 50% 25%,#304057,#161e2c 58%,#0d121b);border:1px solid rgba(200,160,96,.75);border-radius:12px;padding:5px}
+.gearSlot .slotGearArt,.gearSlot img{width:100%;height:100%;max-width:100%;max-height:100%;min-width:0;min-height:0;object-fit:contain!important;object-position:center!important;display:block;flex:1 1 auto;filter:none}
+.gearSlot .slotlabel{position:absolute;top:3px;right:3px;z-index:3;pointer-events:none;background:rgba(6,12,21,.85);padding:2px 4px;border:1px solid rgba(247,204,134,.5);border-radius:6px;font-size:10px}
+.gearSlot.empty{color:#cfbc9c;border-style:dashed}.emptyGearArt{display:block;line-height:1;font-size:clamp(20px,5vw,33px);opacity:.75}.emptyGearLabel{font-size:9px;line-height:1.2;color:#bba98c}
+.charwrap{grid-template-columns:minmax(0,78px) minmax(0,1fr) minmax(0,78px);gap:8px;max-width:100%}
+.charstage{min-width:0}.charstage .heroEquipmentArt{max-width:80%;max-height:clamp(110px,22dvh,214px);width:auto;height:auto;object-fit:contain!important;object-position:center bottom!important}
+.warehouseItem>img,.gearDetailArt>img,.tierRewardItem>img,.legendaryIconFrame>img{object-fit:contain!important;max-width:100%;max-height:100%}
+@media(max-width:359px){.charwrap{grid-template-columns:minmax(0,57px) minmax(0,1fr) minmax(0,57px);gap:5px}.gearSlot{padding:3px}.gearSlot .slotlabel{font-size:9px}}
 </style>
 </head>
 <body>
@@ -626,8 +635,7 @@ const TIER_METALS=[
 const ICON_CACHE=new Map();
 function tierArtwork(item){
  const tier=Math.min(MAX_TIER,Math.max(0,item?.tier||0)),kind=item?.kind||'weapon';
- // Keep established original illustrations for beginner gear.
- if(tier<3)return 'assets/art/items/'+(iconDir[kind]||'weapons')+'/'+Math.min(5,tier+1)+'.webp';
+ // QC37: all rarity tiers use consistent crisp scalable SVG artwork.
  const key=kind+':'+tier;
  if(ICON_CACHE.has(key))return ICON_CACHE.get(key);
  const [light,metal,hi]=TIER_METALS[tier],ornaments=tier>=5?4:tier>=4?3:2;
@@ -747,7 +755,7 @@ function cryptoRandom(){
 }
 function save(){S.last=Date.now();localStorage.setItem(K,JSON.stringify(S));}
 function toast(t){logs.unshift(t);logs=logs.slice(0,3);const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1700); save(); render();}
-function eq(kind){return S.equip[kind]!==null?S.inventory[S.equip[kind]]:null}
+function eq(kind){return equippedItem(kind)}
 function totalAtk(){return 120+(eq('weapon')?.power||0)+(eq('ring')?.power||0)+S.stage*8+setBonuses().atk}
 function totalDef(){return 60+(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)+S.stage*12+setBonuses().def}
 function getMaxHp(){return 1280+(eq('armor')?.defense||0)*6+(eq('shield')?.defense||0)*3+S.stage*20+setBonuses().hp}
@@ -1311,7 +1319,7 @@ let storageTab='loadout';
 function setStorageTab(value){if(['loadout','bag','warehouse'].includes(value)){storageTab=value;render();const pane=document.getElementById('screen');if(pane)pane.scrollTop=0}}
 function renderWarehouse(){
  return '<div class="storageTabs equipmentPages" role="group" aria-label="장비 화면"><button class="segbtn '+(storageTab==='loadout'?'active':'')+'" onclick="setStorageTab(\'loadout\')">⚔ 착용</button><button class="segbtn '+(storageTab==='bag'?'active':'')+'" onclick="setStorageTab(\'bag\')">🎒 가방 '+S.inventory.length+'</button><button class="segbtn '+(storageTab==='warehouse'?'active':'')+'" onclick="setStorageTab(\'warehouse\')">📦 창고 '+S.warehouse.length+'</button></div>'+
- (storageTab==='warehouse'?'<div class="warehouseGrid">'+(S.warehouse.length?S.warehouse.map((it,i)=>'<div class="warehouseItem tierGear tierGear'+it.tier+'"><img src="'+iconFor(it)+'" alt=""><div><strong>'+it.name+'</strong><small>'+rarityLetter[it.tier]+' · +'+itemPlus(it)+' · '+it.effect+'</small></div><button onclick="moveToBag('+i+')">가방으로</button></div>').join(''):'<p class="hint">보관 중인 장비가 없습니다.</p>')+'</div>':'');
+ (storageTab==='warehouse'?'<div class="warehouseGrid">'+(S.warehouse.length?S.warehouse.map((it,i)=>'<div class="warehouseItem tierGear tierGear'+it.tier+'">'+graphicImage(iconFor(it),it.kind,it.tier,it.name)+'<div><strong>'+it.name+'</strong><small>'+rarityLetter[it.tier]+' · +'+itemPlus(it)+' · '+it.effect+'</small></div><button onclick="moveToBag('+i+')">가방으로</button></div>').join(''):'<p class="hint">보관 중인 장비가 없습니다.</p>')+'</div>':'');
 }
 function forgeElemental(){
  if(S.inventory.length>=S.bagCapacity)return toast('속성 제작은 가방 공간이 필요합니다');
@@ -1394,7 +1402,7 @@ function showTierReward(item,detail='',title='제작 완료'){
  modal.innerHTML='<div class="tierRadiance" aria-hidden="true"></div>'+tierDecoration(item)+
  '<div class="tierResultLabel">'+t.name+'</div>'+
  '<div class="tierResultBadge">'+rarityLetter[item.tier]+'</div>'+
- '<div class="tierRewardItem"><img src="'+iconFor(item)+'" alt="획득한 장비"></div>'+
+ '<div class="tierRewardItem">'+graphicImage(iconFor(item),item.kind,item.tier,item.name)+'</div>'+
  '<div class="tierResultName">'+item.name+'</div>'+
  '<p class="tierResultEffect">✦ '+item.effect+' · 공격 '+(item.power||0)+' · 방어 '+(item.defense||0)+'</p>'+
  '<p class="tierResultDetail">'+(detail||title)+'</p>'+
@@ -1464,7 +1472,7 @@ function sortInventory(value){inventorySort=value;render()}
 
 function setCodexSide(v){S.codexSide=v;codexPage=0;save();render()}
 function changeCodexPage(dir){const count=codexSlots(S.codexSide).length;codexPage=Math.max(0,Math.min(codexPage+dir,Math.max(0,Math.ceil(count/12)-1)));render()}
-function isEquipped(i){return Object.values(S.equip).includes(i)}
+function isEquipped(i){return Number.isInteger(i)&&Object.values(S.equip).includes(i)}
 function isLocked(it){return !!it?.locked}
 function toggleItemLock(index){
  const item=S.inventory[index];if(!item)return;
@@ -1797,7 +1805,7 @@ function openEquipmentDetails(index){
  modal.className='craftModal equipmentDetail tierLevel'+item.tier;
  modal.style.setProperty('--tier-color',t.color);modal.style.setProperty('--tier-rgb',t.rgb);
  modal.innerHTML='<div class="tierResultLabel">'+t.name+' · '+tier+'</div>'+
-  '<div class="gearDetailArt"><img src="'+iconFor(item)+'" alt="'+item.name+'"></div>'+
+  '<div class="gearDetailArt">'+graphicImage(iconFor(item),item.kind,item.tier,item.name)+'</div>'+
   '<div class="tierResultName">'+item.name+' '+(itemPlus(item)?'+'+itemPlus(item):'')+'</div>'+
   '<p class="tierResultEffect">옵션: '+item.effect+'</p>'+
   (item.tier===MAX_TIER?'<p class="legendaryPassive">'+legendaryPassive(item)+'</p>':'')+
@@ -1807,6 +1815,16 @@ function openEquipmentDetails(index){
  overlay.classList.add('show','tierReveal');craftOverlayOpen=true;
  overlay.setAttribute('aria-label',item.name+' 장비 상세정보');
 }
+function equippedItem(kind){
+ const index=S.equip?.[kind];if(!Number.isInteger(index)||index<0||index>=S.inventory.length)return null;
+ const item=S.inventory[index];return item?.kind===kind?item:null;
+}
+function renderEquipSlot(kind){
+ const item=equippedItem(kind),name=kindLabel[kind]||kind,tier=item?Math.max(0,Math.min(MAX_TIER,Number(item.tier)||0)):0;
+ return '<div class="slot gearSlot '+(item?'filled tierGear tierGear'+tier:'empty')+'" data-slot-kind="'+kind+'">'+
+ (item?graphicImage(iconFor(item),kind,tier,item.name,'class="slotGearArt" loading="eager"')+'<span class="slotlabel '+rarityClass(tier)+'">'+rarityLetter[tier]+'</span>':
+ '<span class="emptyGearArt" aria-hidden="true">'+({weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇'})[kind]+'</span><small class="emptyGearLabel">'+name+'</small>')+'</div>';
+}
 function renderEquipment(){const all=filteredInventory(); return `
 ${renderHeader('장비','🛡️')}
 ${renderIntro()}
@@ -1814,17 +1832,14 @@ ${renderIntroEquip()}
 ${renderWarehouse()}
 ${storageTab==='loadout'?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
   <div class="slotcol">
-    <div class="slot">${eq('weapon')?`${graphicImage(iconFor(eq('weapon')),'weapon',eq('weapon').tier,'착용 weapon')}<span class="slotlabel">${rarityLetter[eq('weapon').tier]}</span>`:'무기'}</div>
-    <div class="slot">${eq('ring')?`${graphicImage(iconFor(eq('ring')),'ring',eq('ring').tier,'착용 ring')}<span class="slotlabel">${rarityLetter[eq('ring').tier]}</span>`:'반지'}</div>
+    ${renderEquipSlot('weapon')}
+    ${renderEquipSlot('ring')}
   </div>
-  <div>
-    <div class="charstage"><img src="assets/art/hero_guard.webp" alt="hero"></div>
-  </div>
+  <div><div class="charstage">${graphicImage('assets/art/hero_guard.webp','hero',0,'대장장이','class="heroEquipmentArt" loading="eager"')}</div></div>
   <div class="slotcol">
-    <div class="slot">${eq('armor')?`${graphicImage(iconFor(eq('armor')),'armor',eq('armor').tier,'착용 armor')}<span class="slotlabel">${rarityLetter[eq('armor').tier]}</span>`:'갑옷'}</div>
-    <div class="slot">${eq('shield')?`${graphicImage(iconFor(eq('shield')),'shield',eq('shield').tier,'착용 shield')}<span class="slotlabel">${rarityLetter[eq('shield').tier]}</span>`:'방패'}</div>
+    ${renderEquipSlot('armor')}
+    ${renderEquipSlot('shield')}
   </div>
-</div>
 <div class="statsBox">
   <div class="sectiontitle">Lv.32 대장장이 <span class="tiny muted">상세 스탯</span></div>
   <div class="statrow"><span>⚔ 공격력</span><span>${totalAtk().toLocaleString()} <span class="up">(+${(eq('weapon')?.power||0)+(eq('ring')?.power||0)})</span></span></div>
