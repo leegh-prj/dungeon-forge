@@ -2021,10 +2021,47 @@ shopSection==='journey'?renderPass():`
 let previousRenderedTab=null;
 function switchMainTab(next){if(!navTabs.includes(next))return;if(next==='던전')dungeonPanel='fight';TAB=next;render();}
 function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; if(TAB==='장비'&&storageTab==='bag')filterInventoryCards(inventorySearch); displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}} }
-render();
-setInterval(battleTick,180);
-setInterval(save,10000);
-window.addEventListener('beforeunload',save);
+/* DAY41 diagnostic: read-only matrix, available only with ?gearqa=1 */
+async function runGearMatrixQA(){
+ const screen=document.getElementById('screen'),nav=document.getElementById('nav');
+ nav.style.display='none';
+ const kinds=['weapon','armor','shield','ring'],grades=[0,1,2,3,4,5,6],effects=['화상','흡혈','보호막','반격','견고함','냉기'];
+ screen.innerHTML='<h2>장비 이미지 전체 조합 QA</h2><p id="qaProgress" role="status">168개 이미지 검사 준비 중</p><div id="qaErrors" style="color:#ff9d98;white-space:pre-wrap"></div><div id="qaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px"></div>';
+ const progress=document.getElementById('qaProgress'),errors=document.getElementById('qaErrors'),grid=document.getElementById('qaGrid');
+ let passed=0,failed=0;const all=[];
+ for(const kind of kinds)for(const tier of grades)for(const effect of effects)all.push({kind,tier,effect});
+ const unique=new Set(),issues=[];
+ for(const {kind,tier,effect} of all){
+  const item={kind,tier,effect,name:'검사 장비'},src=iconFor(item);
+  const key=kind+':'+tier+':'+effect;
+  if(unique.has(src))issues.push(key+' 이미지 중복');else unique.add(src);
+  const cell=document.createElement('div');cell.style.cssText='min-width:0;text-align:center;background:#161f2c;border:1px solid #6b5a49;border-radius:8px;padding:4px';
+  const img=document.createElement('img');img.style.cssText='width:64px;height:64px;object-fit:contain;display:block;margin:auto';img.alt=key;img.src=src;
+  const label=document.createElement('small');label.textContent=kind+' '+rarityLetter[tier]+' '+effect;label.style.cssText='font-size:9px;overflow-wrap:anywhere';
+  cell.append(img,label);grid.append(cell);
+  try{
+   const svg=decodeURIComponent(src.split(',').slice(1).join(','));
+   const parsed=new DOMParser().parseFromString(svg,'image/svg+xml');
+   if(parsed.querySelector('parsererror'))throw Error('SVG parsing failed');
+   if(typeof img.decode==='function')await img.decode();
+   else await new Promise((res,rej)=>{if(img.complete&&img.naturalWidth)res();else{img.onload=res;img.onerror=()=>rej(Error('load error'))}});
+   if(!img.naturalWidth)throw Error('zero width');
+   passed++;cell.style.borderColor='#56c78b';
+  }catch(error){failed++;const message=key+': '+String(error?.message||error);issues.push(message);cell.style.borderColor='#f77676';}
+  progress.textContent='검사 '+(passed+failed)+'/168 · 정상 '+passed+' · 실패 '+failed;
+ }
+ const totalFailure=failed+issues.filter(i=>i.includes('이미지 중복')).length;
+ progress.textContent='결과: 이미지 '+passed+'/168 성공, 로딩 실패 '+failed+', 중복 '+(unique.size!==all.length?all.length-unique.size:0)+' · '+(totalFailure?'점검 필요':'모든 기본 조합 성공');
+ errors.textContent=issues.slice(0,40).join('\n')||'브라우저 이미지 로딩·SVG 파싱·조합 구분 검사 완료';
+}
+const gearQaMode=new URLSearchParams(location.search).has('gearqa');
+if(gearQaMode){runGearMatrixQA().catch(error=>{document.getElementById('screen').textContent='QA 오류: '+String(error)})}
+else{
+ render();
+ setInterval(battleTick,180);
+ setInterval(save,10000);
+ window.addEventListener('beforeunload',save);
+}
 document.addEventListener('visibilitychange',()=>document.hidden&&save());
 // Capture errors from older raw <img> markup too, not only new graphicImage elements.
 document.addEventListener('error',event=>{const img=event.target;if(img?.tagName==='IMG')fallbackFromElement(img)},true);
