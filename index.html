@@ -596,7 +596,7 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .charstage{min-width:0}.charstage .heroEquipmentArt{max-width:80%;max-height:clamp(110px,22dvh,214px);width:auto;height:auto;object-fit:contain!important;object-position:center bottom!important}
 .warehouseItem>img,.gearDetailArt>img,.tierRewardItem>img,.legendaryIconFrame>img{object-fit:contain!important;max-width:100%;max-height:100%}
 @media(max-width:359px){.charwrap{grid-template-columns:minmax(0,57px) minmax(0,1fr) minmax(0,57px);gap:5px}.gearSlot{padding:3px}.gearSlot .slotlabel{font-size:9px}}
-</style>
+.gearSlot img[loading=eager]{content-visibility:visible!important}.inventoryGrid .invItem[hidden]{display:none!important}</style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
@@ -683,7 +683,7 @@ function fallbackFromElement(img){
  handleGraphicError(img,kind);
 }
 function graphicImage(src,kind='weapon',tier=0,alt='',extra=''){
- return '<img src="'+src+'" alt="'+String(alt).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')+'" data-graphic-kind="'+kind+'" data-graphic-tier="'+Math.max(0,Math.min(MAX_TIER,Number(tier)||0))+'" onerror="handleGraphicError(this)" loading="lazy" decoding="async" '+extra+'>';
+ return '<img src="'+src+'" alt="'+String(alt).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')+'" data-graphic-kind="'+kind+'" data-graphic-tier="'+Math.max(0,Math.min(MAX_TIER,Number(tier)||0))+'" onerror="handleGraphicError(this)" decoding="async" '+(String(extra).includes('loading=')?'':'loading="lazy" ')+extra+'>';
 }
 function iconFor(item){return tierArtwork(item)}
 let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
@@ -1452,10 +1452,9 @@ function equipItem(index){const it=S.inventory[index];if(!it)return toast('장�
 function setInventoryFilter(v){inventoryFilter=v;render()}
 function filteredInventory(){
  const types={무기:'weapon',갑옷:'armor',방패:'shield',반지:'ring'};
- const text=inventorySearch.trim().toLocaleLowerCase();
  const items=S.inventory.map((it,idx)=>({it,idx})).filter(({it})=>{
   const category=inventoryFilter==='전체'||(inventoryFilter==='기타'?!Object.values(types).includes(it.kind):it.kind===types[inventoryFilter]);
-  return category&&(!text||[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().includes(text));
+  return category; // QC37: the DOM search always works against all items in this category.
  });
  const score=x=>itemStrength(x.it);
  return items.sort((a,b)=>inventorySort==='tier'?(b.it.tier-a.it.tier)||(itemPlus(b.it)-itemPlus(a.it)):(inventorySort==='power'?score(b)-score(a):inventorySort==='level'?itemPlus(b.it)-itemPlus(a.it):inventorySort==='newest'?b.idx-a.idx:a.idx-b.idx));
@@ -1940,7 +1939,7 @@ shopSection==='journey'?renderPass():`
 
 let previousRenderedTab=null;
 function switchMainTab(next){if(!navTabs.includes(next))return;if(next==='던전')dungeonPanel='fight';TAB=next;render();}
-function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}} }
+function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; if(TAB==='장비'&&storageTab==='bag')filterInventoryCards(inventorySearch); displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}} }
 render();
 setInterval(battleTick,180);
 setInterval(save,10000);
