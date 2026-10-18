@@ -795,7 +795,8 @@ async function activateHdGearAssets(){
    catch(e){return null}
   }));
   HD_GEAR_STATE.available=new Set(results.filter(Boolean));
-  HD_GEAR_STATE.ready=HD_GEAR_STATE.available.size>0;
+  HD_GEAR_STATE.ready=HD_GEAR_STATE.available.size===168; // atomic activation; avoid mixed HD/SVG inventories
+  if(!HD_GEAR_STATE.ready)HD_GEAR_STATE.available.clear();
   if(HD_GEAR_STATE.ready)render();
  }catch(e){HD_GEAR_STATE.ready=false}
 }
