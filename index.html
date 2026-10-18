@@ -740,6 +740,15 @@ function handleGraphicError(img,forcedKind){
  const tier=Number(img.dataset?.graphicTier||0);
  if(img.dataset)img.dataset.fallbackUsed='1';
  img.onerror=null;
+ const failedSrc=String(img.currentSrc||img.src||'');
+ if(failedSrc.includes('/assets/gear/')||failedSrc.includes('assets/gear/')){
+  const key=failedSrc.split('/').pop().replace(/\.webp(?:\?.*)?$/,'');
+  HD_GEAR_STATE.available.delete(key);
+  if(img.dataset?.graphicKind&&['weapon','armor','shield','ring'].includes(kind)){
+   img.src=tierArtwork({kind,tier,effect:({fire:'화상',leech:'흡혈',barrier:'보호막',counter:'반격',fortify:'견고함',ice:'냉기'})[key.split('_').pop()]||''});
+   return;
+  }
+ }
  img.src=graphicFallback(kind,tier);
  img.classList?.add('graphicFallbackUsed');
 }
@@ -753,7 +762,44 @@ function fallbackFromElement(img){
 function graphicImage(src,kind='weapon',tier=0,alt='',extra=''){
  return '<img src="'+src+'" alt="'+String(alt).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')+'" data-graphic-kind="'+kind+'" data-graphic-tier="'+Math.max(0,Math.min(MAX_TIER,Number(tier)||0))+'" onerror="handleGraphicError(this)" decoding="async" '+(String(extra).includes('loading=')?'':'loading="lazy" ')+extra+'>';
 }
-function iconFor(item){return tierArtwork(item)}
+/* Day43: deployment-safe HD artwork resolver. No missing asset becomes a broken icon. */
+const HD_GEAR_GRADES=['C','B','A','S','SS','SSS','L'];
+const HD_GEAR_EFFECTS=new Set(['fire','leech','barrier','counter','fortify','ice']);
+const HD_GEAR_STATE={ready:false,available:new Set(),checked:false};
+function hdGearKey(item){
+ if(!item||!['weapon','armor','shield','ring'].includes(item.kind))return '';
+ const tier=Number(item.tier);
+ if(!Number.isInteger(tier)||tier<0||tier>=HD_GEAR_GRADES.length)return '';
+ const effect=visualEffect(item);
+ if(!HD_GEAR_EFFECTS.has(effect))return '';
+ return item.kind+'_'+HD_GEAR_GRADES[tier]+'_'+effect;
+}
+function iconFor(item){
+ const key=hdGearKey(item);
+ if(HD_GEAR_STATE.ready&&key&&HD_GEAR_STATE.available.has(key))return 'assets/gear/'+key+'.webp';
+ return tierArtwork(item);
+}
+async function activateHdGearAssets(){
+ if(HD_GEAR_STATE.checked)return;
+ HD_GEAR_STATE.checked=true;
+ try{
+  const res=await fetch('assets/gear/manifest.json',{cache:'no-cache'});
+  if(!res.ok)return;
+  const manifest=await res.json();
+  const entries=Array.isArray(manifest.items)?manifest.items:[];
+  const allowed=new Set(entries.filter(x=>x&&typeof x.file==='string'&&/^assets\/gear\/(weapon|armor|shield|ring)_(C|B|A|S|SS|SSS|L)_(fire|leech|barrier|counter|fortify|ice)\.webp$/.test(x.file)).map(x=>x.file.slice('assets/gear/'.length,-'.webp'.length)));
+  if(allowed.size!==168)return;
+  // Check actual file availability before enabling. Any missing image stays on SVG fallback.
+  const results=await Promise.all([...allowed].map(async key=>{
+   try{const r=await fetch('assets/gear/'+key+'.webp',{method:'HEAD',cache:'no-cache'});return r.ok?key:null}
+   catch(e){return null}
+  }));
+  HD_GEAR_STATE.available=new Set(results.filter(Boolean));
+  HD_GEAR_STATE.ready=HD_GEAR_STATE.available.size>0;
+  if(HD_GEAR_STATE.ready)render();
+ }catch(e){HD_GEAR_STATE.ready=false}
+}
+
 let pendingBossAttack=Date.now()+5500, craftOverlayOpen=false, battleFxUntil=0;
 const stateInit=()=>({gold:2000,ore:180,crystals:12,stage:1,hp:1280,maxHp:1280,enemyHp:1200,enemyMax:1200,inventory:[],equip:{weapon:null,armor:null,shield:null,ring:null},discovered:[],focus:'attack',craftTab:'weapon',codexTab:'equipment',codexSide:'weapon',kills:0,boss:false,battleMode:'manual',materials:{},bossTrophies:{},bossCollection:[],bossCollectionClaimed:[],stageKills:null,forgeRegionKey:null,warehouse:[],bagCapacity:120,warehouseCapacity:200,autoSalvageTier:-1,premiumTokens:0,daily:{day:'',kills:0,bosses:0,claimed:[]},autoCraftGoal:2,bagUpgrades:0,warehouseUpgrades:0,attendance:{day:'',streak:0,claimed:false},presets:[null,null,null],offlinePending:null,passProgress:{season:'',xp:0,claimed:[]},intro:{step:0,kills:0,craftedId:null,completed:false},last:Date.now()});
 let S=stateInit();
@@ -2071,6 +2117,7 @@ const gearQaMode=new URLSearchParams(location.search).has('gearqa');
 if(gearQaMode){runGearMatrixQA().catch(error=>{document.getElementById('screen').textContent='QA 오류: '+String(error)})}
 else{
  render();
+ activateHdGearAssets();
  setInterval(battleTick,180);
  setInterval(save,10000);
  window.addEventListener('beforeunload',save);
