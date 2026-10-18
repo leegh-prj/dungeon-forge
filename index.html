@@ -2085,6 +2085,25 @@ async function runGearMatrixQA(){
  const kinds=['weapon','armor','shield','ring'],grades=[0,1,2,3,4,5,6],effects=['화상','흡혈','보호막','반격','견고함','냉기'];
  screen.innerHTML='<h2>장비 이미지 전체 조합 QA</h2><p id="qaProgress" role="status">168개 이미지 검사 준비 중</p><div id="qaErrors" style="color:#ff9d98;white-space:pre-wrap"></div><div id="qaGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px"></div>';
  const progress=document.getElementById('qaProgress'),errors=document.getElementById('qaErrors'),grid=document.getElementById('qaGrid');
+ const qaStatus=document.createElement('p');qaStatus.style.cssText='font-size:12px;line-height:1.5;color:#f4cea0';
+ qaStatus.textContent='운영 이미지: 확인 중';
+ progress.before(qaStatus);
+ try{
+  const response=await fetch('assets/gear/manifest.json',{cache:'no-cache'});
+  if(!response.ok)throw Error('매니페스트 파일 없음');
+  const manifest=await response.json(),files=Array.isArray(manifest.items)?manifest.items:[];
+  const paths=files.map(v=>v.file).filter(Boolean);
+  if(new Set(paths).size!==168)throw Error('이미지 목록 '+new Set(paths).size+'/168');
+  let ok=0;
+  for(let i=0;i<paths.length;i+=24){
+   const results=await Promise.all(paths.slice(i,i+24).map(async path=>{
+    try{const r=await fetch(path,{method:'HEAD'});return r.ok}catch(e){return false}
+   }));
+   ok+=results.filter(Boolean).length;
+  }
+  qaStatus.textContent='운영 파일 존재 검사: '+ok+'/168 · '+(ok===168?'전체 확인':'파일 누락 — 기존 SVG 유지');
+ }catch(e){qaStatus.textContent='운영 파일 검사 불가: '+String(e.message||e)+' · 기존 SVG 유지'}
+
  let passed=0,failed=0;const all=[];
  for(const kind of kinds)for(const tier of grades)for(const effect of effects)all.push({kind,tier,effect});
  const unique=new Set(),issues=[],gradeShapes=new Map();
