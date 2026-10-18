@@ -620,6 +620,10 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .heroLoadoutGear .heroLoadoutIcon,.gearSlot .slotGearArt{object-fit:contain!important;object-position:center!important}
 .heroLoadoutStage .heroLoadoutGear{overflow:hidden}
 .gearSlot .slotlabel{top:3px;right:3px;bottom:auto;border:0;box-shadow:none}
+/* Day42: readable effect identity at equipped slots without covering the main SVG */
+.gearSlot .gearEffectTag{position:absolute;left:3px;bottom:3px;z-index:4;background:rgba(5,11,19,.88);border:0;box-shadow:none;color:#ffdfaa;font-size:9px;font-weight:800;line-height:1;padding:3px 4px;border-radius:5px;pointer-events:none}
+.gearSlot .slotGearArt{padding:3px;object-fit:contain!important}
+@media(max-width:359px){.gearSlot .gearEffectTag{font-size:8px;padding:2px 3px}}
 </style>
 </head>
 <body>
@@ -1882,10 +1886,14 @@ function equippedItem(kind){
  const index=S.equip?.[kind];if(!Number.isInteger(index)||index<0||index>=S.inventory.length)return null;
  const item=S.inventory[index];return item?.kind===kind?item:null;
 }
+function gearEffectLabel(item){
+ const effect=visualEffect(item);
+ return ({fire:'화염',leech:'흡혈',barrier:'보호',counter:'반격',fortify:'철벽',ice:'냉기',lightning:'번개',poison:'독',neutral:'기본'})[effect];
+}
 function renderEquipSlot(kind){
  const item=equippedItem(kind),name=kindLabel[kind]||kind,tier=item?Math.max(0,Math.min(MAX_TIER,Number(item.tier)||0)):0;
  return '<div class="slot gearSlot '+(item?'filled tierGear tierGear'+tier:'empty')+'" data-slot-kind="'+kind+'">'+
- (item?graphicImage(iconFor(item),kind,tier,item.name,'class="slotGearArt" loading="eager"')+'<span class="slotlabel '+rarityClass(tier)+'">'+rarityLetter[tier]+'</span>':
+ (item?graphicImage(iconFor(item),kind,tier,item.name,'class="slotGearArt" loading="eager"')+'<span class="slotlabel '+rarityClass(tier)+'">'+rarityLetter[tier]+'</span><span class="gearEffectTag" aria-label="옵션 '+gearEffectLabel(item)+'">'+gearEffectLabel(item)+'</span>':
  '<span class="emptyGearArt" aria-hidden="true">'+({weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇'})[kind]+'</span><small class="emptyGearLabel">'+name+'</small>')+'</div>';
 }
 function renderHeroLoadout(){
@@ -2030,11 +2038,15 @@ async function runGearMatrixQA(){
  const progress=document.getElementById('qaProgress'),errors=document.getElementById('qaErrors'),grid=document.getElementById('qaGrid');
  let passed=0,failed=0;const all=[];
  for(const kind of kinds)for(const tier of grades)for(const effect of effects)all.push({kind,tier,effect});
- const unique=new Set(),issues=[];
+ const unique=new Set(),issues=[],gradeShapes=new Map();
  for(const {kind,tier,effect} of all){
   const item={kind,tier,effect,name:'검사 장비'},src=iconFor(item);
   const key=kind+':'+tier+':'+effect;
   if(unique.has(src))issues.push(key+' 이미지 중복');else unique.add(src);
+  const simplified=src;
+  if(!simplified.startsWith('data:image/svg+xml'))issues.push(key+' SVG가 아닌 이미지');
+  if(!gradeShapes.has(kind+':'+effect))gradeShapes.set(kind+':'+effect,new Set());
+  gradeShapes.get(kind+':'+effect).add(simplified);
   const cell=document.createElement('div');cell.style.cssText='min-width:0;text-align:center;background:#161f2c;border:1px solid #6b5a49;border-radius:8px;padding:4px';
   const img=document.createElement('img');img.style.cssText='width:64px;height:64px;object-fit:contain;display:block;margin:auto';img.alt=key;img.src=src;
   const label=document.createElement('small');label.textContent=kind+' '+rarityLetter[tier]+' '+effect;label.style.cssText='font-size:9px;overflow-wrap:anywhere';
@@ -2050,6 +2062,7 @@ async function runGearMatrixQA(){
   }catch(error){failed++;const message=key+': '+String(error?.message||error);issues.push(message);cell.style.borderColor='#f77676';}
   progress.textContent='검사 '+(passed+failed)+'/168 · 정상 '+passed+' · 실패 '+failed;
  }
+ for(const [group,variations] of gradeShapes)if(variations.size!==7)issues.push(group+' 등급별 이미지 중복');
  const totalFailure=failed+issues.filter(i=>i.includes('이미지 중복')).length;
  progress.textContent='결과: 이미지 '+passed+'/168 성공, 로딩 실패 '+failed+', 중복 '+(unique.size!==all.length?all.length-unique.size:0)+' · '+(totalFailure?'점검 필요':'모든 기본 조합 성공');
  errors.textContent=issues.slice(0,40).join('\n')||'브라우저 이미지 로딩·SVG 파싱·조합 구분 검사 완료';
