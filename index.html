@@ -2127,7 +2127,21 @@ shopSection==='journey'?renderPass():`
 
 let previousRenderedTab=null;
 function switchMainTab(next){if(!navTabs.includes(next))return;if(next==='던전')dungeonPanel='fight';TAB=next;render();}
-function render(){normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; if(TAB==='장비'&&storageTab==='bag')filterInventoryCards(inventorySearch); displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}} }
+function showStartupError(error){
+ console.error('던전 대장간 화면 오류',error);
+ const screen=document.getElementById('screen');
+ if(!screen)return;
+ const reason=String(error?.stack||error?.message||error||'알 수 없는 오류').slice(0,900);
+ screen.innerHTML='<section style="position:relative;z-index:1;padding:20px 12px;color:#f6ead4"><h2 style="margin:0 0 12px;color:#f3c57a">게임 화면을 불러오지 못했습니다</h2><p>기존 진행 데이터는 삭제하지 않았습니다. 아래 오류 내용을 복사해 개발자에게 전달해 주세요.</p><pre id="gameErrorDetail" style="white-space:pre-wrap;word-break:break-all;background:#171923;border:1px solid #8a5637;padding:12px;border-radius:10px;font-size:12px"></pre><button id="gameErrorRetry" style="margin-top:12px;padding:12px;border-radius:10px">다시 시도</button><button id="gameErrorCopy" style="margin:12px 0 0 8px;padding:12px;border-radius:10px">오류 복사</button></section>';
+ document.getElementById('gameErrorDetail').textContent=reason;
+ document.getElementById('gameErrorRetry').onclick=()=>location.reload();
+ document.getElementById('gameErrorCopy').onclick=()=>{if(navigator.clipboard?.writeText)navigator.clipboard.writeText(reason).catch(()=>{});};
+}
+function render(){
+ try{
+ normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; if(TAB==='장비'&&storageTab==='bag')filterInventoryCards(inventorySearch); displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}}
+ }catch(error){showStartupError(error)}
+}
 /* DAY41 diagnostic: read-only matrix, available only with ?gearqa=1 */
 async function runGearMatrixQA(){
  const screen=document.getElementById('screen'),nav=document.getElementById('nav');
@@ -2185,6 +2199,8 @@ async function runGearMatrixQA(){
  progress.textContent='결과: 이미지 '+passed+'/168 성공, 로딩 실패 '+failed+', 중복 '+(unique.size!==all.length?all.length-unique.size:0)+' · '+(totalFailure?'점검 필요':'모든 기본 조합 성공');
  errors.textContent=issues.slice(0,40).join('\n')||'브라우저 이미지 로딩·SVG 파싱·조합 구분 검사 완료';
 }
+window.addEventListener('error',event=>{const screen=document.getElementById('screen');if(screen&&!screen.textContent.trim())showStartupError(event.error||event.message)});
+window.addEventListener('unhandledrejection',event=>{const screen=document.getElementById('screen');if(screen&&!screen.textContent.trim())showStartupError(event.reason)});
 const gearQaMode=new URLSearchParams(location.search).has('gearqa');
 if(gearQaMode){runGearMatrixQA().catch(error=>{document.getElementById('screen').textContent='QA 오류: '+String(error)})}
 else{
