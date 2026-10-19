@@ -624,6 +624,12 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .gearSlot .gearEffectTag{position:absolute;left:3px;bottom:3px;z-index:4;background:rgba(5,11,19,.88);border:0;box-shadow:none;color:#ffdfaa;font-size:9px;font-weight:800;line-height:1;padding:3px 4px;border-radius:5px;pointer-events:none}
 .gearSlot .slotGearArt{padding:3px;object-fit:contain!important}
 @media(max-width:359px){.gearSlot .gearEffectTag{font-size:8px;padding:2px 3px}}
+/* QC44: inline vector art in equipped slots: cannot show browser broken-image glyph */
+.gearSlot svg.slotGearArt,.heroLoadoutGear svg.heroLoadoutIcon{display:block;width:100%;height:100%;min-width:0;min-height:0;object-fit:contain;overflow:visible;flex-shrink:0}
+.gearSlot svg.slotGearArt{width:calc(100% - 6px);height:calc(100% - 6px);margin:auto;padding:0!important}
+.heroLoadoutGear svg.heroLoadoutIcon{width:90%;height:90%;margin:auto}
+.gearSlot,.heroLoadoutGear{isolation:isolate}
+.gearSlot .slotlabel,.gearSlot .gearEffectTag{z-index:5}
 </style>
 </head>
 <body>
@@ -1654,7 +1660,7 @@ ${bossGuide()}
   </div>
   <div class="battleactors">
     <div class="fxslash"></div><div class="waterburst"></div>
-    <div class="actor hero"><img id="heroSprite" src="assets/art/hero.webp" alt="영웅" draggable="false"><div class="actorname">Lv.32 대장장이</div></div>
+    <div class="actor hero"><img id="heroSprite" src="assets/art/hero.webp" alt="영웅" draggable="false"><div class="actorname">대장장이</div></div>
     <div class="actor enemy"><img id="enemySprite" src="${currentEnemyImg()}" alt="적 몬스터" draggable="false"><div class="actorname">${currentEnemyName()}</div></div>
   </div>
   <div class="bars">
@@ -1939,10 +1945,32 @@ function gearEffectLabel(item){
  const effect=visualEffect(item);
  return ({fire:'화염',leech:'흡혈',barrier:'보호',counter:'반격',fortify:'철벽',ice:'냉기',lightning:'번개',poison:'독',neutral:'기본'})[effect];
 }
+/* QC44: equipped gear is inline SVG, not an encoded image URL.
+   This avoids broken <img> icons in loadout slots on restrictive WebViews. */
+function equippedGearArtwork(item,cssClass){
+ const kind=['weapon','armor','shield','ring'].includes(item?.kind)?item.kind:'weapon';
+ const tier=Math.max(0,Math.min(MAX_TIER,Number(item?.tier)||0));
+ const uri=tierArtwork({...item,kind,tier});
+ const svg=decodeURIComponent(uri.slice(uri.indexOf(',')+1));
+ return svg.replace('<svg ','<svg class="'+cssClass+'" role="img" aria-label="'+String(item?.name||kind).replace(/[&<>"']/g,'')+'" focusable="false" ');
+}
+function repairEquippedImage(img){
+ if(!img)return;
+ const kind=img.dataset?.graphicKind||'weapon',tier=Number(img.dataset?.graphicTier||0);
+ const item={kind,tier,effect:img.dataset?.graphicEffect||''};
+ const parent=img.parentNode;
+ if(parent&&typeof parent.replaceChild==='function'){
+  const shell=document.createElement('span');
+  shell.innerHTML=equippedGearArtwork(item,img.classList?.contains('heroLoadoutIcon')?'heroLoadoutIcon':'slotGearArt');
+  const svg=shell.firstElementChild;
+  if(svg){parent.replaceChild(svg,img);return}
+ }
+ handleGraphicError(img,kind);
+}
 function renderEquipSlot(kind){
  const item=equippedItem(kind),name=kindLabel[kind]||kind,tier=item?Math.max(0,Math.min(MAX_TIER,Number(item.tier)||0)):0;
  return '<div class="slot gearSlot '+(item?'filled tierGear tierGear'+tier:'empty')+'" data-slot-kind="'+kind+'">'+
- (item?graphicImage(iconFor(item),kind,tier,item.name,'class="slotGearArt" loading="eager"')+'<span class="slotlabel '+rarityClass(tier)+'">'+rarityLetter[tier]+'</span><span class="gearEffectTag" aria-label="옵션 '+gearEffectLabel(item)+'">'+gearEffectLabel(item)+'</span>':
+ (item?equippedGearArtwork(item,'slotGearArt')+'<span class="slotlabel '+rarityClass(tier)+'">'+rarityLetter[tier]+'</span><span class="gearEffectTag" aria-label="옵션 '+gearEffectLabel(item)+'">'+gearEffectLabel(item)+'</span>':
  '<span class="emptyGearArt" aria-hidden="true">'+({weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇'})[kind]+'</span><small class="emptyGearLabel">'+name+'</small>')+'</div>';
 }
 function renderHeroLoadout(){
@@ -1953,7 +1981,7 @@ function renderHeroLoadout(){
    const item=equippedItem(kind);
    const grade=item?Math.max(0,Math.min(MAX_TIER,Number(item.tier)||0)):0;
    return '<div class="heroLoadoutGear heroLoadout-'+kind+(item?' equipped':' empty')+'" aria-label="'+(item?kindLabel[kind]+' 장착: '+String(item.name).replace(/[<>"']/g,''):kindLabel[kind]+' 미착용')+'">'+
-     (item?graphicImage(iconFor(item),kind,grade,item.name,'class="heroLoadoutIcon" loading="eager"'):
+     (item?equippedGearArtwork(item,'heroLoadoutIcon'):
      '<span class="heroLoadoutPlaceholder" aria-hidden="true">'+({weapon:'⚔',armor:'◆',shield:'⬡',ring:'◇'})[kind]+'</span>')+'</div>';
  }).join('');
  return '<div class="charstage heroLoadoutStage tierGear tierGear'+strongest+'" role="group" aria-label="캐릭터 착용 장비 미리보기">'+
