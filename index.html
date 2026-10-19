@@ -876,7 +876,27 @@ function cryptoRandom(){
  }while(S.inventory.some(it=>it.id===id)||S.warehouse.some(it=>it.id===id));
  return id;
 }
-function save(){S.last=Date.now();localStorage.setItem(K,JSON.stringify(S));}
+let saveErrorReported=false;
+function save(){
+ const previousLast=S.last;
+ try{
+  const now=Date.now();
+  const payload=JSON.stringify({...S,last:now});
+  localStorage.setItem(K,payload);
+  S.last=now;
+  saveErrorReported=false;
+  return true;
+ }catch(error){
+  S.last=previousLast;
+  if(!saveErrorReported){
+   saveErrorReported=true;
+   console.error('게임 저장 실패:',error);
+   const notice=document.getElementById('toast');
+   if(notice){notice.textContent='저장 공간 오류: 진행 상황이 저장되지 않을 수 있습니다';notice.classList.add('show');}
+  }
+  return false;
+ }
+}
 function toast(t){logs.unshift(t);logs=logs.slice(0,3);const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1700); save(); render();}
 function eq(kind){return equippedItem(kind)}
 function totalAtk(){return 120+(eq('weapon')?.power||0)+(eq('ring')?.power||0)+S.stage*8+setBonuses().atk}
@@ -2172,7 +2192,7 @@ else{
  setInterval(save,10000);
  window.addEventListener('beforeunload',save);
 }
-document.addEventListener('visibilitychange',()=>document.hidden&&save());
+if(!gearQaMode)document.addEventListener('visibilitychange',()=>document.hidden&&save());
 // Capture errors from older raw <img> markup too, not only new graphicImage elements.
 document.addEventListener('error',event=>{const img=event.target;if(img?.tagName==='IMG')fallbackFromElement(img)},true);
 </script></body></html>
