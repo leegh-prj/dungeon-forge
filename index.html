@@ -1109,8 +1109,28 @@ function enemyStatusTick(now=Date.now()){
   if(S.enemyHp<=0)enemyDown();else refreshCombatNumbers();
  }
 }
+const ELEMENT_COUNTERS={water:'fire',fire:'earth',earth:'storm',storm:'poison',poison:'water'};
+const ELEMENT_LABELS={water:'💧 물',fire:'🔥 불',earth:'⛰ 대지',storm:'⚡ 번개',poison:'☠ 독'};
+function attackElement(){
+ const weapon=eq('weapon');
+ const active=weapon?.infusion;
+ if(active&&ELEMENT_COUNTERS[active])return active;
+ const effect=weapon?.effect;
+ if(effect==='화상')return 'fire';
+ if(effect==='냉기')return 'water';
+ if(effect==='독')return 'poison';
+ if(effect==='번개')return 'storm';
+ return null;
+}
+function elementalMatchup(){
+ const mine=attackElement(),enemy=regionInfo().key;
+ if(!mine||!ELEMENT_COUNTERS[enemy])return {mine,enemy,multiplier:1,state:'neutral'};
+ if(ELEMENT_COUNTERS[mine]===enemy)return {mine,enemy,multiplier:1.2,state:'strong'};
+ if(ELEMENT_COUNTERS[enemy]===mine)return {mine,enemy,multiplier:.9,state:'weak'};
+ return {mine,enemy,multiplier:1,state:'neutral'};
+}
 function damageEnemy(d){
- const now=Date.now();let final=Math.round(d*(1+setBonuses().damage+currentRegionAffinity().damage));
+ const now=Date.now();let final=Math.round(d*(1+setBonuses().damage+currentRegionAffinity().damage)*elementalMatchup().multiplier);
  if(eq('weapon')?.tier===MAX_TIER)final=Math.round(final*1.12);
  if(eq('ring')?.tier===MAX_TIER)S.hp=Math.min(getMaxHp(),S.hp+Math.max(1,Math.round(final*.05)));
  const weaponEffect=eq('weapon')?.effect,ringEffect=eq('ring')?.effect;
@@ -1487,13 +1507,22 @@ function forgeElemental(){
  if(it.kind===S.craftTab){const idx=S.inventory.indexOf(it);if(S.equip[it.kind]===null||itemStrength(it)>itemStrength(eq(it.kind)))S.equip[it.kind]=idx}
  discover(it);save();render();showForgeSummary('속성 제작 완료',[it],region.material+' 4개 소모 · '+region.name+' 속성');
 }
+const CRAFT_GRADE_RATES=[53,25,13,7,1.7,0.28,0.02];
+function rollCraftTier(roll){
+ let cumulative=0;
+ for(let tier=0;tier<CRAFT_GRADE_RATES.length;tier++){
+  cumulative+=CRAFT_GRADE_RATES[tier]/100;
+  if(roll<cumulative||tier===MAX_TIER)return tier;
+ }
+ return 0;
+}
 function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  const def=recipeDefs.find(r=>r.kind===kind);if(!def)return toast('제작 정보를 찾을 수 없습니다');
  if(S.inventory.length>=S.bagCapacity&&S.warehouse.length>=S.warehouseCapacity)return toast('가방과 창고가 가득 찼습니다');
  const extra=S.focus==='balanced'?0:1,needOre=def.ore,needCry=def.crystal+extra;
  if(S.ore<needOre||S.crystals<needCry)return toast('재료가 부족합니다');
  S.ore-=needOre;S.crystals-=needCry;
- const roll=Math.random(),tutorialBonus=introActive()&&S.intro.step===1&&kind==='weapon';const tier=tutorialBonus?1:roll>=.99998?6:roll>=.9995?5:roll>=.992?4:roll>=.94?3:roll>=.82?2:roll>=.57?1:0;
+ const roll=Math.random(),tutorialBonus=introActive()&&S.intro.step===1&&kind==='weapon';const tier=tutorialBonus?1:rollCraftTier(roll);
  const item=mkItem(def,tier,effects[Math.floor(Math.random()*effects.length)]);
  if(S.focus==='attack')item.power+=4;if(S.focus==='defense')item.defense+=5;
  const destination=storeNewItem(item,skipAuto);
@@ -2053,17 +2082,18 @@ function codexSlots(kind){
  return slots.filter(s=>codexCollectionFilter==='all'||(codexCollectionFilter==='found'?s.found:!s.found));
 }
 function renderAdventureGuide(){
- const rolls=[57,25,12,5.2,0.75,0.048,0.002];
+ const rolls=CRAFT_GRADE_RATES;
  const names=['C','B','A','S','SS','SSS','L'];
  const rateRows=names.map((grade,i)=>'<tr><td><b>'+grade+'</b></td><td style="text-align:right">'+rolls[i].toFixed(i>=4?3:1).replace(/\\.0+$/,'')+'%</td></tr>').join('');
- const upgradeRows=[0,1,2,3,4,5,10,15,19].map(level=>{
+ const upgradeRows=Array.from({length:20},(_,level)=>level).map(level=>{
   const item={level,upgradeFails:0};
   return '<tr><td>+'+level+' → +'+(level+1)+'</td><td style="text-align:right">'+enhancementBaseChance(item).toFixed(2)+'%</td></tr>';
  }).join('');
  const effects=[['🔥 화상','일정 시간 지속 피해'],['🩸 흡혈','공격 시 체력 회복 계열'],['🛡 보호막','피해를 줄이는 방어 계열'],['⚔ 반격','공격을 되돌려주는 효과'],['⛰ 견고함','방어 및 생존 특화'],['❄ 냉기','적의 공격 간격을 지연']];
+ const matchup=elementalMatchup();const matchText=matchup.mine?(ELEMENT_LABELS[matchup.mine]+' → '+ELEMENT_LABELS[matchup.enemy]+' · '+(matchup.state==='strong'?'유리 · 피해 +20%':matchup.state==='weak'?'불리 · 피해 -10%':'동등 · 보정 없음')):'무기 속성 미지정 · 상성 피해 보정 없음';
  const content='<div class="guideHero"><strong>📚 모험가를 위한 전투·제작 공략</strong><p>게임에 적용된 효과와 확률을 기준으로 정리했습니다.</p></div>'+
  '<details class="guideSection" open><summary>⚔ 속성 효과와 지역 대응</summary><div class="guideInner">'+
- '<p class="researchNote">현재는 속성끼리 고정된 상성 피해 배율이 없습니다. 상태이상과 지역 전용 세트 효과를 활용해 전략을 세우세요.</p>'+
+ '<p class="researchNote"><b>상성 순환:</b> 💧 물 → 🔥 불 → ⛰ 대지 → ⚡ 번개 → ☠ 독 → 💧 물<br>유리할 때 공격 피해 +20%, 불리할 때 -10%. 나머지는 기본 피해입니다. 무기 냉기는 물, 화상은 불, 번개·독은 각 속성으로 취급합니다. 무기에 지역 속성 주입이 있다면 해당 속성을 우선 적용합니다.</p><p class="researchNote"><b>현재 전투:</b> '+matchText+'</p>'+
  effects.map(e=>'<div class="guideEffect"><strong>'+e[0]+'</strong><span>'+e[1]+'</span></div>').join('')+
  '<p class="researchNote">💧 물 · ☠ 독 · ⚡ 폭풍 · 🔥 화염 · ⛰ 대지 지역은 5개 지역 순환 구조입니다. 지역에 맞는 세트 장비 2개 이상 착용 시 피해 +6%, 4개 이상 착용 시 받는 피해 -4%가 추가 적용됩니다.</p></div></details>'+
  '<details class="guideSection"><summary>🎲 일반 장비 제작 등급 확률</summary><div class="guideInner"><table class="guideTable"><thead><tr><th>등급</th><th style="text-align:right">제작 확률</th></tr></thead><tbody>'+rateRows+'</tbody></table><p class="researchNote">일반 제작 기준 · 총합 100% · 첫 모험의 지정 무기 제작에서는 튜토리얼 보정 적용 가능. 특별 보스 제작은 A 85% / S 15%입니다.</p></div></details>'+
