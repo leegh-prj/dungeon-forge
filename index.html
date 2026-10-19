@@ -630,6 +630,8 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .heroLoadoutGear svg.heroLoadoutIcon{width:90%;height:90%;margin:auto}
 .gearSlot,.heroLoadoutGear{isolation:isolate}
 .gearSlot .slotlabel,.gearSlot .gearEffectTag{z-index:5}
+@media (max-width:360px){#app{padding:8px 6px 90px}.screen{padding:8px 6px 12px;border-radius:18px}.brandtitle{font-size:27px}.resources{gap:3px}.reschip{min-width:0;padding:5px 4px;font-size:11px}.screenheader{gap:4px}.screentitle{font-size:17px}.inventoryGrid,.codexGrid{gap:4px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
@@ -953,7 +955,7 @@ function scheduleEnemyAttack(initial=false){
  const delay=initial&&S.boss?Math.max(4900,enemyAttackInterval):enemyAttackInterval;
  enemyAttackAt=Date.now()+delay;pendingBossAttack=enemyAttackAt;
 }
-function getBossPattern(){return regionInfo().patterns[bossPatternStep%3]}
+function getBossPattern(){const patterns=regionInfo().patterns;return patterns[((bossPatternStep%patterns.length)+patterns.length)%patterns.length]}
 function nextPatternHint(){if(!S.boss)return '기본 공격';return getBossPattern()[0]}
 function combatStatus(){
  const statuses=[];
@@ -1246,7 +1248,7 @@ function battleTick(){
    if(S.boss&&enemyAttackAt-now>0&&enemyAttackAt-now<1200&&now>=guardReady)guard(true);
    if(now>=strikeReady)strike(true);else if(now>=basicReady)attack(true);
  }
- if(now>=enemyAttackAt){
+ if(S.enemyHp>0&&now>=enemyAttackAt){
    enemyPose='attack';enemyFxUntil=now+500;
    if(S.boss){
      const [name,power]=getBossPattern();const damage=Math.round((105+S.stage*6.5)*power);
@@ -1712,7 +1714,7 @@ ${compactPanel('📅 일일 임무 · 수령 가능 '+dailyClaimableCount()+'개
 let forgeMode='제작', forgeSelection=[],dismantleTierFilter='all';
 let inventoryFilter='전체',codexPage=0,codexCollectionFilter='all',inventorySort='tier',inventorySearch='';
 function setForgeMode(mode){forgeMode=mode;forgeSelection=[];render()}
-function itemStrength(it){return (it.power||0)+(it.defense||0)}
+function itemStrength(it){if(!it)return 0;return Math.max(0,Number(it.power)||0)+Math.max(0,Number(it.defense)||0)+Math.max(0,Number(it.level)||0)*2}
 function itemPlus(it){return Math.max(0,Math.floor(it?.level||0))}
 function forgeUsable(){return S.inventory.map((item,index)=>({item,index})).filter(x=>!isEquipped(x.index)&&!isLocked(x.item))}
 function selectForgeItem(index){
@@ -2079,7 +2081,7 @@ const TOKEN_OFFERS=[
 ];
 function buyTokenOffer(id){
  const offer=TOKEN_OFFERS.find(o=>o.id===id);if(!offer)return;
- if(S.premiumTokens<offer.cost)return toast('별빛 재화가 부족합니다');
+ if(!Number.isFinite(offer.cost)||offer.cost<0||!Number.isFinite(S.premiumTokens)||S.premiumTokens<offer.cost)return toast('별빛 재화가 부족합니다');
  S.premiumTokens-=offer.cost;
  S.ore+=offer.ore||0;S.gold+=offer.gold||0;S.crystals+=offer.crystals||0;
  if(offer.regional){const k=regionInfo().key;S.materials[k]=(S.materials[k]||0)+offer.regional}
