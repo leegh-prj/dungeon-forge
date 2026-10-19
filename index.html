@@ -632,6 +632,9 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .gearSlot .slotlabel,.gearSlot .gearEffectTag{z-index:5}
 @media (max-width:360px){#app{padding:8px 6px 90px}.screen{padding:8px 6px 12px;border-radius:18px}.brandtitle{font-size:27px}.resources{gap:3px}.reschip{min-width:0;padding:5px 4px;font-size:11px}.screenheader{gap:4px}.screentitle{font-size:17px}.inventoryGrid,.codexGrid{gap:4px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* Adventure guide: compact, native disclosure sections for touch devices. */
+.guidePage{display:grid;gap:8px}.guideHero{border:1px solid #8d6c3b;border-radius:12px;padding:12px;background:rgba(232,172,85,.09)}.guideHero strong{color:#ffda9a}.guideHero p{font-size:12px;color:#ddcbaa;margin:6px 0 0}.guideSection{border:1px solid #786044;border-radius:12px;background:rgba(13,16,23,.8);overflow:hidden}.guideSection summary{padding:13px 12px;cursor:pointer;font-weight:800;font-size:14px;list-style-position:inside;touch-action:manipulation}.guideSection[open] summary{color:#ffd68f;border-bottom:1px solid #554936}.guideInner{padding:10px 12px}.guideEffect{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid rgba(194,153,89,.17);font-size:12px}.guideEffect strong{min-width:84px}.guideEffect span{text-align:right;color:#ddd0b9}.guideTable{width:100%;border-collapse:collapse;font-size:12px}.guideTable th,.guideTable td{padding:8px;border-bottom:1px solid rgba(194,153,89,.2);text-align:left}.guideTable th{color:#e7bd77}.guideInner .researchNote{margin:10px 0 2px;line-height:1.6}.codexTabs{display:flex;overflow-x:auto;gap:5px;scrollbar-width:thin}.codexTabs button{white-space:nowrap;flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -2049,7 +2052,27 @@ function codexSlots(kind){
  while(slots.length<42)slots.push({found:false,key:''});
  return slots.filter(s=>codexCollectionFilter==='all'||(codexCollectionFilter==='found'?s.found:!s.found));
 }
+function renderAdventureGuide(){
+ const rolls=[57,25,12,5.2,0.75,0.048,0.002];
+ const names=['C','B','A','S','SS','SSS','L'];
+ const rateRows=names.map((grade,i)=>'<tr><td><b>'+grade+'</b></td><td style="text-align:right">'+rolls[i].toFixed(i>=4?3:1).replace(/\\.0+$/,'')+'%</td></tr>').join('');
+ const upgradeRows=[0,1,2,3,4,5,10,15,19].map(level=>{
+  const item={level,upgradeFails:0};
+  return '<tr><td>+'+level+' → +'+(level+1)+'</td><td style="text-align:right">'+enhancementBaseChance(item).toFixed(2)+'%</td></tr>';
+ }).join('');
+ const effects=[['🔥 화상','일정 시간 지속 피해'],['🩸 흡혈','공격 시 체력 회복 계열'],['🛡 보호막','피해를 줄이는 방어 계열'],['⚔ 반격','공격을 되돌려주는 효과'],['⛰ 견고함','방어 및 생존 특화'],['❄ 냉기','적의 공격 간격을 지연']];
+ const content='<div class="guideHero"><strong>📚 모험가를 위한 전투·제작 공략</strong><p>게임에 적용된 효과와 확률을 기준으로 정리했습니다.</p></div>'+
+ '<details class="guideSection" open><summary>⚔ 속성 효과와 지역 대응</summary><div class="guideInner">'+
+ '<p class="researchNote">현재는 속성끼리 고정된 상성 피해 배율이 없습니다. 상태이상과 지역 전용 세트 효과를 활용해 전략을 세우세요.</p>'+
+ effects.map(e=>'<div class="guideEffect"><strong>'+e[0]+'</strong><span>'+e[1]+'</span></div>').join('')+
+ '<p class="researchNote">💧 물 · ☠ 독 · ⚡ 폭풍 · 🔥 화염 · ⛰ 대지 지역은 5개 지역 순환 구조입니다. 지역에 맞는 세트 장비 2개 이상 착용 시 피해 +6%, 4개 이상 착용 시 받는 피해 -4%가 추가 적용됩니다.</p></div></details>'+
+ '<details class="guideSection"><summary>🎲 일반 장비 제작 등급 확률</summary><div class="guideInner"><table class="guideTable"><thead><tr><th>등급</th><th style="text-align:right">제작 확률</th></tr></thead><tbody>'+rateRows+'</tbody></table><p class="researchNote">일반 제작 기준 · 총합 100% · 첫 모험의 지정 무기 제작에서는 튜토리얼 보정 적용 가능. 특별 보스 제작은 A 85% / S 15%입니다.</p></div></details>'+
+ '<details class="guideSection"><summary>🔨 강화 성공 확률</summary><div class="guideInner"><table class="guideTable"><thead><tr><th>현재 단계</th><th style="text-align:right">기본 성공률</th></tr></thead><tbody>'+upgradeRows+'</tbody></table><p class="researchNote">+20이 최대입니다. 실패 시 장비와 강화 단계는 유지되며 재료만 소모됩니다. 연속 실패 보정에 따라 실제 성공률은 달라집니다. 정확한 최종 수치는 대장간에서 선택한 장비의 강화 확률을 확인하세요.</p></div></details>'+
+ '<details class="guideSection"><summary>🎁 전투 보상 및 진행 규칙</summary><div class="guideInner"><div class="guideEffect"><strong>일반 몬스터</strong><span>3마리 처치 후 보스 도전</span></div><div class="guideEffect"><strong>일반 전투 결정</strong><span>1~3 스테이지 30%, 이후 17% 확률로 1개</span></div><div class="guideEffect"><strong>보스 보상</strong><span>전리품·지역 재료·결정 획득 및 다음 스테이지 해금</span></div><p class="researchNote">보상 수량은 스테이지에 따라 증가합니다. 세부 보상은 현재 지역과 전투 결과에서 확인할 수 있습니다.</p></div></details>';
+ return renderHeader('모험 가이드','📚')+'<div class="codexTabs compactNav" style="margin-bottom:8px">'+codexTabButtons()+'</div><div class="guidePage">'+content+'</div>';
+}
 function renderCodex(){
+ if(S.codexTab==='guide')return renderAdventureGuide();
  if(S.codexTab==='monster')return renderMonsterCodex();
  if(S.codexTab==='region')return renderRegionCodex();
  if(S.codexTab==='boss')return renderBossCodex();
@@ -2074,7 +2097,7 @@ function renderRegionCodex(){
  const grid=REGIONS.map((r,i)=>`<div class="panel" style="padding:14px;border-color:${r.tint}"><div style="font-size:30px">${['💧','☠','⚡','🔥','⛰'][i]}</div><strong>${r.name}</strong><p class="researchNote">${r.enemy} / ${r.boss}<br>재료: ${r.material} · 보유 ${S.materials?.[r.key]||0}개</p></div>`).join('');
  return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">지역 도감</div><div class="codexMonsterGrid">${grid}</div>`;
 }
-function codexTabButtons(){return [{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'},{v:'boss',t:'보스 장비'+(pendingBossCollectionReward()?' ●':'')}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}
+function codexTabButtons(){return [{v:'guide',t:'📚 모험 가이드'},{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'},{v:'boss',t:'보스 장비'+(pendingBossCollectionReward()?' ●':'')}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}
 const TOKEN_OFFERS=[
  {id:'ore',name:'광석 보급 상자',cost:5,detail:'광석 250개',ore:250},
  {id:'crystal',name:'마력 결정 상자',cost:8,detail:'마력 결정 35개',crystals:35},
