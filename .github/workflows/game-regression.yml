@@ -1,0 +1,17 @@
+name: Game regression smoke
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'tools/regression_smoke.py'
+      - '.github/workflows/game-regression.yml'
+  workflow_dispatch:
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python tools/regression_smoke.py
