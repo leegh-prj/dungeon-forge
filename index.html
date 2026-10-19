@@ -1664,7 +1664,7 @@ ${bossGuide()}
     <div class="actor enemy"><img id="enemySprite" src="${currentEnemyImg()}" alt="적 몬스터" draggable="false"><div class="actorname">${currentEnemyName()}</div></div>
   </div>
   <div class="bars">
-    <div class="hpbox"><div class="hplabel"><span>Lv.32 대장장이</span><span class="subtxt" id="heroHealthText">${Math.ceil(S.hp)} / ${getMaxHp()}</span></div><div class="bar"><div class="fill" id="heroHealthBar" style="width:${hpPct}%"></div></div></div>
+    <div class="hpbox"><div class="hplabel"><span>대장장이</span><span class="subtxt" id="heroHealthText">${Math.ceil(S.hp)} / ${getMaxHp()}</span></div><div class="bar"><div class="fill" id="heroHealthBar" style="width:${hpPct}%"></div></div></div>
     <div class="hpbox"><div class="hplabel"><span>${currentEnemyName()}</span><span class="subtxt" id="enemyHealthText">${Math.ceil(S.enemyHp)} / ${getEnemyMax()}</span></div><div class="bar"><div class="fill blue" id="enemyHealthBar" style="width:${ePct}%"></div></div></div>
   </div>
 </div>
@@ -2006,7 +2006,7 @@ ${storageTab==='loadout'?`${compactPanel('⚔ 장비 프리셋 관리',renderPre
   </div>
 </div>
 <div class="statsBox">
-  <div class="sectiontitle">Lv.32 대장장이 <span class="tiny muted">상세 스탯</span></div>
+  <div class="sectiontitle">대장장이 <span class="tiny muted">상세 스탯</span></div>
   <div class="statrow"><span>⚔ 공격력</span><span>${totalAtk().toLocaleString()} <span class="up">(+${(eq('weapon')?.power||0)+(eq('ring')?.power||0)})</span></span></div>
   <div class="statrow"><span>🛡 방어력</span><span>${totalDef().toLocaleString()} <span class="up">(+${(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)})</span></span></div>
   <div class="statrow"><span>❤ 체력</span><span>${getMaxHp().toLocaleString()} <span class="up">(+${getMaxHp()-1280})</span></span></div>
