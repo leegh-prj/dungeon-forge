@@ -657,6 +657,10 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .codexFilters .segbtn{border-radius:10px;background:linear-gradient(145deg,#29313b,#151a23);border:1px solid #9c80585c}
 .codexFilters .segbtn.active{border-color:#e9bd76;color:#ffe8bb}
 .codexTreasure img{object-fit:contain!important}
+
+/* HD equipped art and one-tap repeat crafting */
+.gearSlot img.slotGearArt,.heroLoadoutGear img.heroLoadoutIcon{object-fit:contain!important;display:block;width:100%;height:100%;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
+.craftQuickActions,.craftRepeatActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.craftQuickActions button,.craftRepeatActions button{min-width:0;min-height:44px;border-radius:11px;font-weight:800;font-size:12px}.craftTenButton,.craftRepeatActions button:nth-child(2){background:linear-gradient(150deg,#7f5a28,#49381f);border:1px solid #e0b56c;color:#fff0d0}.craftRepeatActions button:disabled{opacity:.4;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -1590,6 +1594,17 @@ function tierDecoration(item){
  const theme=tierTheme(item),count=theme.stars;
  return '<div class="tierParticles" aria-hidden="true">'+Array.from({length:count},(_,i)=>'<i style="--i:'+i+';--x:'+((i*47)%93+3)+'%;--y:'+((i*31)%72+8)+'%"></i>').join('')+'</div>';
 }
+function quickRepeatCraft(count){
+ closeCraft();
+ TAB='대장간';forgeMode='제작';
+ if(count===1){craft(S.craftTab);return}
+ bulkCraft(count);
+}
+function craftRepeatButtons(){
+ const def=recipeDefs.find(r=>r.kind===S.craftTab);
+ const canCraft=!!def&&S.ore>=def.ore&&S.crystals>=def.crystal+(S.focus==='balanced'?0:1);
+ return '<div class="craftRepeatActions"><button onclick="quickRepeatCraft(1)" '+(canCraft?'':'disabled')+'>↻ 1회 더 제작</button><button onclick="quickRepeatCraft(10)" '+(canCraft?'':'disabled')+'>⚒ 10회 연속 제작</button></div>';
+}
 function showTierReward(item,detail='',title='제작 완료'){
  if(item?.tier===MAX_TIER)return showLegendaryCutscene(item,detail);
  const t=tierTheme(item),overlay=document.getElementById('craftOverlay'),modal=document.getElementById('craftModal');
@@ -1604,7 +1619,7 @@ function showTierReward(item,detail='',title='제작 완료'){
  '<div class="tierResultName">'+item.name+'</div>'+
  '<p class="tierResultEffect">✦ '+item.effect+' · 공격 '+(item.power||0)+' · 방어 '+(item.defense||0)+'</p>'+
  '<p class="tierResultDetail">'+(detail||title)+'</p>'+
- craftedEquipButton(item)+
+ craftedEquipButton(item)+craftRepeatButtons()+
  '<button class="tierResultConfirm" onclick="closeCraft()">확인</button>';
  overlay.classList.add('show','tierReveal');
  overlay.setAttribute('aria-label',rarityName[item.tier]+' 등급 장비 획득');
@@ -1635,7 +1650,7 @@ function showLegendaryCutscene(item,detail=''){
  <div class="legendaryIconFrame">${graphicImage(iconFor(item),item.kind,item.tier,item.name)}</div>
  <h2 class="legendaryHeading">${item.name}</h2><p class="legendaryPassive">✧ ${legendaryPassive(item)}</p>
  <p class="legendaryDetails">${item.firstLegendary?'🏆 최초 L 획득! 골드 +100,000 · 결정 +50':detail||'최고 등급 장비 획득'}</p>
- ${craftedEquipButton(item)}<button class="legendaryConfirm" onclick="closeLegendaryCutscene()">전설 장비 확인</button>
+ ${craftedEquipButton(item)}${craftRepeatButtons()}<button class="legendaryConfirm" onclick="closeLegendaryCutscene()">전설 장비 확인</button>
  <button class="legendarySkip" onclick="closeLegendaryCutscene()">연출 건너뛰기</button>`;
  overlay.classList.add('show','legendaryReveal');
  overlay.setAttribute('aria-label','레전드 등급 장비 획득');
@@ -1911,7 +1926,7 @@ function forgePanel(){
  if(forgeMode==='제작')return `
 ${introActive()&&S.intro.step===1?'<div class="introCraftGift">🎁 첫 무기 제작 · 고급 B 등급 확정 지급</div>':''}
 <div class="categoryTabs" style="margin:10px 0">${['weapon','armor','shield','ring'].map(k=>`<button class="segbtn ${S.craftTab===k?'active':''}" onclick="S.craftTab='${k}';render()">${kindLabel[k]}</button>`).join('')}</div>
-<div class="cardsRow">${recipeDefs.filter(d=>d.kind===S.craftTab).map(d=>recipeCard(d,introActive()&&S.intro.step===1?1:0)).join('')}</div><details class="uxDisclosure forgeRates"><summary>등급별 확률 확인</summary><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS 0.048% · L 0.002% 제작 확률</small></div></details>
+<div class="cardsRow">${recipeDefs.filter(d=>d.kind===S.craftTab).map(d=>recipeCard(d,introActive()&&S.intro.step===1?1:0)).join('')}</div><details class="uxDisclosure forgeRates"><summary>등급별 확률 확인</summary><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS ${CRAFT_GRADE_RATES[5]}% · L ${CRAFT_GRADE_RATES[6]}% 제작 확률</small></div></details>
 <div class="sectiontitle" style="margin-top:14px">제작 집중 옵션</div>
 <div class="focusGrid">
  <div class="focusBox ${S.focus==='balanced'?'active neutral':''}" onclick="S.focus='balanced';render()"><strong>균형</strong><div class="tiny muted">균형 잡힌 능력치</div></div>
@@ -1919,7 +1934,7 @@ ${introActive()&&S.intro.step===1?'<div class="introCraftGift">🎁 첫 무기 �
  <div class="focusBox ${S.focus==='defense'?'active blue':''}" onclick="S.focus='defense';render()"><strong>방어</strong><div class="tiny muted">방어력 증가</div></div>
 </div>
 <div class="costRow"><span>⛏ ${recipeDefs.find(r=>r.kind===S.craftTab).ore} / 💎 ${recipeDefs.find(r=>r.kind===S.craftTab).crystal+(S.focus==='balanced'?0:1)}</span><span class="muted">${kindLabel[S.craftTab]} 제작</span></div>
-<button class="primaryBtn" onclick="craft()">🔨 제작하기</button><details class="uxDisclosure forgeExtras"><summary>⚒ 연속 제작·속성 제작</summary><div class="uxDisclosureBody"><div class="craftGoal"><label>목표 등급 <select onchange="setAutoCraftGoal(this.value)">${rarityLetter.map((n,i)=>`<option value="${i}" ${S.autoCraftGoal===i?'selected':''}>${n} 이상</option>`).join('')}</select></label><button onclick="craftToGoal()">⚒ 목표 등급까지 제작 (최대 20회)</button><small>설정한 등급에 도달하거나 재료·공간이 부족하면 즉시 중단합니다. 성공 확률은 일반 제작과 같습니다.</small></div><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>탐험으로 모은 재료를 지역에 상관없이 사용할 수 있습니다.</p><div class="elementSelect">${REGIONS.map(r=>`<button class="elementChip ${forgeRegion().key===r.key?'selected':''}" onclick="selectForgeRegion('${r.key}')"><img src="assets/materials/${({water:'01',poison:'10',storm:'08',fire:'04',earth:'13'})[r.key]}.webp" alt=""><span>${r.material}</span><b>${S.materials?.[r.key]||0}</b></button>`).join('')}</div><p>${forgeRegion().name} 속성 부여 · 보유 <b>${S.materials?.[forgeRegion().key]||0}개</b></p><small>선택 재료 4개 · 일반 제작비 + 광석 12 · 결정 1</small><button onclick="forgeElemental()" ${(S.materials?.[forgeRegion().key]||0)<4?'disabled':''}>${forgeRegion().material}로 속성 장비 제작</button></div></div></details>`;
+<div class="craftQuickActions"><button class="primaryBtn" onclick="craft()">🔨 1회 제작</button><button class="primaryBtn craftTenButton" onclick="bulkCraft(10)">⚒ 10회 연속 제작</button></div><details class="uxDisclosure forgeExtras"><summary>⚒ 연속 제작·속성 제작</summary><div class="uxDisclosureBody"><div class="craftGoal"><label>목표 등급 <select onchange="setAutoCraftGoal(this.value)">${rarityLetter.map((n,i)=>`<option value="${i}" ${S.autoCraftGoal===i?'selected':''}>${n} 이상</option>`).join('')}</select></label><button onclick="craftToGoal()">⚒ 목표 등급까지 제작 (최대 20회)</button><small>설정한 등급에 도달하거나 재료·공간이 부족하면 즉시 중단합니다. 성공 확률은 일반 제작과 같습니다.</small></div><button class="bulkAction" onclick="bulkCraft(5)">⚒ 5회 연속 제작</button><div class="elementalCraft"><strong>✦ 지역 속성 제작</strong><p>탐험으로 모은 재료를 지역에 상관없이 사용할 수 있습니다.</p><div class="elementSelect">${REGIONS.map(r=>`<button class="elementChip ${forgeRegion().key===r.key?'selected':''}" onclick="selectForgeRegion('${r.key}')"><img src="assets/materials/${({water:'01',poison:'10',storm:'08',fire:'04',earth:'13'})[r.key]}.webp" alt=""><span>${r.material}</span><b>${S.materials?.[r.key]||0}</b></button>`).join('')}</div><p>${forgeRegion().name} 속성 부여 · 보유 <b>${S.materials?.[forgeRegion().key]||0}개</b></p><small>선택 재료 4개 · 일반 제작비 + 광석 12 · 결정 1</small><button onclick="forgeElemental()" ${(S.materials?.[forgeRegion().key]||0)<4?'disabled':''}>${forgeRegion().material}로 속성 장비 제작</button></div></div></details>`;
  const need=forgeMode==='분해'?50:forgeMode==='합성'?3:forgeMode==='승급'?2:1;
  const inventory=forgeMode==='분해'?dismantleCandidateList():forgeUsable();
  const info=forgeMode==='강화'?'장비를 강화하여 능력치를 높입니다. 최대 +20까지 강화 가능합니다.':
@@ -2025,9 +2040,13 @@ function gearEffectLabel(item){
 function equippedGearArtwork(item,cssClass){
  const kind=['weapon','armor','shield','ring'].includes(item?.kind)?item.kind:'weapon';
  const tier=Math.max(0,Math.min(MAX_TIER,Number(item?.tier)||0));
- const uri=tierArtwork({...item,kind,tier});
- const svg=decodeURIComponent(uri.slice(uri.indexOf(',')+1));
- return svg.replace('<svg ','<svg class="'+cssClass+'" role="img" aria-label="'+String(item?.name||kind).replace(/[&<>"']/g,'')+'" focusable="false" ');
+ const src=iconFor({...item,kind,tier});
+ const alt=String(item?.name||kind).replace(/[&<>"']/g,'');
+ if(src.startsWith('assets/gear/')){
+  return graphicImage(src,kind,tier,alt,'class="'+cssClass+'" loading="eager"');
+ }
+ const svg=decodeURIComponent(src.slice(src.indexOf(',')+1));
+ return svg.replace('<svg ','<svg class="'+cssClass+'" role="img" aria-label="'+alt+'" focusable="false" ');
 }
 function repairEquippedImage(img){
  if(!img)return;
