@@ -822,17 +822,14 @@ async function activateHdGearAssets(){
   const entries=Array.isArray(manifest.items)?manifest.items:[];
   const allowed=new Set(entries.filter(x=>x&&typeof x.file==='string'&&/^assets\/gear\/(weapon|armor|shield|ring)_(C|B|A|S|SS|SSS|L)_(fire|leech|barrier|counter|fortify|ice)\.webp$/.test(x.file)).map(x=>x.file.slice('assets/gear/'.length,-'.webp'.length)));
   if(allowed.size!==168){HD_GEAR_STATE.error='이미지 목록이 168종과 일치하지 않습니다';return;}
-  // Check actual file availability before enabling. Any missing image stays on SVG fallback.
-  const results=await Promise.all([...allowed].map(async key=>{
-   try{const r=await fetch('assets/gear/'+key+'.webp',{method:'HEAD',cache:'no-cache'});return r.ok?key:null}
-   catch(e){return null}
-  }));
-  HD_GEAR_STATE.verified=results.filter(Boolean).length;
-  HD_GEAR_STATE.error=HD_GEAR_STATE.verified===168?'':'일부 장비 이미지가 서버에 없습니다 ('+HD_GEAR_STATE.verified+'/168)';
-  HD_GEAR_STATE.available=new Set(results.filter(Boolean));
-  HD_GEAR_STATE.ready=HD_GEAR_STATE.available.size===168; // atomic activation; avoid mixed HD/SVG inventories
-  if(!HD_GEAR_STATE.ready)HD_GEAR_STATE.available.clear();
-  if(HD_GEAR_STATE.ready)render();
+  // Use the validated manifest as the source of truth. A rejected HEAD
+  // request must not disable every image. Individual <img> errors fall
+  // back to the existing built-in artwork.
+  HD_GEAR_STATE.available=allowed;
+  HD_GEAR_STATE.verified=allowed.size;
+  HD_GEAR_STATE.ready=true;
+  HD_GEAR_STATE.error='';
+  render();
  }catch(e){HD_GEAR_STATE.ready=false}
 }
 
