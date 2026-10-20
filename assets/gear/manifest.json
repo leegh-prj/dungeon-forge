@@ -1,0 +1,1520 @@
+{
+  "version": 1,
+  "count": 168,
+  "source_masters": 8,
+  "note": "All variants are algorithmic derivatives of eight production-art masters, not 168 independently painted originals.",
+  "items": [
+    {
+      "kind": "weapon",
+      "tier": 0,
+      "grade": "C",
+      "effect": "화상",
+      "file": "assets/gear/weapon_C_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 0,
+      "grade": "C",
+      "effect": "흡혈",
+      "file": "assets/gear/weapon_C_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 0,
+      "grade": "C",
+      "effect": "보호막",
+      "file": "assets/gear/weapon_C_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 0,
+      "grade": "C",
+      "effect": "반격",
+      "file": "assets/gear/weapon_C_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 0,
+      "grade": "C",
+      "effect": "견고함",
+      "file": "assets/gear/weapon_C_fortify.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 0,
+      "grade": "C",
+      "effect": "냉기",
+      "file": "assets/gear/weapon_C_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 1,
+      "grade": "B",
+      "effect": "화상",
+      "file": "assets/gear/weapon_B_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 1,
+      "grade": "B",
+      "effect": "흡혈",
+      "file": "assets/gear/weapon_B_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 1,
+      "grade": "B",
+      "effect": "보호막",
+      "file": "assets/gear/weapon_B_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 1,
+      "grade": "B",
+      "effect": "반격",
+      "file": "assets/gear/weapon_B_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 1,
+      "grade": "B",
+      "effect": "견고함",
+      "file": "assets/gear/weapon_B_fortify.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 1,
+      "grade": "B",
+      "effect": "냉기",
+      "file": "assets/gear/weapon_B_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 2,
+      "grade": "A",
+      "effect": "화상",
+      "file": "assets/gear/weapon_A_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 2,
+      "grade": "A",
+      "effect": "흡혈",
+      "file": "assets/gear/weapon_A_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 2,
+      "grade": "A",
+      "effect": "보호막",
+      "file": "assets/gear/weapon_A_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 2,
+      "grade": "A",
+      "effect": "반격",
+      "file": "assets/gear/weapon_A_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 2,
+      "grade": "A",
+      "effect": "견고함",
+      "file": "assets/gear/weapon_A_fortify.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 2,
+      "grade": "A",
+      "effect": "냉기",
+      "file": "assets/gear/weapon_A_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 3,
+      "grade": "S",
+      "effect": "화상",
+      "file": "assets/gear/weapon_S_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 3,
+      "grade": "S",
+      "effect": "흡혈",
+      "file": "assets/gear/weapon_S_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 3,
+      "grade": "S",
+      "effect": "보호막",
+      "file": "assets/gear/weapon_S_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 3,
+      "grade": "S",
+      "effect": "반격",
+      "file": "assets/gear/weapon_S_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 3,
+      "grade": "S",
+      "effect": "견고함",
+      "file": "assets/gear/weapon_S_fortify.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 3,
+      "grade": "S",
+      "effect": "냉기",
+      "file": "assets/gear/weapon_S_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "화상",
+      "file": "assets/gear/weapon_SS_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "흡혈",
+      "file": "assets/gear/weapon_SS_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "보호막",
+      "file": "assets/gear/weapon_SS_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "반격",
+      "file": "assets/gear/weapon_SS_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "견고함",
+      "file": "assets/gear/weapon_SS_fortify.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "냉기",
+      "file": "assets/gear/weapon_SS_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "화상",
+      "file": "assets/gear/weapon_SSS_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "흡혈",
+      "file": "assets/gear/weapon_SSS_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "보호막",
+      "file": "assets/gear/weapon_SSS_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "반격",
+      "file": "assets/gear/weapon_SSS_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "견고함",
+      "file": "assets/gear/weapon_SSS_fortify.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "냉기",
+      "file": "assets/gear/weapon_SSS_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 6,
+      "grade": "L",
+      "effect": "화상",
+      "file": "assets/gear/weapon_L_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 6,
+      "grade": "L",
+      "effect": "흡혈",
+      "file": "assets/gear/weapon_L_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 6,
+      "grade": "L",
+      "effect": "보호막",
+      "file": "assets/gear/weapon_L_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 6,
+      "grade": "L",
+      "effect": "반격",
+      "file": "assets/gear/weapon_L_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 6,
+      "grade": "L",
+      "effect": "견고함",
+      "file": "assets/gear/weapon_L_fortify.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "weapon",
+      "tier": 6,
+      "grade": "L",
+      "effect": "냉기",
+      "file": "assets/gear/weapon_L_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 0,
+      "grade": "C",
+      "effect": "화상",
+      "file": "assets/gear/armor_C_fire.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 0,
+      "grade": "C",
+      "effect": "흡혈",
+      "file": "assets/gear/armor_C_leech.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 0,
+      "grade": "C",
+      "effect": "보호막",
+      "file": "assets/gear/armor_C_barrier.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 0,
+      "grade": "C",
+      "effect": "반격",
+      "file": "assets/gear/armor_C_counter.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 0,
+      "grade": "C",
+      "effect": "견고함",
+      "file": "assets/gear/armor_C_fortify.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 0,
+      "grade": "C",
+      "effect": "냉기",
+      "file": "assets/gear/armor_C_ice.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 1,
+      "grade": "B",
+      "effect": "화상",
+      "file": "assets/gear/armor_B_fire.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 1,
+      "grade": "B",
+      "effect": "흡혈",
+      "file": "assets/gear/armor_B_leech.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 1,
+      "grade": "B",
+      "effect": "보호막",
+      "file": "assets/gear/armor_B_barrier.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 1,
+      "grade": "B",
+      "effect": "반격",
+      "file": "assets/gear/armor_B_counter.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 1,
+      "grade": "B",
+      "effect": "견고함",
+      "file": "assets/gear/armor_B_fortify.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 1,
+      "grade": "B",
+      "effect": "냉기",
+      "file": "assets/gear/armor_B_ice.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 2,
+      "grade": "A",
+      "effect": "화상",
+      "file": "assets/gear/armor_A_fire.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 2,
+      "grade": "A",
+      "effect": "흡혈",
+      "file": "assets/gear/armor_A_leech.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 2,
+      "grade": "A",
+      "effect": "보호막",
+      "file": "assets/gear/armor_A_barrier.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 2,
+      "grade": "A",
+      "effect": "반격",
+      "file": "assets/gear/armor_A_counter.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 2,
+      "grade": "A",
+      "effect": "견고함",
+      "file": "assets/gear/armor_A_fortify.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 2,
+      "grade": "A",
+      "effect": "냉기",
+      "file": "assets/gear/armor_A_ice.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 3,
+      "grade": "S",
+      "effect": "화상",
+      "file": "assets/gear/armor_S_fire.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 3,
+      "grade": "S",
+      "effect": "흡혈",
+      "file": "assets/gear/armor_S_leech.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 3,
+      "grade": "S",
+      "effect": "보호막",
+      "file": "assets/gear/armor_S_barrier.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 3,
+      "grade": "S",
+      "effect": "반격",
+      "file": "assets/gear/armor_S_counter.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 3,
+      "grade": "S",
+      "effect": "견고함",
+      "file": "assets/gear/armor_S_fortify.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 3,
+      "grade": "S",
+      "effect": "냉기",
+      "file": "assets/gear/armor_S_ice.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "화상",
+      "file": "assets/gear/armor_SS_fire.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "흡혈",
+      "file": "assets/gear/armor_SS_leech.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "보호막",
+      "file": "assets/gear/armor_SS_barrier.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "반격",
+      "file": "assets/gear/armor_SS_counter.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "견고함",
+      "file": "assets/gear/armor_SS_fortify.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "냉기",
+      "file": "assets/gear/armor_SS_ice.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "화상",
+      "file": "assets/gear/armor_SSS_fire.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "흡혈",
+      "file": "assets/gear/armor_SSS_leech.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "보호막",
+      "file": "assets/gear/armor_SSS_barrier.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "반격",
+      "file": "assets/gear/armor_SSS_counter.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "견고함",
+      "file": "assets/gear/armor_SSS_fortify.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "냉기",
+      "file": "assets/gear/armor_SSS_ice.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 6,
+      "grade": "L",
+      "effect": "화상",
+      "file": "assets/gear/armor_L_fire.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 6,
+      "grade": "L",
+      "effect": "흡혈",
+      "file": "assets/gear/armor_L_leech.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 6,
+      "grade": "L",
+      "effect": "보호막",
+      "file": "assets/gear/armor_L_barrier.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 6,
+      "grade": "L",
+      "effect": "반격",
+      "file": "assets/gear/armor_L_counter.webp",
+      "source": "흡혈",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 6,
+      "grade": "L",
+      "effect": "견고함",
+      "file": "assets/gear/armor_L_fortify.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "armor",
+      "tier": 6,
+      "grade": "L",
+      "effect": "냉기",
+      "file": "assets/gear/armor_L_ice.webp",
+      "source": "견고함",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 0,
+      "grade": "C",
+      "effect": "화상",
+      "file": "assets/gear/shield_C_fire.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 0,
+      "grade": "C",
+      "effect": "흡혈",
+      "file": "assets/gear/shield_C_leech.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 0,
+      "grade": "C",
+      "effect": "보호막",
+      "file": "assets/gear/shield_C_barrier.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 0,
+      "grade": "C",
+      "effect": "반격",
+      "file": "assets/gear/shield_C_counter.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 0,
+      "grade": "C",
+      "effect": "견고함",
+      "file": "assets/gear/shield_C_fortify.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 0,
+      "grade": "C",
+      "effect": "냉기",
+      "file": "assets/gear/shield_C_ice.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 1,
+      "grade": "B",
+      "effect": "화상",
+      "file": "assets/gear/shield_B_fire.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 1,
+      "grade": "B",
+      "effect": "흡혈",
+      "file": "assets/gear/shield_B_leech.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 1,
+      "grade": "B",
+      "effect": "보호막",
+      "file": "assets/gear/shield_B_barrier.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 1,
+      "grade": "B",
+      "effect": "반격",
+      "file": "assets/gear/shield_B_counter.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 1,
+      "grade": "B",
+      "effect": "견고함",
+      "file": "assets/gear/shield_B_fortify.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 1,
+      "grade": "B",
+      "effect": "냉기",
+      "file": "assets/gear/shield_B_ice.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 2,
+      "grade": "A",
+      "effect": "화상",
+      "file": "assets/gear/shield_A_fire.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 2,
+      "grade": "A",
+      "effect": "흡혈",
+      "file": "assets/gear/shield_A_leech.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 2,
+      "grade": "A",
+      "effect": "보호막",
+      "file": "assets/gear/shield_A_barrier.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 2,
+      "grade": "A",
+      "effect": "반격",
+      "file": "assets/gear/shield_A_counter.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 2,
+      "grade": "A",
+      "effect": "견고함",
+      "file": "assets/gear/shield_A_fortify.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 2,
+      "grade": "A",
+      "effect": "냉기",
+      "file": "assets/gear/shield_A_ice.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 3,
+      "grade": "S",
+      "effect": "화상",
+      "file": "assets/gear/shield_S_fire.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 3,
+      "grade": "S",
+      "effect": "흡혈",
+      "file": "assets/gear/shield_S_leech.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 3,
+      "grade": "S",
+      "effect": "보호막",
+      "file": "assets/gear/shield_S_barrier.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 3,
+      "grade": "S",
+      "effect": "반격",
+      "file": "assets/gear/shield_S_counter.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 3,
+      "grade": "S",
+      "effect": "견고함",
+      "file": "assets/gear/shield_S_fortify.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 3,
+      "grade": "S",
+      "effect": "냉기",
+      "file": "assets/gear/shield_S_ice.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "화상",
+      "file": "assets/gear/shield_SS_fire.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "흡혈",
+      "file": "assets/gear/shield_SS_leech.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "보호막",
+      "file": "assets/gear/shield_SS_barrier.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "반격",
+      "file": "assets/gear/shield_SS_counter.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "견고함",
+      "file": "assets/gear/shield_SS_fortify.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "냉기",
+      "file": "assets/gear/shield_SS_ice.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "화상",
+      "file": "assets/gear/shield_SSS_fire.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "흡혈",
+      "file": "assets/gear/shield_SSS_leech.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "보호막",
+      "file": "assets/gear/shield_SSS_barrier.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "반격",
+      "file": "assets/gear/shield_SSS_counter.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "견고함",
+      "file": "assets/gear/shield_SSS_fortify.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "냉기",
+      "file": "assets/gear/shield_SSS_ice.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 6,
+      "grade": "L",
+      "effect": "화상",
+      "file": "assets/gear/shield_L_fire.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 6,
+      "grade": "L",
+      "effect": "흡혈",
+      "file": "assets/gear/shield_L_leech.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 6,
+      "grade": "L",
+      "effect": "보호막",
+      "file": "assets/gear/shield_L_barrier.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 6,
+      "grade": "L",
+      "effect": "반격",
+      "file": "assets/gear/shield_L_counter.webp",
+      "source": "반격",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 6,
+      "grade": "L",
+      "effect": "견고함",
+      "file": "assets/gear/shield_L_fortify.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "shield",
+      "tier": 6,
+      "grade": "L",
+      "effect": "냉기",
+      "file": "assets/gear/shield_L_ice.webp",
+      "source": "보호막",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 0,
+      "grade": "C",
+      "effect": "화상",
+      "file": "assets/gear/ring_C_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 0,
+      "grade": "C",
+      "effect": "흡혈",
+      "file": "assets/gear/ring_C_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 0,
+      "grade": "C",
+      "effect": "보호막",
+      "file": "assets/gear/ring_C_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 0,
+      "grade": "C",
+      "effect": "반격",
+      "file": "assets/gear/ring_C_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 0,
+      "grade": "C",
+      "effect": "견고함",
+      "file": "assets/gear/ring_C_fortify.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 0,
+      "grade": "C",
+      "effect": "냉기",
+      "file": "assets/gear/ring_C_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 1,
+      "grade": "B",
+      "effect": "화상",
+      "file": "assets/gear/ring_B_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 1,
+      "grade": "B",
+      "effect": "흡혈",
+      "file": "assets/gear/ring_B_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 1,
+      "grade": "B",
+      "effect": "보호막",
+      "file": "assets/gear/ring_B_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 1,
+      "grade": "B",
+      "effect": "반격",
+      "file": "assets/gear/ring_B_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 1,
+      "grade": "B",
+      "effect": "견고함",
+      "file": "assets/gear/ring_B_fortify.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 1,
+      "grade": "B",
+      "effect": "냉기",
+      "file": "assets/gear/ring_B_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 2,
+      "grade": "A",
+      "effect": "화상",
+      "file": "assets/gear/ring_A_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 2,
+      "grade": "A",
+      "effect": "흡혈",
+      "file": "assets/gear/ring_A_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 2,
+      "grade": "A",
+      "effect": "보호막",
+      "file": "assets/gear/ring_A_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 2,
+      "grade": "A",
+      "effect": "반격",
+      "file": "assets/gear/ring_A_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 2,
+      "grade": "A",
+      "effect": "견고함",
+      "file": "assets/gear/ring_A_fortify.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 2,
+      "grade": "A",
+      "effect": "냉기",
+      "file": "assets/gear/ring_A_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 3,
+      "grade": "S",
+      "effect": "화상",
+      "file": "assets/gear/ring_S_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 3,
+      "grade": "S",
+      "effect": "흡혈",
+      "file": "assets/gear/ring_S_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 3,
+      "grade": "S",
+      "effect": "보호막",
+      "file": "assets/gear/ring_S_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 3,
+      "grade": "S",
+      "effect": "반격",
+      "file": "assets/gear/ring_S_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 3,
+      "grade": "S",
+      "effect": "견고함",
+      "file": "assets/gear/ring_S_fortify.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 3,
+      "grade": "S",
+      "effect": "냉기",
+      "file": "assets/gear/ring_S_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "화상",
+      "file": "assets/gear/ring_SS_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "흡혈",
+      "file": "assets/gear/ring_SS_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "보호막",
+      "file": "assets/gear/ring_SS_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "반격",
+      "file": "assets/gear/ring_SS_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "견고함",
+      "file": "assets/gear/ring_SS_fortify.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 4,
+      "grade": "SS",
+      "effect": "냉기",
+      "file": "assets/gear/ring_SS_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "화상",
+      "file": "assets/gear/ring_SSS_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "흡혈",
+      "file": "assets/gear/ring_SSS_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "보호막",
+      "file": "assets/gear/ring_SSS_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "반격",
+      "file": "assets/gear/ring_SSS_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "견고함",
+      "file": "assets/gear/ring_SSS_fortify.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 5,
+      "grade": "SSS",
+      "effect": "냉기",
+      "file": "assets/gear/ring_SSS_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 6,
+      "grade": "L",
+      "effect": "화상",
+      "file": "assets/gear/ring_L_fire.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 6,
+      "grade": "L",
+      "effect": "흡혈",
+      "file": "assets/gear/ring_L_leech.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 6,
+      "grade": "L",
+      "effect": "보호막",
+      "file": "assets/gear/ring_L_barrier.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 6,
+      "grade": "L",
+      "effect": "반격",
+      "file": "assets/gear/ring_L_counter.webp",
+      "source": "화상",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 6,
+      "grade": "L",
+      "effect": "견고함",
+      "file": "assets/gear/ring_L_fortify.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    },
+    {
+      "kind": "ring",
+      "tier": 6,
+      "grade": "L",
+      "effect": "냉기",
+      "file": "assets/gear/ring_L_ice.webp",
+      "source": "냉기",
+      "type": "derived_from_master"
+    }
+  ]
+}
