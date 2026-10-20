@@ -635,6 +635,21 @@ body{position:fixed;inset:0;overflow:hidden!important}
 
 /* Adventure guide: compact, native disclosure sections for touch devices. */
 .guidePage{display:grid;gap:8px}.guideHero{border:1px solid #8d6c3b;border-radius:12px;padding:12px;background:rgba(232,172,85,.09)}.guideHero strong{color:#ffda9a}.guideHero p{font-size:12px;color:#ddcbaa;margin:6px 0 0}.guideSection{border:1px solid #786044;border-radius:12px;background:rgba(13,16,23,.8);overflow:hidden}.guideSection summary{padding:13px 12px;cursor:pointer;font-weight:800;font-size:14px;list-style-position:inside;touch-action:manipulation}.guideSection[open] summary{color:#ffd68f;border-bottom:1px solid #554936}.guideInner{padding:10px 12px}.guideEffect{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid rgba(194,153,89,.17);font-size:12px}.guideEffect strong{min-width:84px}.guideEffect span{text-align:right;color:#ddd0b9}.guideTable{width:100%;border-collapse:collapse;font-size:12px}.guideTable th,.guideTable td{padding:8px;border-bottom:1px solid rgba(194,153,89,.2);text-align:left}.guideTable th{color:#e7bd77}.guideInner .researchNote{margin:10px 0 2px;line-height:1.6}.codexTabs{display:flex;overflow-x:auto;gap:5px;scrollbar-width:thin}.codexTabs button{white-space:nowrap;flex:0 0 auto}
+
+/* Premium codex skin */
+.codexTabs{display:flex!important;gap:6px!important;overflow-x:auto;scrollbar-width:none;padding:4px 0 10px!important}
+.codexTabs .segbtn{flex:0 0 auto;white-space:nowrap;padding:10px 12px!important;border:1px solid #655844!important;border-radius:12px!important;background:linear-gradient(160deg,#28303c,#131820)!important;color:#d9ceb9!important;box-shadow:inset 0 1px rgba(255,255,255,.08)!important}
+.codexTabs .segbtn.active{border-color:#efc783!important;color:#ffebc8!important;background:linear-gradient(145deg,#71552f,#302c29)!important;box-shadow:0 0 14px #b58c4f33!important}
+.codexHero{margin:5px 0 11px;padding:15px;border-radius:15px;border:1px solid #b9935966;background:radial-gradient(circle at 90% 0%,#bd8c3d30,transparent 56%),linear-gradient(135deg,#27303c,#111722);box-shadow:inset 0 1px #ffffff13,0 8px 22px #0005}
+.codexHero strong{font-size:18px;color:#ffdfa3}.codexHero .progress{margin-top:9px;height:6px}
+.codexCollectionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.codexTreasure{min-width:0;padding:8px 5px 10px;border-radius:13px;display:flex;flex-direction:column;align-items:center;gap:3px;background:radial-gradient(circle at 50% 39%,#657b9830,transparent 65%),linear-gradient(160deg,#27303b,#121821);border:1px solid #c3a47c55;box-shadow:inset 0 1px #ffffff15,0 5px 12px #0004}
+.codexTreasure.found{border-color:#e2b77088}.codexTreasure .codexArt{width:100%;aspect-ratio:1;display:grid;place-items:center;overflow:hidden}.codexTreasure .codexArt img{width:100%;height:100%;object-fit:contain}
+.codexTreasure .codexRank{font-size:11px;font-weight:900;color:#ffdc9a}.codexTreasure .codexLabel{font-size:10px;color:#e0d3bb;width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.codexTreasure .codexStatus{font-size:9px;color:#79c9a7}.codexTreasure.unfound .codexStatus{color:#8d9cac}.codexLocked{font-size:38px;opacity:.35}
+.codexCreatureGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.codexCreature{overflow:hidden;border-radius:15px;background:linear-gradient(150deg,#26303b,#111821);border:1px solid #c4a27650;box-shadow:inset 0 1px #ffffff12,0 6px 16px #0004}
+.codexCreature .visual{min-height:127px;display:grid;place-items:center;padding:8px;background:radial-gradient(circle,#6c90b132,transparent 69%)}.codexCreature .visual img{width:100%;height:135px;object-fit:contain}.codexCreature .info{padding:10px 11px}.codexCreature .info strong{display:block;font-size:14px;color:#ffe3b3}.codexCreature .info small{display:block;font-size:11px;line-height:1.6;color:#c4b8a8;margin-top:5px}.codexCreature .chip{display:block;font-size:10px;color:#dfba7e;margin-bottom:5px}
+.guidePage .guideSection{background:linear-gradient(145deg,#27303b,#121821);border-color:#d1aa7450}.bossCollectionGrid .bossCollectionItem{border-radius:13px;background:linear-gradient(145deg,#27303b,#121821)}
+@media(max-width:380px){.codexCollectionGrid{gap:5px}.codexTreasure{padding:6px 3px}.codexCreatureGrid{gap:6px}}
 </style>
 </head>
 <body>
@@ -2108,15 +2123,17 @@ function renderCodex(){
  if(S.codexTab==='boss')return renderBossCodex();
  const cats=['weapon','armor','shield','ring'],all=codexSlots(S.codexSide),found=S.discovered.filter(k=>k.startsWith(S.codexSide+'|'));
  const pages=Math.max(1,Math.ceil(all.length/12));codexPage=Math.min(codexPage,pages-1);
- const grid=all.slice(codexPage*12,(codexPage+1)*12).map(slot=>slot.found?
-   `<div class="codexItem collected">${graphicImage(iconFor({kind:S.codexSide,tier:Number(slot.key.split('|')[2])}),S.codexSide,Number(slot.key.split('|')[2]),"수집한 장비")}<span class="label ${rarityClass(Number(slot.key.split('|')[2]))}">✓ ${rarityLetter[Number(slot.key.split('|')[2])]}</span></div>`:
-   `<div class="codexItem undiscovered"><span class="codexQuestion">?</span><span class="label">미수집</span></div>`).join('');
+ const grid=all.slice(codexPage*12,(codexPage+1)*12).map(slot=>{
+ const tier=slot.found?Math.max(0,Math.min(MAX_TIER,Number(slot.key.split('|')[2])||0)):0;
+ return slot.found?`<div class="codexTreasure found"><span class="codexRank">${rarityLetter[tier]}</span><div class="codexArt">${graphicImage(iconFor({kind:S.codexSide,tier}),S.codexSide,tier,"수집 장비")}</div><span class="codexLabel">${slot.key.split('|')[3]||kindLabel[S.codexSide]}</span><span class="codexStatus">✓ 수집 완료</span></div>`:
+ `<div class="codexTreasure unfound"><span class="codexRank">???</span><div class="codexArt"><span class="codexLocked">✧</span></div><span class="codexLabel">미확인 유물</span><span class="codexStatus">미수집</span></div>`;
+ }).join('');
  return `${renderHeader('도감','📖')}
 <div class="codexTabs compactNav" style="margin-bottom:7px">${codexTabButtons()}</div>
-<div class="codexCompactSummary"><div><strong>장비 수집 기록</strong><span>${Math.min(168,S.discovered.length)} / 168 · ${Math.round(Math.min(168,S.discovered.length)/168*100)}%</span></div><div class="progress"><span style="width:${Math.min(100,Math.round(S.discovered.length/168*100))}%"></span></div></div>
+<div class="codexHero"><div><strong>장비 수집 기록</strong><span>${Math.min(168,S.discovered.length)} / 168 · ${Math.round(Math.min(168,S.discovered.length)/168*100)}%</span></div><div class="progress"><span style="width:${Math.min(100,Math.round(S.discovered.length/168*100))}%"></span></div></div>
 <div class="codexFilters"><button class="segbtn ${codexCollectionFilter==='all'?'active':''}" onclick="setCodexCollectionFilter('all')">전체 42</button><button class="segbtn ${codexCollectionFilter==='found'?'active':''}" onclick="setCodexCollectionFilter('found')">✓ 수집 ${found.length}</button><button class="segbtn ${codexCollectionFilter==='missing'?'active':''}" onclick="setCodexCollectionFilter('missing')">🔒 미수집 ${Math.max(0,42-found.length)}</button></div>
 <div class="codexWrap compactCodex"><div class="codexSide">${cats.map(k=>`<button class="sideTab ${S.codexSide===k?'active':''}" onclick="setCodexSide('${k}')">${kindLabel[k]} <small>${S.discovered.filter(d=>d.startsWith(k+'|')).length}/42</small></button>`).join('')}</div>
-<div><div class="codexGrid">${grid||'<p class="hint">이 조건에 해당하는 항목이 없습니다.</p>'}</div><div class="right" style="margin-top:10px"><button class="segbtn" onclick="changeCodexPage(-1)" ${codexPage===0?'disabled':''}>◀</button><span class="muted">${codexPage+1} / ${pages}</span><button class="segbtn" onclick="changeCodexPage(1)" ${codexPage+1>=pages?'disabled':''}>▶</button></div></div></div>`;
+<div><div class="codexCollectionGrid">${grid||'<p class="hint">이 조건에 해당하는 항목이 없습니다.</p>'}</div><div class="right" style="margin-top:10px"><button class="segbtn" onclick="changeCodexPage(-1)" ${codexPage===0?'disabled':''}>◀</button><span class="muted">${codexPage+1} / ${pages}</span><button class="segbtn" onclick="changeCodexPage(1)" ${codexPage+1>=pages?'disabled':''}>▶</button></div></div></div>`;
 }
 function renderMonsterCodex(){
  const regions=REGIONS;
