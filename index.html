@@ -2136,13 +2136,12 @@ function renderCodex(){
 <div><div class="codexCollectionGrid">${grid||'<p class="hint">이 조건에 해당하는 항목이 없습니다.</p>'}</div><div class="right" style="margin-top:10px"><button class="segbtn" onclick="changeCodexPage(-1)" ${codexPage===0?'disabled':''}>◀</button><span class="muted">${codexPage+1} / ${pages}</span><button class="segbtn" onclick="changeCodexPage(1)" ${codexPage+1>=pages?'disabled':''}>▶</button></div></div></div>`;
 }
 function renderMonsterCodex(){
- const regions=REGIONS;
- const grid=regions.map((r,i)=>`<div class="panel" style="padding:12px"><img src="assets/hd/${r.key==='fire'?'magma':r.key}/idle-0.webp" onerror="handleGraphicError(this,'monster')" alt="${r.boss}"><strong>${r.boss}</strong><p class="researchNote">${r.name} · 보스<br>${S.stage>i+1?'진행 기록 있음':'도전 가능'}</p><p class="researchNote">보상: ${r.material}</p></div>`).join('');
- return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">몬스터 도감</div><div class="codexMonsterGrid">${grid}</div>`;
+ const grid=REGIONS.map((r,i)=>`<article class="codexCreature"><div class="visual"><img loading="lazy" src="assets/hd/${r.key==='fire'?'magma':r.key}/idle-0.webp" onerror="handleGraphicError(this,'monster')" alt="${r.boss}"></div><div class="info"><span class="chip">지역 ${i+1} · ${r.name}</span><strong>${r.boss}</strong><small>일반 적: ${r.enemy}<br>획득 재료: ${r.material}</small></div></article>`).join('');
+ return `${renderHeader('도감','📖')}<div class="codexTabs compactNav">${codexTabButtons()}</div><section class="codexHero"><strong>몬스터 기록관</strong><p class="researchNote">지역별 몬스터와 보스 정보</p></section><div class="codexCreatureGrid">${grid}</div>`;
 }
 function renderRegionCodex(){
- const grid=REGIONS.map((r,i)=>`<div class="panel" style="padding:14px;border-color:${r.tint}"><div style="font-size:30px">${['💧','☠','⚡','🔥','⛰'][i]}</div><strong>${r.name}</strong><p class="researchNote">${r.enemy} / ${r.boss}<br>재료: ${r.material} · 보유 ${S.materials?.[r.key]||0}개</p></div>`).join('');
- return `${renderHeader('도감','📖')}<div class="codexTabs" style="margin-bottom:10px">${codexTabButtons()}</div><div class="sectiontitle">지역 도감</div><div class="codexMonsterGrid">${grid}</div>`;
+ const grid=REGIONS.map((r,i)=>`<article class="codexCreature" style="border-color:${r.tint}88"><div class="visual" style="min-height:90px;background:radial-gradient(circle,${r.tint}44,transparent 70%)"><span style="font-size:42px">${['💧','☠','⚡','🔥','⛰'][i]}</span></div><div class="info"><span class="chip">REGION ${i+1}</span><strong>${r.name}</strong><small>${r.enemy} / ${r.boss}<br>재료: ${r.material} · 보유 ${S.materials?.[r.key]||0}개<br>추천: ${ELEMENT_LABELS[Object.keys(ELEMENT_COUNTERS).find(k=>ELEMENT_COUNTERS[k]===r.key)]||'기본'}</small></div></article>`).join('');
+ return `${renderHeader('도감','📖')}<div class="codexTabs compactNav">${codexTabButtons()}</div><section class="codexHero"><strong>다섯 지역의 기록</strong><p class="researchNote">지역과 속성 관계를 한눈에 확인하세요.</p></section><div class="codexCreatureGrid">${grid}</div>`;
 }
 function codexTabButtons(){return [{v:'guide',t:'📚 모험 가이드'},{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'},{v:'boss',t:'보스 장비'+(pendingBossCollectionReward()?' ●':'')}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}
 const TOKEN_OFFERS=[
