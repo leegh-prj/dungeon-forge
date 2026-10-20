@@ -807,8 +807,21 @@ function hdGearKey(item){
  if(!item||!['weapon','armor','shield','ring'].includes(item.kind))return '';
  const tier=Number(item.tier);
  if(!Number.isInteger(tier)||tier<0||tier>=HD_GEAR_GRADES.length)return '';
- const effect=visualEffect(item);
- if(!HD_GEAR_EFFECTS.has(effect))return '';
+ // Compatibility is visual-only: never rewrite the saved item effect or combat stats.
+ let effect=visualEffect(item);
+ if(!HD_GEAR_EFFECTS.has(effect)){
+  const legacy=String(item.effect||item.option||item.affix||item.name||'');
+  const infusion=String(item.infusion||'');
+  if(/화염|용암|불꽃|inferno|molten/i.test(legacy)||infusion==='fire')effect='fire';
+  else if(/흡혈|혈기|vampire|blood/i.test(legacy))effect='leech';
+  else if(/결계|수호|ward|barrier/i.test(legacy))effect='barrier';
+  else if(/가시|thorn|counter/i.test(legacy))effect='counter';
+  else if(/석화|강철|iron|stone|earth/i.test(legacy)||infusion==='earth')effect='fortify';
+  else if(/서리|빙하|frozen|glacier/i.test(legacy)||infusion==='water')effect='ice';
+  else if(infusion==='poison'||effect==='poison')effect='leech';
+  else if(infusion==='storm'||effect==='lightning')effect='counter';
+  else effect=({weapon:'fire',armor:'fortify',shield:'barrier',ring:'leech'})[item.kind];
+ }
  return item.kind+'_'+HD_GEAR_GRADES[tier]+'_'+effect;
 }
 function iconFor(item){
