@@ -672,21 +672,10 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .bulkSalvaged{opacity:.56;border-style:dashed!important}.bulkSalvaged img{filter:grayscale(.8)}.bulkSalvaged strong{color:#d4c0a3}
 
 .brandIdentity{display:flex;align-items:center;gap:12px}.forgeMark{width:76px;height:76px;flex:none;filter:drop-shadow(0 2px 12px rgba(236,145,54,.4))}.brandtitle{font-size:29px;letter-spacing:-1px}.brandtitle span{line-height:.98}.brand{align-items:center}@media(max-width:350px){.forgeMark{width:61px;height:61px}.brandtitle{font-size:25px}.brandsub{font-size:9px}}
-/* DUNGEON FORGE PREMIUM LOGO */
-.brand {
-  position: relative;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  min-height: clamp(90px,25vw,135px) !important;
-  height: clamp(90px,25vw,135px) !important;
-  background: url('assets/ui/forge-logo.png?v=5') center/contain no-repeat !important;
-  margin-bottom: 10px !important;
-}
-.brand > * {
-  visibility: hidden !important;
-}
+/* Premium illustrated brand, matched to the real topbrand markup. */
+.topbrand.premiumBrand{display:flex;justify-content:center;align-items:center;width:100%;margin:0 0 10px;padding:0;border:0;background:none;min-height:0;height:auto;overflow:visible}
+.premiumBrandLogo{display:block;width:100%;max-width:440px;height:auto;max-height:150px;object-fit:contain;filter:drop-shadow(0 4px 15px rgba(255,111,24,.2))}
+@media(max-width:390px){.premiumBrandLogo{max-height:122px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -695,9 +684,8 @@ body{position:fixed;inset:0;overflow:hidden!important}
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
 <main id="app">
-  <div class="topbrand">
-    <div class="brandIdentity"><svg class="forgeMark" viewBox="0 0 100 100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fmGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff1bb"/><stop offset=".5" stop-color="#dc9b43"/><stop offset="1" stop-color="#75401d"/></linearGradient></defs><path d="M50 4 85 21 91 57 72 86 50 97 28 86 9 57 15 21Z" fill="#141b28" stroke="url(#fmGold)" stroke-width="4"/><path d="m50 13 9 26-9 10-9-10Z" fill="#ffcc77"/><path d="m50 20 3 15-3 5-3-5Z" fill="#fff1c5"/><path d="M27 45h46l-6 11H33Z" fill="url(#fmGold)"/><path d="M39 56h22v8l9 14H30l9-14Z" fill="#d38a3c" stroke="#ffcc78" stroke-width="2"/><path d="m50 45-8 18 8 10 8-10Z" fill="#1988c3" stroke="#c3f1ff" stroke-width="2"/><path d="M50 49v21" stroke="#ecfcff" stroke-width="2"/></svg><div class="brandtitle"><span>던전</span><span>대장간</span></div></div>
-    <div class="brandsub">DUNGEON FORGE</div>
+  <div class="topbrand premiumBrand" aria-label="던전 대장간 DUNGEON FORGE">
+    <img class="premiumBrandLogo" src="assets/ui/forge-logo.png?v=6" alt="DUNGEON FORGE 던전 대장간" loading="eager" decoding="async">
   </div>
   <section class="screen">
     <div id="screen"></div>
