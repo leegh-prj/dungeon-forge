@@ -2236,7 +2236,7 @@ function renderCodex(){
 <div class="codexTabs compactNav" style="margin-bottom:7px">${codexTabButtons()}</div>
 <div class="codexHero"><div><strong>장비 수집 기록</strong><span>${totalFound} / 168 · ${Math.round(totalFound/168*100)}%</span></div><div class="progress"><span style="width:${Math.round(totalFound/168*100)}%"></span></div></div>
 <div class="codexFilters"><button class="segbtn ${codexCollectionFilter==='all'?'active':''}" onclick="setCodexCollectionFilter('all')">전체 42</button><button class="segbtn ${codexCollectionFilter==='found'?'active':''}" onclick="setCodexCollectionFilter('found')">✓ 수집 ${foundCount}</button><button class="segbtn ${codexCollectionFilter==='missing'?'active':''}" onclick="setCodexCollectionFilter('missing')">🔒 미수집 ${42-foundCount}</button></div>
-<div class="codexWrap compactCodex"><div class="codexSide">${cats.map(k=>`<button class="sideTab ${S.codexSide===k?'active':''}" onclick="setCodexSide('${k}')">${kindLabel[k]} <small>${42-[...Array(42)].length+collectedCodexKeysForKind(k)}/42</small></button>`).join('')}</div>
+<div class="codexWrap compactCodex"><div class="codexSide">${cats.map(k=>`<button class="sideTab ${S.codexSide===k?'active':''}" onclick="setCodexSide('${k}')">${kindLabel[k]} <small>${collectedCodexKeysForKind(k)}/42</small></button>`).join('')}</div>
 <div><div class="codexCollectionGrid">${grid||'<p class="hint">이 조건에 해당하는 항목이 없습니다.</p>'}</div><div class="right" style="margin-top:10px"><button class="segbtn" onclick="changeCodexPage(-1)" ${codexPage===0?'disabled':''}>◀</button><span class="muted">${codexPage+1} / ${pages}</span><button class="segbtn" onclick="changeCodexPage(1)" ${codexPage+1>=pages?'disabled':''}>▶</button></div></div></div>`;
 }
 function renderMonsterCodex(){
