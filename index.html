@@ -666,6 +666,8 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .bulkRewardGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;max-height:min(45dvh,360px);overflow-y:auto;overscroll-behavior:contain;margin:12px 0}.bulkRewardCard{min-width:0;display:flex;flex-direction:column;align-items:center;padding:5px 2px;border-radius:10px;border:1px solid rgba(210,176,123,.3);background:linear-gradient(#303542,#141921)}.bulkRewardCard .bulkRewardIcon{width:100%;aspect-ratio:1}.bulkRewardCard img{width:100%;height:100%;object-fit:contain}.bulkRewardCard strong{font-size:10px;white-space:nowrap}.bulkRewardCard small{font-size:9px;color:#cdbd9e;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bulkRewardCard.rarity6{border-color:#ffe39d}@media(max-width:350px){.bulkRewardGrid{gap:3px}.bulkRewardCard strong{font-size:9px}}
 
 .bulkGradeSummary{font-size:11px;text-align:center;color:#d6c392;margin:5px 0}.bulkRewardCard .bulkCompare{font-size:9px;color:#96c6ac}
+
+.bulkSalvaged{opacity:.56;border-style:dashed!important}.bulkSalvaged img{filter:grayscale(.8)}.bulkSalvaged strong{color:#d4c0a3}
 </style>
 </head>
 <body>
@@ -869,7 +871,7 @@ function initializeGameState(){
  normalizeState();
  if(hasSavedGame){prepareOfflineReward(S.last);save()}
 }
-function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.bossTrophies=S.bossTrophies&&typeof S.bossTrophies==='object'&&!Array.isArray(S.bossTrophies)?S.bossTrophies:{};S.bossCollection=Array.isArray(S.bossCollection)?S.bossCollection.filter(x=>typeof x==='string'):[];S.bossCollectionClaimed=Array.isArray(S.bossCollectionClaimed)?S.bossCollectionClaimed.filter(x=>[1,3,5].includes(x)):[];S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1;S.premiumTokens=Math.max(0,Number(S.premiumTokens)||0);S.daily=S.daily&&typeof S.daily==='object'?S.daily:{day:'',kills:0,bosses:0,claimed:[]};S.daily.claimed=Array.isArray(S.daily.claimed)?S.daily.claimed:[];S.autoCraftGoal=Number.isInteger(S.autoCraftGoal)?Math.max(0,Math.min(6,S.autoCraftGoal)):2;S.bagUpgrades=Number.isInteger(S.bagUpgrades)?S.bagUpgrades:0;S.warehouseUpgrades=Number.isInteger(S.warehouseUpgrades)?S.warehouseUpgrades:0;S.attendance=S.attendance&&typeof S.attendance==='object'?S.attendance:{day:'',streak:0,claimed:false};S.presets=Array.isArray(S.presets)?S.presets.slice(0,3):[null,null,null];while(S.presets.length<3)S.presets.push(null);S.passProgress=S.passProgress&&typeof S.passProgress==='object'?S.passProgress:{season:'',xp:0,claimed:[]};S.passProgress.claimed=Array.isArray(S.passProgress.claimed)?S.passProgress.claimed:[]; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
+function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.bossTrophies=S.bossTrophies&&typeof S.bossTrophies==='object'&&!Array.isArray(S.bossTrophies)?S.bossTrophies:{};S.bossCollection=Array.isArray(S.bossCollection)?S.bossCollection.filter(x=>typeof x==='string'):[];S.bossCollectionClaimed=Array.isArray(S.bossCollectionClaimed)?S.bossCollectionClaimed.filter(x=>[1,3,5].includes(x)):[];S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1;S.autoLockTier=Number.isInteger(S.autoLockTier)?Math.max(0,Math.min(7,S.autoLockTier)):4;S.premiumTokens=Math.max(0,Number(S.premiumTokens)||0);S.daily=S.daily&&typeof S.daily==='object'?S.daily:{day:'',kills:0,bosses:0,claimed:[]};S.daily.claimed=Array.isArray(S.daily.claimed)?S.daily.claimed:[];S.autoCraftGoal=Number.isInteger(S.autoCraftGoal)?Math.max(0,Math.min(6,S.autoCraftGoal)):2;S.bagUpgrades=Number.isInteger(S.bagUpgrades)?S.bagUpgrades:0;S.warehouseUpgrades=Number.isInteger(S.warehouseUpgrades)?S.warehouseUpgrades:0;S.attendance=S.attendance&&typeof S.attendance==='object'?S.attendance:{day:'',streak:0,claimed:false};S.presets=Array.isArray(S.presets)?S.presets.slice(0,3):[null,null,null];while(S.presets.length<3)S.presets.push(null);S.passProgress=S.passProgress&&typeof S.passProgress==='object'?S.passProgress:{season:'',xp:0,claimed:[]};S.passProgress.claimed=Array.isArray(S.passProgress.claimed)?S.passProgress.claimed:[]; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
 const INTRO_STEPS=[
  {title:'첫 몬스터를 처치하세요',tip:'공격 또는 강타를 사용해 보세요.',tab:'던전'},
  {title:'첫 장비를 제작하세요',tip:'대장간에서 무기를 제작하세요.',tab:'대장간'},
@@ -1518,13 +1520,14 @@ function moveToBag(index){
  const item=S.warehouse[index];if(!item)return toast('창고 장비를 찾을 수 없습니다');
  S.inventory.push(item);S.warehouse.splice(index,1);save();render();
 }
+function setAutoLockTier(tier){const value=Number(tier);if(!Number.isInteger(value)||value<0||value>7)return;S.autoLockTier=value;save();render();}
 function setAutoSalvageTier(tier){
  const value=Number(tier);if(!Number.isInteger(value)||value < -1||value>2)return;
  S.autoSalvageTier=value;save();render();
 }
 function renderStorageControls(){
  const v=storageCapacity();
- return '<div class="storagePanel"><strong>🎒 장비 보관 · 가방 '+v.bag+'/'+v.bagMax+' · 창고 '+v.warehouse+'/'+v.warehouseMax+'</strong><p class="hint">가방이 가득 차면 창고에 신규 장비를 보관합니다.</p><label>신규 장비 자동 분해 <select onchange="setAutoSalvageTier(this.value)">'+[{value:-1,name:'사용 안 함'},...rarityName.slice(0,3).map((n,i)=>({value:i,name:n+' 이하'}))].map(o=>'<option value="'+o.value+'" '+(S.autoSalvageTier===o.value?'selected':'')+'>'+o.name+'</option>').join('')+'</select></label><p class="hint">새로 만든 미강화 일반 장비만 해당 · S 이상과 기존 보유 장비는 보호 · 누적 '+(S.salvagedCount||0)+'개</p></div>';
+ return '<div class="storagePanel"><strong>🎒 장비 보관 · 가방 '+v.bag+'/'+v.bagMax+' · 창고 '+v.warehouse+'/'+v.warehouseMax+'</strong><p class="hint">가방이 가득 차면 창고에 신규 장비를 보관합니다.</p><label>신규 장비 자동 분해 <select onchange="setAutoSalvageTier(this.value)">'+[{value:-1,name:'사용 안 함'},...rarityName.slice(0,3).map((n,i)=>({value:i,name:n+' 이하'}))].map(o=>'<option value="'+o.value+'" '+(S.autoSalvageTier===o.value?'selected':'')+'>'+o.name+'</option>').join('')+'</select></label><label>신규 제작 장비 자동 잠금 <select onchange="setAutoLockTier(this.value)">'+[{value:7,name:'사용 안 함'},...rarityLetter.map((n,i)=>({value:i,name:n+' 등급 이상'}))].map(o=>'<option value="'+o.value+'" '+(S.autoLockTier===o.value?'selected':'')+'>'+o.name+'</option>').join('')+'</select></label><p class="hint">새로 만든 미강화 일반 장비만 해당 · S 이상과 기존 보유 장비는 보호 · 누적 '+(S.salvagedCount||0)+'개</p></div>';
 }
 let storageTab='loadout';
 function setStorageTab(value){if(['loadout','bag','warehouse'].includes(value)){storageTab=value;render();const pane=document.getElementById('screen');if(pane)pane.scrollTop=0}}
@@ -1565,10 +1568,11 @@ function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  S.ore-=needOre;S.crystals-=needCry;
  const roll=Math.random(),tutorialBonus=introActive()&&S.intro.step===1&&kind==='weapon';const tier=tutorialBonus?1:rollCraftTier(roll);
  const item=mkItem(def,tier,effects[Math.floor(Math.random()*effects.length)]);
- if(tier>=4)item.locked=true; // Protect high-rarity crafts from manual/bulk dismantle.
+ if(tier>=S.autoLockTier)item.locked=true; // Configurable auto-lock, default SS and above.
  if(S.focus==='attack')item.power+=4;if(S.focus==='defense')item.defense+=5;
  const destination=storeNewItem(item,skipAuto);
  if(destination==='full'){S.ore+=needOre;S.crystals+=needCry;return toast('보관 공간이 부족합니다')}
+ if(batchCraftLog)batchCraftLog.push({item,discarded:destination==='salvaged'});
  discover(item);if(destination!=='salvaged')introAdvance('craft',item);
  if(destination==='bag'){const idx=S.inventory.length-1;if(!introActive()){if(S.equip[kind]===null||!eq(kind)||itemStrength(item)>itemStrength(eq(kind)))S.equip[kind]=idx}}
  S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);
@@ -1578,17 +1582,22 @@ function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  }else save();
  return destination==='salvaged'?null:item;
 }
+let batchCraftLog=null;
 function bulkCraft(count=5){
  const num=Math.max(1,Math.min(10,Number(count)||5)),def=recipeDefs.find(x=>x.kind===S.craftTab);
  if(!def)return;
  let made=[],beforeOre=S.ore,beforeCry=S.crystals,beforeSalvaged=S.salvagedCount||0,attempts=0;
+ batchCraftLog=[];
  for(let i=0;i<num;i++){
    if(S.ore<def.ore||S.crystals<def.crystal+(S.focus==='balanced'?0:1)||S.inventory.length>=S.bagCapacity&&S.warehouse.length>=S.warehouseCapacity)break;
-   const result=craft(S.craftTab,true);attempts++;if(result)made.push(result);
+   const previousLog=batchCraftLog.length;
+   const result=craft(S.craftTab,true);if(batchCraftLog.length===previousLog)break;
+   attempts++;if(result)made.push(result);
  }
+ const results=batchCraftLog;batchCraftLog=null;
  const salvaged=(S.salvagedCount||0)-beforeSalvaged;
  if(!attempts)return toast('재료 또는 보관 공간이 부족합니다');
- save();render();showForgeSummary('일괄 제작 완료',made,'총 '+attempts+'회 · 보관 '+made.length+'개 · 자동 분해 '+salvaged+'개 · 광석 순소모 '+(beforeOre-S.ore)+' · 결정 순소모 '+(beforeCry-S.crystals));
+ save();render();showForgeSummary('일괄 제작 완료',made,'총 '+attempts+'회 · 보관 '+made.length+'개 · 자동 분해 '+salvaged+'개 · 광석 순소모 '+(beforeOre-S.ore)+' · 결정 순소모 '+(beforeCry-S.crystals),results);
 }
 const TIER_THEMES=[
  {name:'COMMON',color:'#bac3d2',rgb:'186,195,210',stars:0},
@@ -1648,22 +1657,41 @@ function showTierReward(item,detail='',title='제작 완료'){
 }
 function craftItemComparison(item){
  const worn=equippedItem(item?.kind);
- if(!worn)return '장착 장비 없음';
- const diff=itemStrength(item)-itemStrength(worn);
- return '장착 대비 '+(diff>0?'+':'')+diff+' 전투력';
+ if(!worn)return '현재 장착 없음 · 새 장비';
+ const baseDiff=itemStrength(item)-itemStrength(worn);
+ const before=setBonuses();
+ const previous=S.equip[item.kind],previousItem=S.inventory[previous];
+ // Evaluate equipment swap in isolation without changing actual inventory or save.
+ const groups=equippedSetCounts();
+ const remove=worn.infusion,add=item.infusion;
+ if(remove&&SET_NAMES[remove])groups[remove]=Math.max(0,(groups[remove]||0)-1);
+ if(add&&SET_NAMES[add])groups[add]=(groups[add]||0)+1;
+ const estimate=key=>{
+  let atk=0,def=0,hp=0,damage=0,mitigation=0;
+  for(const [id,n] of Object.entries(key)){
+   if(n>=2){if(id==='fire')atk+=24;else if(id==='storm')atk+=18;else if(id==='poison')damage+=.04;else if(id==='earth')def+=32;else hp+=180}
+   if(n>=4){if(id==='fire')damage+=.08;else if(id==='storm')damage+=.06;else if(id==='poison')atk+=48;else if(id==='earth')mitigation+=.08;else hp+=400}
+  }
+  return {atk,def,hp,damage,mitigation};
+ };
+ const after=estimate(groups);
+ const bonus=Math.round(after.atk-before.atk+after.def-before.def+(after.hp-before.hp)/10+(after.damage-before.damage)*300+(after.mitigation-before.mitigation)*300);
+ const total=baseDiff+bonus;
+ return '장착 대비 '+(total>0?'+':'')+total+' 추정 · 기본 '+(baseDiff>0?'+':'')+baseDiff+' / 세트 '+(bonus>0?'+':'')+bonus;
 }
-function showForgeSummary(title,items,detail){
+function showForgeSummary(title,items,detail,batchResults=null){
  const rewards=items.filter(it=>it?.tier>=0);
- if(rewards.length===1&&/제작|합성|승급/.test(title)){
+ if(!batchResults&&rewards.length===1&&/제작|합성|승급/.test(title)){
    const best=rewards.reduce((a,b)=>a.tier>=b.tier?a:b);
    return showTierReward(best,detail+(rewards.length>1?' · 총 '+rewards.length+'개 획득':''),title);
  }
  craftOverlayOpen=true;
  const modal=document.getElementById('craftModal');modal.className='craftModal';
- const best=rewards.length?Math.max(...rewards.map(it=>it.tier)):0;
- const counts=rarityLetter.map((letter,tier)=>({letter,count:rewards.filter(it=>it.tier===tier).length})).filter(x=>x.count);
+ const allResults=Array.isArray(batchResults)?batchResults:rewards.map(item=>({item,discarded:false}));
+ const best=allResults.length?Math.max(...allResults.map(x=>x.item.tier)):0;
+ const counts=rarityLetter.map((letter,tier)=>({letter,count:allResults.filter(x=>x.item.tier===tier).length})).filter(x=>x.count);
  const gradeSummary=counts.length?counts.map(x=>x.letter+' '+x.count).join(' · '):'보관 장비 없음';
- modal.innerHTML=`<div class="grade">⚒ ${title}</div><p class="researchNote">${detail} · ${rewards.length?'최고 등급 '+rarityLetter[best]:'전체 자동 분해'}</p><div class="bulkGradeSummary">${gradeSummary}</div><div class="bulkRewardGrid">${rewards.map(it=>`<article class="bulkRewardCard ${rarityClass(it.tier)}"><div class="bulkRewardIcon">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}</div><strong>${rarityLetter[it.tier]} · ${it.effect||'기본'}${it.locked?' 🔒':''}</strong><small>${it.name}</small><small class="bulkCompare">${craftItemComparison(it)}</small></article>`).join('')}</div>${craftRepeatButtons()}<button class="tierResultConfirm" onclick="closeCraft()">결과 확인</button>`;
+ modal.innerHTML=`<div class="grade">⚒ ${title}</div><p class="researchNote">${detail} · ${allResults.length?'최고 등급 '+rarityLetter[best]:'결과 없음'}</p><div class="bulkGradeSummary">${gradeSummary}</div><div class="bulkRewardGrid">${allResults.map(({item:it,discarded})=>`<article class="bulkRewardCard ${rarityClass(it.tier)} ${discarded?'bulkSalvaged':''}"><div class="bulkRewardIcon">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}</div><strong>${rarityLetter[it.tier]} · ${discarded?'자동 분해':(it.effect||'기본')}${it.locked?' 🔒':''}</strong><small>${it.name}</small><small class="bulkCompare">${discarded?'재료 환급 완료':craftItemComparison(it)}</small></article>`).join('')}</div>${craftRepeatButtons()}<button class="tierResultConfirm" onclick="closeCraft()">결과 확인</button>`;
  document.getElementById('craftOverlay').classList.add('show');
 }
 function bulkDismantle(){selectDismantleAll();if(forgeSelection.length)confirmDismantle();else toast('분해 가능한 장비가 없습니다')}
