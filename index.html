@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>던전 대장간</title>
+<title>던전 대장간 | DUNGEON FORGE</title>
+<meta name="theme-color" content="#111722">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 4 85 21 91 57 72 86 50 97 28 86 9 57 15 21Z' fill='%23141b28' stroke='%23dca052' stroke-width='5'/%3E%3Cpath d='M50 13 59 39 50 49 41 39Z' fill='%23ffb84a'/%3E%3Cpath d='M27 45h46l-6 11H33Z M39 56h22v8l9 14H30l9-14Z' fill='%23d49a45'/%3E%3Cpath d='M50 45 42 63 50 73 58 63Z' fill='%2335b8ef' stroke='%23d9f8ff' stroke-width='2'/%3E%3C/svg%3E">
 <style>
 :root{
   --bg:#0b1018;--panel:#141922;--panel2:#1a1f2a;--line:#7a5b32;--gold:#f3c57a;--gold2:#d8942a;--paper:#dec39b;
@@ -668,13 +670,15 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .bulkGradeSummary{font-size:11px;text-align:center;color:#d6c392;margin:5px 0}.bulkRewardCard .bulkCompare{font-size:9px;color:#96c6ac}
 
 .bulkSalvaged{opacity:.56;border-style:dashed!important}.bulkSalvaged img{filter:grayscale(.8)}.bulkSalvaged strong{color:#d4c0a3}
+
+.brandIdentity{display:flex;align-items:center;gap:12px}.forgeMark{width:76px;height:76px;flex:none;filter:drop-shadow(0 2px 12px rgba(236,145,54,.4))}.brandtitle{font-size:29px;letter-spacing:-1px}.brandtitle span{line-height:.98}.brand{align-items:center}@media(max-width:350px){.forgeMark{width:61px;height:61px}.brandtitle{font-size:25px}.brandsub{font-size:9px}}
 </style>
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
 <main id="app">
   <div class="topbrand">
-    <div class="brandtitle"><span>던전</span><span>대장간</span></div>
+    <div class="brandIdentity"><svg class="forgeMark" viewBox="0 0 100 100" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="fmGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff1bb"/><stop offset=".5" stop-color="#dc9b43"/><stop offset="1" stop-color="#75401d"/></linearGradient></defs><path d="M50 4 85 21 91 57 72 86 50 97 28 86 9 57 15 21Z" fill="#141b28" stroke="url(#fmGold)" stroke-width="4"/><path d="m50 13 9 26-9 10-9-10Z" fill="#ffcc77"/><path d="m50 20 3 15-3 5-3-5Z" fill="#fff1c5"/><path d="M27 45h46l-6 11H33Z" fill="url(#fmGold)"/><path d="M39 56h22v8l9 14H30l9-14Z" fill="#d38a3c" stroke="#ffcc78" stroke-width="2"/><path d="m50 45-8 18 8 10 8-10Z" fill="#1988c3" stroke="#c3f1ff" stroke-width="2"/><path d="M50 49v21" stroke="#ecfcff" stroke-width="2"/></svg><div class="brandtitle"><span>던전</span><span>대장간</span></div></div>
     <div class="brandsub">DUNGEON FORGE</div>
   </div>
   <section class="screen">
@@ -871,7 +875,7 @@ function initializeGameState(){
  normalizeState();
  if(hasSavedGame){prepareOfflineReward(S.last);save()}
 }
-function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.bossTrophies=S.bossTrophies&&typeof S.bossTrophies==='object'&&!Array.isArray(S.bossTrophies)?S.bossTrophies:{};S.bossCollection=Array.isArray(S.bossCollection)?S.bossCollection.filter(x=>typeof x==='string'):[];S.bossCollectionClaimed=Array.isArray(S.bossCollectionClaimed)?S.bossCollectionClaimed.filter(x=>[1,3,5].includes(x)):[];S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1;S.autoLockTier=Number.isInteger(S.autoLockTier)?Math.max(0,Math.min(7,S.autoLockTier)):4;S.premiumTokens=Math.max(0,Number(S.premiumTokens)||0);S.daily=S.daily&&typeof S.daily==='object'?S.daily:{day:'',kills:0,bosses:0,claimed:[]};S.daily.claimed=Array.isArray(S.daily.claimed)?S.daily.claimed:[];S.autoCraftGoal=Number.isInteger(S.autoCraftGoal)?Math.max(0,Math.min(6,S.autoCraftGoal)):2;S.bagUpgrades=Number.isInteger(S.bagUpgrades)?S.bagUpgrades:0;S.warehouseUpgrades=Number.isInteger(S.warehouseUpgrades)?S.warehouseUpgrades:0;S.attendance=S.attendance&&typeof S.attendance==='object'?S.attendance:{day:'',streak:0,claimed:false};S.presets=Array.isArray(S.presets)?S.presets.slice(0,3):[null,null,null];while(S.presets.length<3)S.presets.push(null);S.passProgress=S.passProgress&&typeof S.passProgress==='object'?S.passProgress:{season:'',xp:0,claimed:[]};S.passProgress.claimed=Array.isArray(S.passProgress.claimed)?S.passProgress.claimed:[]; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
+function normalizeState(){['weapon','armor','shield','ring'].forEach(k=>{ if(S.equip[k]===undefined) S.equip[k]=null;});if(!Number.isInteger(S.stageKills))S.stageKills=S.boss?3:Math.min(3,Math.max(0,S.kills%4));S.stageKills=Math.max(0,Math.min(3,S.stageKills));S.materials=S.materials&&typeof S.materials==='object'?S.materials:{};S.bossTrophies=S.bossTrophies&&typeof S.bossTrophies==='object'&&!Array.isArray(S.bossTrophies)?S.bossTrophies:{};S.bossCollection=Array.isArray(S.bossCollection)?S.bossCollection.filter(x=>typeof x==='string'):[];S.bossCollectionClaimed=Array.isArray(S.bossCollectionClaimed)?S.bossCollectionClaimed.filter(x=>[1,3,5].includes(x)):[];S.warehouse=Array.isArray(S.warehouse)?S.warehouse:[];S.discovered=Array.isArray(S.discovered)?S.discovered:[];for(const it of [...(S.inventory||[]),...S.warehouse]){if(it&&it.kind&&Number.isInteger(Number(it.tier))){const key=[it.kind,it.name,it.tier,it.effect].join('|');if(!S.discovered.includes(key))S.discovered.push(key)}}S.bagCapacity=Math.max(120,Number(S.bagCapacity)||120,S.inventory.length);S.warehouseCapacity=Math.max(200,Number(S.warehouseCapacity)||200,S.warehouse.length);S.autoSalvageTier=Number.isInteger(S.autoSalvageTier)?Math.max(-1,Math.min(2,S.autoSalvageTier)):-1;S.autoLockTier=Number.isInteger(S.autoLockTier)?Math.max(0,Math.min(7,S.autoLockTier)):4;S.premiumTokens=Math.max(0,Number(S.premiumTokens)||0);S.daily=S.daily&&typeof S.daily==='object'?S.daily:{day:'',kills:0,bosses:0,claimed:[]};S.daily.claimed=Array.isArray(S.daily.claimed)?S.daily.claimed:[];S.autoCraftGoal=Number.isInteger(S.autoCraftGoal)?Math.max(0,Math.min(6,S.autoCraftGoal)):2;S.bagUpgrades=Number.isInteger(S.bagUpgrades)?S.bagUpgrades:0;S.warehouseUpgrades=Number.isInteger(S.warehouseUpgrades)?S.warehouseUpgrades:0;S.attendance=S.attendance&&typeof S.attendance==='object'?S.attendance:{day:'',streak:0,claimed:false};S.presets=Array.isArray(S.presets)?S.presets.slice(0,3):[null,null,null];while(S.presets.length<3)S.presets.push(null);S.passProgress=S.passProgress&&typeof S.passProgress==='object'?S.passProgress:{season:'',xp:0,claimed:[]};S.passProgress.claimed=Array.isArray(S.passProgress.claimed)?S.passProgress.claimed:[]; S.maxHp=getMaxHp(); S.hp=Math.max(0,Math.min(Number.isFinite(S.hp)?S.hp:S.maxHp,S.maxHp)); S.enemyMax=getEnemyMax(); S.enemyHp=Math.max(0,Math.min(Number.isFinite(S.enemyHp)?S.enemyHp:S.enemyMax,S.enemyMax));}
 const INTRO_STEPS=[
  {title:'첫 몬스터를 처치하세요',tip:'공격 또는 강타를 사용해 보세요.',tab:'던전'},
  {title:'첫 장비를 제작하세요',tip:'대장간에서 무기를 제작하세요.',tab:'대장간'},
@@ -1051,7 +1055,7 @@ function claimMaxLegendAchievement(item){
  S.achievements=S.achievements||[];
  if(!S.achievements.includes('legendary_max')){S.achievements.push('legendary_max');S.crystals+=150}
 }
-function progressRate(){return Math.min(100,Math.round(S.discovered.length/168*100))}
+function progressRate(){return Math.round(collectedCodexKeys().size/168*100)}
 function rarityClass(t){return 'r'+Math.max(0,Math.min(MAX_TIER,t||0))}
 function areaName(){return regionInfo().name}
 
@@ -2170,11 +2174,31 @@ ${storageTab==='bag'?`<div class="subnav" style="margin-top:10px">${['전체','�
 ${storageTab==='warehouse'?compactPanel('🎒 창고 확장 및 자동 분해 설정',renderStorageControls()+renderExpansion(),false,'uxStorage'):''}
 `;}
 function setCodexCollectionFilter(v){codexCollectionFilter=v;codexPage=0;render()}
+function codexKey(item){
+ if(!item||!['weapon','armor','shield','ring'].includes(item.kind))return '';
+ const tier=Math.floor(Number(item.tier));
+ if(tier<0||tier>6)return '';
+ const eff=effects.includes(item.effect)?item.effect:effects.find(e=>visualEffect({effect:e})===visualEffect(item));
+ return eff?[item.kind,tier,eff].join('|'):'';
+}
+function collectedCodexKeys(){
+ const all=new Set();
+ for(const key of S.discovered||[]){
+  const parts=String(key).split('|');
+  if(parts.length>=4){const normalized=codexKey({kind:parts[0],tier:parts[2],effect:parts.slice(3).join('|')});if(normalized)all.add(normalized)}
+ }
+ for(const it of [...(S.inventory||[]),...(S.warehouse||[])]){const k=codexKey(it);if(k)all.add(k)}
+ return all;
+}
+function collectedCodexKeysForKind(kind){return [...collectedCodexKeys()].filter(x=>x.startsWith(kind+'|')).length;}
 function codexSlots(kind){
- const found=S.discovered.filter(s=>s.startsWith(kind+'|'));
- const slots=found.slice(0,42).map(k=>({found:true,key:k}));
- while(slots.length<42)slots.push({found:false,key:''});
- return slots.filter(s=>codexCollectionFilter==='all'||(codexCollectionFilter==='found'?s.found:!s.found));
+ const collected=collectedCodexKeys();
+ const slots=[];
+ for(let tier=0;tier<7;tier++)for(const effect of effects){
+  const key=kind+'|'+tier+'|'+effect;
+  slots.push({found:collected.has(key),kind,tier,effect,key});
+ }
+ return slots.filter(x=>codexCollectionFilter==='all'||(codexCollectionFilter==='found'?x.found:!x.found));
 }
 function renderAdventureGuide(){
  const rolls=CRAFT_GRADE_RATES;
@@ -2201,18 +2225,18 @@ function renderCodex(){
  if(S.codexTab==='monster')return renderMonsterCodex();
  if(S.codexTab==='region')return renderRegionCodex();
  if(S.codexTab==='boss')return renderBossCodex();
- const cats=['weapon','armor','shield','ring'],all=codexSlots(S.codexSide),found=S.discovered.filter(k=>k.startsWith(S.codexSide+'|'));
+ const cats=['weapon','armor','shield','ring'],all=codexSlots(S.codexSide),foundCount=42-codexSlots(S.codexSide).filter(x=>!x.found).length,totalFound=collectedCodexKeys().size;
  const pages=Math.max(1,Math.ceil(all.length/12));codexPage=Math.min(codexPage,pages-1);
  const grid=all.slice(codexPage*12,(codexPage+1)*12).map(slot=>{
- const tier=slot.found?Math.max(0,Math.min(MAX_TIER,Number(slot.key.split('|')[2])||0)):0;
- return slot.found?`<div class="codexTreasure found"><span class="codexRank">${rarityLetter[tier]}</span><div class="codexArt">${graphicImage(iconFor({kind:S.codexSide,tier}),S.codexSide,tier,"수집 장비")}</div><span class="codexLabel">${slot.key.split('|')[3]||kindLabel[S.codexSide]}</span><span class="codexStatus">✓ 수집 완료</span></div>`:
+ const tier=slot.tier;
+ return slot.found?`<div class="codexTreasure found"><span class="codexRank">${rarityLetter[tier]}</span><div class="codexArt">${graphicImage(iconFor({kind:S.codexSide,tier,effect:slot.effect}),S.codexSide,tier,"수집 장비")}</div><span class="codexLabel">${slot.effect}</span><span class="codexStatus">✓ 수집 완료</span></div>`:
  `<div class="codexTreasure unfound"><span class="codexRank">???</span><div class="codexArt"><span class="codexLocked">✧</span></div><span class="codexLabel">미확인 유물</span><span class="codexStatus">미수집</span></div>`;
  }).join('');
  return `${renderHeader('도감','📖')}
 <div class="codexTabs compactNav" style="margin-bottom:7px">${codexTabButtons()}</div>
-<div class="codexHero"><div><strong>장비 수집 기록</strong><span>${Math.min(168,S.discovered.length)} / 168 · ${Math.round(Math.min(168,S.discovered.length)/168*100)}%</span></div><div class="progress"><span style="width:${Math.min(100,Math.round(S.discovered.length/168*100))}%"></span></div></div>
-<div class="codexFilters"><button class="segbtn ${codexCollectionFilter==='all'?'active':''}" onclick="setCodexCollectionFilter('all')">전체 42</button><button class="segbtn ${codexCollectionFilter==='found'?'active':''}" onclick="setCodexCollectionFilter('found')">✓ 수집 ${found.length}</button><button class="segbtn ${codexCollectionFilter==='missing'?'active':''}" onclick="setCodexCollectionFilter('missing')">🔒 미수집 ${Math.max(0,42-found.length)}</button></div>
-<div class="codexWrap compactCodex"><div class="codexSide">${cats.map(k=>`<button class="sideTab ${S.codexSide===k?'active':''}" onclick="setCodexSide('${k}')">${kindLabel[k]} <small>${S.discovered.filter(d=>d.startsWith(k+'|')).length}/42</small></button>`).join('')}</div>
+<div class="codexHero"><div><strong>장비 수집 기록</strong><span>${totalFound} / 168 · ${Math.round(totalFound/168*100)}%</span></div><div class="progress"><span style="width:${Math.round(totalFound/168*100)}%"></span></div></div>
+<div class="codexFilters"><button class="segbtn ${codexCollectionFilter==='all'?'active':''}" onclick="setCodexCollectionFilter('all')">전체 42</button><button class="segbtn ${codexCollectionFilter==='found'?'active':''}" onclick="setCodexCollectionFilter('found')">✓ 수집 ${foundCount}</button><button class="segbtn ${codexCollectionFilter==='missing'?'active':''}" onclick="setCodexCollectionFilter('missing')">🔒 미수집 ${42-foundCount}</button></div>
+<div class="codexWrap compactCodex"><div class="codexSide">${cats.map(k=>`<button class="sideTab ${S.codexSide===k?'active':''}" onclick="setCodexSide('${k}')">${kindLabel[k]} <small>${42-[...Array(42)].length+collectedCodexKeysForKind(k)}/42</small></button>`).join('')}</div>
 <div><div class="codexCollectionGrid">${grid||'<p class="hint">이 조건에 해당하는 항목이 없습니다.</p>'}</div><div class="right" style="margin-top:10px"><button class="segbtn" onclick="changeCodexPage(-1)" ${codexPage===0?'disabled':''}>◀</button><span class="muted">${codexPage+1} / ${pages}</span><button class="segbtn" onclick="changeCodexPage(1)" ${codexPage+1>=pages?'disabled':''}>▶</button></div></div></div>`;
 }
 function renderMonsterCodex(){
