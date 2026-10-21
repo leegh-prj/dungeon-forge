@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -660,14 +660,37 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .codexFilters .segbtn.active{border-color:#e9bd76;color:#ffe8bb}
 .codexTreasure img{object-fit:contain!important}
 
-/* DF_LOGO_V4 */
-.brand{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:clamp(90px,25vw,135px)!important;height:clamp(90px,25vw,135px)!important;background:url('assets/ui/forge-logo.png?v=4') center/contain no-repeat!important;margin-bottom:10px!important}
-.brand > *{visibility:hidden!important;pointer-events:none!important}
-</style>
+/* HD equipped art and one-tap repeat crafting */
+.gearSlot img.slotGearArt,.heroLoadoutGear img.heroLoadoutIcon{object-fit:contain!important;display:block;width:100%;height:100%;max-width:100%;max-height:100%;filter:drop-shadow(0 4px 8px rgba(0,0,0,.35))}
+.craftQuickActions,.craftRepeatActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.craftQuickActions button,.craftRepeatActions button{min-width:0;min-height:44px;border-radius:11px;font-weight:800;font-size:12px}.craftTenButton,.craftRepeatActions button:nth-child(2){background:linear-gradient(150deg,#7f5a28,#49381f);border:1px solid #e0b56c;color:#fff0d0}.craftRepeatActions button:disabled{opacity:.4;cursor:not-allowed}
 
-<link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=4">
-<link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=4">
-<link rel="manifest" href="assets/ui/manifest.webmanifest?v=4">
+/* Multi-craft result view: all retained rewards at once. */
+.bulkRewardGrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;max-height:min(45dvh,360px);overflow-y:auto;overscroll-behavior:contain;margin:12px 0}.bulkRewardCard{min-width:0;display:flex;flex-direction:column;align-items:center;padding:5px 2px;border-radius:10px;border:1px solid rgba(210,176,123,.3);background:linear-gradient(#303542,#141921)}.bulkRewardCard .bulkRewardIcon{width:100%;aspect-ratio:1}.bulkRewardCard img{width:100%;height:100%;object-fit:contain}.bulkRewardCard strong{font-size:10px;white-space:nowrap}.bulkRewardCard small{font-size:9px;color:#cdbd9e;text-align:center;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bulkRewardCard.rarity6{border-color:#ffe39d}@media(max-width:350px){.bulkRewardGrid{gap:3px}.bulkRewardCard strong{font-size:9px}}
+
+.bulkGradeSummary{font-size:11px;text-align:center;color:#d6c392;margin:5px 0}.bulkRewardCard .bulkCompare{font-size:9px;color:#96c6ac}
+
+.bulkSalvaged{opacity:.56;border-style:dashed!important}.bulkSalvaged img{filter:grayscale(.8)}.bulkSalvaged strong{color:#d4c0a3}
+
+.brandIdentity{display:flex;align-items:center;gap:12px}.forgeMark{width:76px;height:76px;flex:none;filter:drop-shadow(0 2px 12px rgba(236,145,54,.4))}.brandtitle{font-size:29px;letter-spacing:-1px}.brandtitle span{line-height:.98}.brand{align-items:center}@media(max-width:350px){.forgeMark{width:61px;height:61px}.brandtitle{font-size:25px}.brandsub{font-size:9px}}
+/* DUNGEON FORGE PREMIUM LOGO */
+.brand {
+  position: relative;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  min-height: clamp(90px,25vw,135px) !important;
+  height: clamp(90px,25vw,135px) !important;
+  background: url('assets/ui/forge-logo.png?v=5') center/contain no-repeat !important;
+  margin-bottom: 10px !important;
+}
+.brand > * {
+  visibility: hidden !important;
+}
+</style>
+<link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
+<link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
+<link rel="manifest" href="assets/ui/manifest.webmanifest?v=5">
 </head>
 <body>
 <div id="toast"></div><div id="craftOverlay" class="craftOverlay" role="dialog" aria-modal="true" aria-label="제작 결과"><div id="craftModal" class="craftModal"></div></div>
