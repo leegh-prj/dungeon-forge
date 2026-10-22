@@ -694,6 +694,16 @@ button:disabled{cursor:not-allowed;filter:saturate(.55);opacity:.58}
 .uxDisclosure>summary:hover{background:rgba(211,144,57,.14)}.uxDisclosure[open]>summary{color:#ffe2a4}
 @media(hover:none){button,.segbtn,.focusBox,.sideTab{ -webkit-tap-highlight-color:rgba(244,172,74,.2)}}
 @media(prefers-reduced-motion:reduce){button,.segbtn,.focusBox,.sideTab,.elementChip{transition:none!important}}
+
+/* Mobile QA safeguards: readable and reachable controls in narrow viewports */
+@media(max-width:460px){
+ #app{width:100%;max-width:100%;min-width:0;padding-left:max(8px,env(safe-area-inset-left));padding-right:max(8px,env(safe-area-inset-right))}
+ .screen,.panel,.card,.warehouseGrid,.warehouseItem,.forgeItem{min-width:0}
+ .warehouseItem{overflow-wrap:anywhere}
+ .warehouseItem button,.forgeItem,.storageTabs button,.categoryTabs button{touch-action:manipulation}
+ .storageTabs button,.categoryTabs button{min-height:40px}
+}
+@media(max-width:350px){.storageTabs button,.categoryTabs button{font-size:11px;padding-left:5px;padding-right:5px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -1352,9 +1362,9 @@ function battleTick(){
      const [name,power]=getBossPattern();const damage=Math.round((105+S.stage*6.5)*power);
      battleLastPattern=name;const stageAtAttack=S.stage,killsAtAttack=S.kills;
      runBossPattern(name,damage);
-     if(S.stage===stageAtAttack&&S.kills===killsAtAttack)bossPatternStep++;
-   }else takeDamage(65+S.stage*4);
-   scheduleEnemyAttack();
+     if(S.stage===stageAtAttack&&S.kills===killsAtAttack){bossPatternStep++;scheduleEnemyAttack()}
+   }else{const stageAtAttack=S.stage,killsAtAttack=S.kills;takeDamage(65+S.stage*4);if(S.stage===stageAtAttack&&S.kills===killsAtAttack)scheduleEnemyAttack()}
+   // Stage transitions schedule their own attack; do not overwrite that timer.
  }
  updateBattleHUD();updateSpriteFrames();
 }
