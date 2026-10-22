@@ -1440,7 +1440,7 @@ function craftToGoal(){
  const beforeGold=S.gold,beforeOre=S.ore;
  for(let i=0;i<20;i++){
   const def=recipeDefs.find(x=>x.kind===kind);
-  if(!def||S.inventory.length>=S.bagCapacity&&S.warehouse.length>=S.warehouseCapacity){stopped='보관 공간 부족';break}
+  if(!def){stopped='제작 정보 없음';break}
   if(S.ore<def.ore||S.crystals<def.crystal+(S.focus==='balanced'?0:1)){stopped='재료 부족';break}
   const priorSalvage=S.salvagedCount||0;
   const item=craft(kind,true);
@@ -1590,7 +1590,7 @@ function rollCraftTier(roll){
 }
 function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  const def=recipeDefs.find(r=>r.kind===kind);if(!def)return toast('제작 정보를 찾을 수 없습니다');
- if(S.inventory.length>=S.bagCapacity&&S.warehouse.length>=S.warehouseCapacity)return toast('가방과 창고가 가득 찼습니다');
+ // Determine auto-salvage after rolling: full storage must not block salvageable outcomes.
  const extra=S.focus==='balanced'?0:1,needOre=def.ore,needCry=def.crystal+extra;
  if(S.ore<needOre||S.crystals<needCry)return toast('재료가 부족합니다');
  S.ore-=needOre;S.crystals-=needCry;
@@ -1599,7 +1599,7 @@ function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  if(tier>=S.autoLockTier)item.locked=true; // Configurable auto-lock, default SS and above.
  if(S.focus==='attack')item.power+=4;if(S.focus==='defense')item.defense+=5;
  const destination=storeNewItem(item,skipAuto);
- if(destination==='full'){S.ore+=needOre;S.crystals+=needCry;return toast('보관 공간이 부족합니다')}
+ if(destination==='full'){S.ore+=needOre;S.crystals+=needCry;if(!quiet)toast('보관 공간이 부족합니다');return null}
  if(batchCraftLog)batchCraftLog.push({item,discarded:destination==='salvaged'});
  discover(item);if(destination!=='salvaged')introAdvance('craft',item);
  if(destination==='bag'){const idx=S.inventory.length-1;if(!introActive()){if(S.equip[kind]===null||!eq(kind)||itemStrength(item)>itemStrength(eq(kind)))S.equip[kind]=idx}}
@@ -1617,7 +1617,7 @@ function bulkCraft(count=5){
  let made=[],beforeOre=S.ore,beforeCry=S.crystals,beforeSalvaged=S.salvagedCount||0,attempts=0;
  batchCraftLog=[];
  for(let i=0;i<num;i++){
-   if(S.ore<def.ore||S.crystals<def.crystal+(S.focus==='balanced'?0:1)||S.inventory.length>=S.bagCapacity&&S.warehouse.length>=S.warehouseCapacity)break;
+   if(S.ore<def.ore||S.crystals<def.crystal+(S.focus==='balanced'?0:1))break;
    const previousLog=batchCraftLog.length;
    const result=craft(S.craftTab,true);if(batchCraftLog.length===previousLog)break;
    attempts++;if(result)made.push(result);
