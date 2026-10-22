@@ -1624,6 +1624,8 @@ function bulkCraft(count=5){
    const previousLog=batchCraftLog.length;
    const result=craft(S.craftTab,true);if(batchCraftLog.length===previousLog)break;
    attempts++;if(result)made.push(result);
+   // Checkpoint each completed attempt so an interrupted batch loses at most the current roll.
+   save();
  }
  const results=batchCraftLog;batchCraftLog=null;
  const salvaged=(S.salvagedCount||0)-beforeSalvaged;
