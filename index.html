@@ -677,6 +677,10 @@ body{position:fixed;inset:0;overflow:hidden!important}
 .premiumBrandLogo{display:block;width:100%;max-width:460px;height:auto;max-height:156px;object-fit:contain;filter:drop-shadow(0 4px 15px rgba(255,111,24,.2))}
 @media(max-width:390px){.premiumBrandLogo{max-height:132px}}
 
+/* Cards with actual click handlers feel pressable; ordinary stat boxes stay static. */
+.equipCard[onclick],.inventoryItem[onclick],.warehouseItem[onclick],.shopItem[onclick],.codexTreasure[onclick],[class*="Card"][onclick],[class*="Item"][onclick]{cursor:pointer;touch-action:manipulation;transition:transform .14s ease,box-shadow .16s ease,filter .16s ease}
+.equipCard[onclick]:active,.inventoryItem[onclick]:active,.warehouseItem[onclick]:active,.shopItem[onclick]:active,.codexTreasure[onclick]:active,[class*="Card"][onclick]:active,[class*="Item"][onclick]:active{transform:translateY(2px) scale(.975);filter:brightness(1.11)}
+@media(hover:hover){.equipCard[onclick]:hover,.inventoryItem[onclick]:hover,.warehouseItem[onclick]:hover,[class*="Card"][onclick]:hover{box-shadow:0 6px 20px rgba(244,173,73,.23)}}
 /* Interactive surfaces: tactile feedback without treating information as buttons */
 button,.segbtn,.primaryBtn,.bulkAction,.craftQuickEquip,.categoryTabs button,.sideTab,.elementChip{cursor:pointer;touch-action:manipulation;transition:transform .13s ease,box-shadow .16s ease,border-color .16s ease,background-color .16s ease,filter .16s ease}
 button:not(:disabled):active,.segbtn:not(:disabled):active,.primaryBtn:not(:disabled):active,.bulkAction:not(:disabled):active,.elementChip:not(:disabled):active,.sideTab:not(:disabled):active{transform:translateY(2px) scale(.975)!important;filter:brightness(1.12)}
