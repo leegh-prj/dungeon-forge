@@ -720,6 +720,62 @@ button:disabled{cursor:not-allowed;filter:saturate(.55);opacity:.58}
 /* Craft focus controls are real keyboard/touch buttons, not inert cards. */
 .focusGrid .focusBox{appearance:none;-webkit-appearance:none;font:inherit;color:inherit;text-align:center;min-width:0;min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
 .focusGrid .focusBox:focus-visible{outline:2px solid #ffe2a4;outline-offset:2px}
+
+/* === Forge visual language v2: game HUD / armory / ledger, not stacked UI cards === */
+:root{--line:#66543a;--gold:#edc27b;--shadow:0 10px 24px rgba(0,0,0,.34)}
+.screen{border:1px solid #795d3b;border-radius:5px;padding:10px 11px 14px;background:linear-gradient(180deg,rgba(23,22,22,.95),rgba(11,14,20,.97));box-shadow:inset 0 1px 0 #be90473f,0 10px 25px #0009}
+.screen::before{background:linear-gradient(90deg,transparent 0%,rgba(210,155,73,.025) 50%,transparent 100%)}
+.screenheader{padding:5px 2px 10px;border-bottom:1px solid #a17b454f;margin-bottom:10px}
+.screentitle{font-family:Georgia,'Noto Serif KR','Malgun Gothic',serif;letter-spacing:-.35px;font-size:20px}
+.emblem{border-radius:3px;background:linear-gradient(155deg,#50402e,#201c1a);box-shadow:inset 0 1px #e7c38a22}
+.resources{gap:5px}
+.reschip{min-width:0;border:0;border-left:1px solid #b8996659;border-radius:0;background:transparent;box-shadow:none;padding:5px 6px;font-size:12px;color:#f1deb6}
+.reschip:first-child{border-left:0}
+.reschip.plus{min-width:26px}
+.panel{background:rgba(14,18,23,.5);border:0;border-top:1px solid #97744872;border-radius:0;box-shadow:none}
+.sectiontitle{font-family:Georgia,'Noto Serif KR','Malgun Gothic',serif;font-size:16px;font-weight:800;color:#f1cb89;letter-spacing:-.25px;margin:12px 0 8px}
+.sectiontitle::before{content:'';display:inline-block;width:3px;height:15px;background:linear-gradient(#f2c781,#89602d);margin-right:1px}
+.stagebar{padding:9px 3px;margin-bottom:0;background:linear-gradient(90deg,#262119,#14182000 82%);border:0;border-left:3px solid #c28e48}
+.stagebar .name{font-family:Georgia,'Noto Serif KR',serif;letter-spacing:.2px}
+.stagepath .dot{border-radius:2px;width:8px;height:8px;transform:rotate(45deg);box-shadow:none}
+.battlefield{border-radius:3px;border:1px solid #a27b475c;box-shadow:inset 0 0 35px #0007}
+.actorname{border:0;border-radius:2px;background:linear-gradient(90deg,transparent,#0c0c10bc,transparent);padding:4px 9px}
+.bar{height:12px;border-radius:2px}
+.fill,.fill.blue{border-radius:1px}
+.sideicon{border-radius:3px;background:linear-gradient(160deg,#232324df,#101318ed);box-shadow:inset 0 1px #e8ce9622,0 3px 9px #0008}
+.forgeTabs,.categoryTabs,.codexTabs,.storageTabs,.compactNav{border-bottom:1px solid #85694277;gap:3px}
+.forgeTabs .segbtn,.categoryTabs .segbtn,.codexTabs .segbtn,.storageTabs .segbtn,.compactNav button{border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;box-shadow:none;color:#c0ae91;font-weight:750}
+.forgeTabs .segbtn.active,.categoryTabs .segbtn.active,.codexTabs .segbtn.active,.storageTabs .segbtn.active,.compactNav button.active{border-color:#f1bc68;color:#ffe4ae;background:linear-gradient(0deg,#c68b3a1c,transparent);box-shadow:none}
+.segbtn{border-radius:3px;background:#231e1a;box-shadow:none}
+.segbtn.active{background:#443020;box-shadow:inset 0 -2px #d8a057}
+.equipCard,.invItem,.forgeItem,.codexTreasure{border-radius:3px!important;background:linear-gradient(170deg,#1c2028,#0e1219)!important;box-shadow:inset 0 1px rgba(242,193,110,.06)!important}
+.equipThumb,.invItem .mini{border-radius:2px;background:#0b0f16}
+.slot{border-radius:3px;background:linear-gradient(145deg,#1d2028,#090b0f);box-shadow:inset 0 0 14px #000a}
+.slot .slotlabel,.equipThumb .tierbadge,.invItem .mini .rar{border-radius:2px}
+.charstage{border-radius:3px;border-color:#7862477d}
+.statsBox,.equipmentSets,.codexHero,.storagePanel,.expansionPanel{border-radius:0;background:transparent;box-shadow:none;border:0;border-top:1px solid #a080524d;padding:11px 2px}
+.statrow{border-bottom:1px solid #ffffff10;margin:0;padding:8px 2px}
+.statrow:last-child{border:0}
+.setLine{border-color:#94724e40}
+.warehouseItem{border:0;border-bottom:1px solid #7d644451;border-radius:0;padding:8px 3px;background:linear-gradient(90deg,#ffffff06,transparent)}
+.warehouseItem:last-child{border-bottom:0}
+.uxDisclosure{border:0;border-bottom:1px solid #9a79504b;border-radius:0;background:transparent;margin:3px 0}
+.uxDisclosure>summary{padding:12px 7px;min-height:43px;background:transparent;font-weight:700}
+.uxDisclosure[open]>summary{border-bottom:1px solid #ba8a4d33;background:linear-gradient(90deg,#9c73331d,transparent)}
+.uxDisclosureBody{padding:10px 5px}
+.focusGrid{gap:5px}
+.focusGrid .focusBox{border:1px solid #73644880;border-radius:3px;background:#151b22;box-shadow:inset 0 1px #e2bc6c13}
+.focusGrid .focusBox.active{border-color:#d5aa61;box-shadow:inset 0 -3px #bd8c49,0 0 0 1px #d5aa612c}
+.focusGrid .focusBox.active.red{background:#34221f}.focusGrid .focusBox.active.blue{background:#1b2b40}.focusGrid .focusBox.active.neutral{background:#333025}
+.primaryBtn,.craftQuickActions button,.shopItem button{border-radius:3px;box-shadow:inset 0 1px #fff3,0 4px 9px #0007;font-family:Georgia,'Noto Serif KR','Malgun Gothic',serif;letter-spacing:.15px}
+.shopItem{border:0;border-top:1px solid #92724365;border-radius:0;background:transparent;box-shadow:none;padding:13px 5px}
+.shopItem h4{color:#f3d296}
+.dailyMission{border-radius:0;border-bottom:1px solid #96734b3d;background:transparent;padding:9px 3px;margin:0}
+.codexHero{border-left:3px solid #a9814c;padding-left:11px}
+.codexTreasure{border:1px solid #65533865!important}
+.paper{border-radius:3px;box-shadow:inset 0 1px #fff5,0 5px 12px #0004}
+.nav{border-radius:0}
+@media(max-width:460px){.screen{padding:9px 8px 13px}.forgeTabs{gap:1px}.forgeTabs .segbtn{border-radius:0}.resources{gap:0}.reschip{padding:5px 4px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
