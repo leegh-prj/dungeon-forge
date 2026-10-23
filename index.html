@@ -704,6 +704,18 @@ button:disabled{cursor:not-allowed;filter:saturate(.55);opacity:.58}
  .storageTabs button,.categoryTabs button{min-height:40px}
 }
 @media(max-width:350px){.storageTabs button,.categoryTabs button{font-size:11px;padding-left:5px;padding-right:5px}}
+
+/* QA mobile controls: make forge workflows operable without horizontal scrolling */
+@media(max-width:460px){
+ .forgeTabs{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;min-width:0}
+ .forgeTabs .segbtn{min-width:0!important;width:100%;padding:9px 2px!important;min-height:44px;white-space:nowrap;font-size:clamp(10px,2.9vw,13px)}
+ .forgeItem{min-width:0;overflow-wrap:anywhere}
+ .forgeItem img{max-width:100%;object-fit:contain}
+ .confirmActions{display:flex;flex-wrap:wrap;gap:8px}
+ .confirmActions button{flex:1 1 105px;min-height:44px}
+ #craftModal{max-width:min(96vw,460px);max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}
+}
+@media(max-width:350px){.forgeTabs .segbtn{font-size:10px;letter-spacing:-.35px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -1892,6 +1904,7 @@ function itemStrength(it){if(!it)return 0;return Math.max(0,Number(it.power)||0)
 function itemPlus(it){return Math.max(0,Math.floor(it?.level||0))}
 function forgeUsable(){return S.inventory.map((item,index)=>({item,index})).filter(x=>!isEquipped(x.index)&&!isLocked(x.item))}
 function selectForgeItem(index){
+  if(!Number.isInteger(index)||index<0||index>=S.inventory.length)return toast('장비 목록이 변경되었습니다. 다시 선택해 주세요');
   const candidate=S.inventory[index]; if(!candidate||isEquipped(index)||isLocked(candidate))return toast('장착·잠금 장비는 재료로 선택할 수 없습니다');
   const max=forgeMode==='분해'?50:forgeMode==='합성'?3:forgeMode==='승급'?2:1;
   if(forgeSelection.includes(index)){forgeSelection=forgeSelection.filter(i=>i!==index)}
