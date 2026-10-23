@@ -1058,8 +1058,13 @@ function runBossPattern(name,rawDamage){
  if(name==='방어 태세'){S.enemyHp=Math.min(getEnemyMax(),S.enemyHp+Math.round(getEnemyMax()*.045));bossGuardUntil=Date.now()+2400;stageRewardText='🪨 골렘 방어 태세 · 받는 피해 감소';stageRewardUntil=Date.now()+2400;return}
  if(name.includes('독')){if(Date.now()>=guardActiveUntil)battlePoisonUntil=Math.max(battlePoisonUntil,Date.now())+4200;else{stageRewardText='🛡 독성 공격 방어 성공';stageRewardUntil=Date.now()+1500}}
  if(name==='천둥 포효'){if(Date.now()>=guardActiveUntil)battleStunUntil=Date.now()+1250;else{battleFxText='⚡ 방어 성공 · 감전 차단';battleFxUntil=Date.now()+1300}}
- if(name==='번개 깃털'){takeDamage(Math.round(dmg*.53));takeDamage(Math.round(dmg*.53));return}
- if(name==='연속 할퀴기'){takeDamage(Math.round(dmg*.54));takeDamage(Math.round(dmg*.54));return}
+ if(name==='번개 깃털'||name==='연속 할퀴기'){
+  const hit=Math.round(dmg*(name==='번개 깃털'?.53:.54)),stageBefore=S.stage,killsBefore=S.kills,bossBefore=S.boss;
+  takeDamage(hit);
+  // Never carry the second hit into a newly spawned enemy or stage.
+  if(S.stage===stageBefore&&S.kills===killsBefore&&S.boss===bossBefore)takeDamage(hit);
+  return;
+ }
  if(name==='파도 밀치기')basicReady=Math.max(basicReady,Date.now()+750);
  if(name==='용암 내려찍기')dmg=Math.round(dmg*1.12);
  takeDamage(dmg);
