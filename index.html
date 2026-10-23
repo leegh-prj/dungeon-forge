@@ -1246,7 +1246,7 @@ function takeDamage(base){
  S.hp-=dmg;effectCombat(blocked?'guard':'hurt',dmg);
  if(eq('ring')?.effect==='반격')S.enemyHp-=Math.max(10,Math.round(totalDef()*.055));
  if(S.enemyHp<=0)enemyDown();
- if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();enemyAttackAt=Date.now()+3400;toast('패배 · 재화 손실 없이 재도전')}
+ if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();battlePoisonUntil=0;lastPoisonTick=0;battleStunUntil=0;guardActiveUntil=0;manualGuardWindow=false;perfectGuardRewarded=false;bossGuardUntil=0;bossPatternStep=0;enemyAttackAt=Date.now()+3400;pendingBossAttack=enemyAttackAt;toast('패배 · 재화 손실 없이 재도전')}
  refreshCombatNumbers();updateSpriteFrames(true);save();
 }
 const BOSS_FORGE_RECIPES=[
