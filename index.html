@@ -1962,8 +1962,10 @@ function forgePrice(mode){
 function enough(p){return S.ore>=p.ore&&S.gold>=p.gold&&S.crystals>=p.crystals}
 function pay(p){S.ore-=p.ore;S.gold-=p.gold;S.crystals-=p.crystals}
 function removeForgeItems(indices){
-  for(const idx of [...indices].sort((a,b)=>b-a)){
-    if(Object.values(S.equip).includes(idx)||isLocked(S.inventory[idx]))throw Error('Protected material rejected');
+  const unique=[...new Set(indices)];
+  // Validate all inputs before removing anything. Reject duplicates and stale indices.
+  if(unique.length!==indices.length||unique.some(idx=>!Number.isInteger(idx)||idx<0||idx>=S.inventory.length||Object.values(S.equip).includes(idx)||isLocked(S.inventory[idx])))throw Error('Protected or invalid material rejected');
+  for(const idx of unique.sort((a,b)=>b-a)){
     S.inventory.splice(idx,1);
     for(const kind of Object.keys(S.equip)){
       const slot=S.equip[kind];
@@ -1974,8 +1976,8 @@ function removeForgeItems(indices){
 }
 function runForge(){
  if(!['강화','분해','합성','승급'].includes(forgeMode))return;
- const ids=[...forgeSelection],items=ids.map(i=>S.inventory[i]);
- if(!ids.length||items.some(x=>!x))return toast('장비를 먼저 선택하세요');
+ const ids=[...new Set(forgeSelection)],items=ids.map(i=>S.inventory[i]);
+ if(!ids.length||ids.length!==forgeSelection.length||items.some(x=>!x))return toast('유효한 장비를 다시 선택하세요');
  if(ids.some(i=>isEquipped(i)||isLocked(S.inventory[i])))return toast('장착하거나 잠긴 장비는 사용할 수 없습니다');
  if(forgeMode==='강화'){
    if(ids.length!==1)return toast('강화할 장비 한 개를 선택하세요');
