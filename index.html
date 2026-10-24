@@ -2515,9 +2515,8 @@ function renderMonsterCodex(){
  const filters=Object.entries(labels).map(([key,label])=>
   '<button class="monsterFilter '+(monsterCodexFilter===key?'active':'')+'" aria-pressed="'+(monsterCodexFilter===key)+'" onclick="setMonsterCodexFilter(\''+key+'\')">'+label+'</button>').join('');
  const cards=visible.map(({region:r,index:i,type,name})=>{
-  const enemyId=r.key==='fire'?'magma':r.key;
-  const imagePath='assets/hd/'+enemyId+'/idle-0.webp';
-  const portrait='<img loading="lazy" src="'+imagePath+'" onerror="handleGraphicError(this,\'monster\')" alt="'+name+'">';
+  const imagePath='assets/codex/monsters/'+r.key+'_'+type+'.svg';
+  const portrait='<img loading="lazy" decoding="async" src="'+imagePath+'" onerror="this.onerror=null;this.src=\'assets/codex/monsters/placeholder.svg\'" alt="'+name+'">';
   return '<article class="codexCreature monsterCodexCard monster-'+type+'">'+
    '<div class="visual monsterPortrait">'+portrait+'<span class="monsterType">'+(type==='boss'?'BOSS':'NORMAL')+'</span></div>'+
    '<div class="info"><span class="chip">지역 '+(i+1)+' · '+r.name+'</span><strong>'+name+'</strong>'+
