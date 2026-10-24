@@ -833,6 +833,15 @@ button:active:not(:disabled){transform:scale(.965);filter:brightness(1.18)}
 .battlefield .highres-sprite{mix-blend-mode:screen}
 @media(max-width:430px){.charwrap{grid-template-columns:minmax(53px,1fr) minmax(0,2.65fr) minmax(53px,1fr);gap:4px}.charwrap .heroLoadoutStage{min-height:220px}.charwrap .slotcol{gap:6px}}
 @media(prefers-reduced-motion:reduce){button{transition:none}}
+
+.warehouseBulk{padding:12px;margin:8px 0 12px;background:linear-gradient(125deg,#262b34,#141922);border:1px solid #b99d704f;border-radius:12px}
+.warehouseBulk strong{display:block;margin-bottom:8px;color:#f3d19d}
+.warehouseBulkFields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.warehouseBulkFields label{display:grid;gap:5px;font-size:12px}
+.warehouseBulkFields select{min-width:0;width:100%;padding:10px 5px;background:#171b25;color:#f6ead4;border:1px solid #876c48;border-radius:7px}
+.warehouseBulkFields button{grid-column:1/-1;padding:11px;border:1px solid #cba267;border-radius:8px;background:linear-gradient(#806032,#4a3928);font-weight:800;color:#fff1ce}
+.tierResult.tierLevel3,.tierResult.tierLevel4,.tierResult.tierLevel5{background:radial-gradient(ellipse at 50% 35%,rgba(var(--tier-rgb),.22),transparent 68%),linear-gradient(135deg,#151921,#2b2630)}
+.tierResult.tierLevel3 .tierRadiance,.tierResult.tierLevel4 .tierRadiance,.tierResult.tierLevel5 .tierRadiance{opacity:1;filter:drop-shadow(0 0 16px var(--tier-color))}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -1577,7 +1586,7 @@ function renderExpansion(){
  const b=S.bagUpgrades||0,w=S.warehouseUpgrades||0;
  return '<div class="expansionPanel"><strong>📦 보유 공간 확장</strong>'+
  [['bag','가방',b,40,7500,12],['warehouse','창고',w,80,12500,18]].map(([key,name,lv,slots,g,t])=>
- '<div class="expandLine"><div>'+name+' 확장 '+lv+'/10 · 다음 +'+slots+'칸</div><button '+(lv>=10?'disabled':'')+' onclick="expandStorage(\''+key+'\')">골드 '+((lv+1)*g).toLocaleString()+'</button><button '+(lv>=10?'disabled':'')+' onclick="expandStorage(\''+key+'\',true)">✧ '+((lv+1)*t)+'</button></div>').join('')+'</div>';
+ '<div class="expandLine"><div>'+name+' 확장 '+lv+'/10 · 다음 +'+slots+'칸</div><button '+(lv>=10?'disabled':'')+' onclick="expandStorage(\''+key+'\')">골드 '+((lv+1)*g).toLocaleString()+'</button><button '+(lv>=10?'disabled':'')+' onclick="expandStorage(\''+key+'\',true)">✧ '+((lv+1)*t)+'</button></div>').join('')+'<p class="hint">✧ 별빛은 현재 게임 내 획득 재화입니다. 향후 소액 확장 상품(가방 +40칸 / 창고 +80칸)을 결제 모듈과 연결할 수 있도록 별도 상품으로 설계하며, 실제 현금 결제는 지원하지 않습니다.</p></div>';
 }
 function setAutoCraftGoal(level){const n=Number(level);if(!Number.isInteger(n)||n<0||n>6)return;S.autoCraftGoal=n;save();render()}
 function craftToGoal(){
@@ -1695,6 +1704,31 @@ function moveToBag(index){
  const item=S.warehouse[index];if(!item)return toast('창고 장비를 찾을 수 없습니다');
  S.inventory.push(item);S.warehouse.splice(index,1);save();render();
 }
+function bulkWarehouseToBag(){
+ const grade=document.getElementById('warehouseBulkGrade')?.value||'all';
+ const kind=document.getElementById('warehouseBulkKind')?.value||'all';
+ const free=Math.max(0,S.bagCapacity-S.inventory.length);
+ if(!free)return toast('가방 공간이 부족합니다');
+ const indexes=[];
+ for(let i=0;i<S.warehouse.length;i++){
+  const item=S.warehouse[i];
+  if((grade==='all'||item.tier===Number(grade))&&(kind==='all'||item.kind===kind))indexes.push(i);
+ }
+ const moving=indexes.slice(0,free);
+ if(!moving.length)return toast('조건에 맞는 장비가 없습니다');
+ const selected=new Set(moving);
+ const items=moving.map(i=>S.warehouse[i]);
+ S.inventory.push(...items);
+ S.warehouse=S.warehouse.filter((_,i)=>!selected.has(i));
+ save();render();toast(items.length+'개 가방 이동 완료'+(indexes.length>free?' · 공간 부족으로 일부만 이동':''));
+}
+function renderWarehouseBulkControls(){
+ if(!S.warehouse.length)return '';
+ return '<div class="warehouseBulk"><strong>📦 창고 일괄 이동</strong><div class="warehouseBulkFields">'+
+ '<label>등급 <select id="warehouseBulkGrade"><option value="all">모든 등급</option>'+rarityLetter.map((grade,i)=>'<option value="'+i+'">'+grade+'</option>').join('')+'</select></label>'+
+ '<label>종류 <select id="warehouseBulkKind"><option value="all">모든 종류</option>'+['weapon','armor','shield','ring'].map(k=>'<option value="'+k+'">'+kindLabel[k]+'</option>').join('')+'</select></label>'+
+ '<button onclick="bulkWarehouseToBag()">선택 장비 가방으로 이동</button></div></div>';
+}
 function setAutoLockTier(tier){const value=Number(tier);if(!Number.isInteger(value)||value<0||value>7)return;S.autoLockTier=value;save();render();}
 function setAutoSalvageTier(tier){
  const value=Number(tier);if(!Number.isInteger(value)||value < -1||value>2)return;
@@ -1708,7 +1742,7 @@ let storageTab='loadout';
 function setStorageTab(value){if(['loadout','bag','warehouse'].includes(value)){storageTab=value;render();const pane=document.getElementById('screen');if(pane)pane.scrollTop=0}}
 function renderWarehouse(){
  return '<div class="storageTabs equipmentPages" role="group" aria-label="장비 화면"><button class="segbtn '+(storageTab==='loadout'?'active':'')+'" onclick="setStorageTab(\'loadout\')">⚔ 착용</button><button class="segbtn '+(storageTab==='bag'?'active':'')+'" onclick="setStorageTab(\'bag\')">🎒 가방 '+S.inventory.length+'</button><button class="segbtn '+(storageTab==='warehouse'?'active':'')+'" onclick="setStorageTab(\'warehouse\')">📦 창고 '+S.warehouse.length+'</button></div>'+
- (storageTab==='warehouse'?'<div class="warehouseGrid">'+(S.warehouse.length?S.warehouse.map((it,i)=>'<div class="warehouseItem tierGear tierGear'+it.tier+'">'+graphicImage(iconFor(it),it.kind,it.tier,it.name)+'<div><strong>'+it.name+'</strong><small>'+rarityLetter[it.tier]+' · +'+itemPlus(it)+' · '+it.effect+'</small></div><button onclick="moveToBag('+i+')">가방으로</button></div>').join(''):'<p class="hint">보관 중인 장비가 없습니다.</p>')+'</div>':'');
+ (storageTab==='warehouse'?renderWarehouseBulkControls()+'<div class="warehouseGrid">'+(S.warehouse.length?S.warehouse.map((it,i)=>'<div class="warehouseItem tierGear tierGear'+it.tier+'">'+graphicImage(iconFor(it),it.kind,it.tier,it.name)+'<div><strong>'+it.name+'</strong><small>'+rarityLetter[it.tier]+' · +'+itemPlus(it)+' · '+it.effect+'</small></div><button onclick="moveToBag('+i+')">가방으로</button></div>').join(''):'<p class="hint">보관 중인 장비가 없습니다.</p>')+'</div>':'');
 }
 function forgeElemental(){
  if(S.inventory.length>=S.bagCapacity)return toast('속성 제작은 가방 공간이 필요합니다');
@@ -2350,7 +2384,7 @@ ${storageTab==='loadout'?`${compactPanel('⚔ 장비 프리셋 관리',renderPre
   </div>
 </div>
 <div class="statsBox">
-  <div class="sectiontitle">\${safePlayerName()} <button class="heroRenameBtn" onclick="renameHero()" aria-label="캐릭터 이름 변경">✎ 이름 변경</button><span class="tiny muted">상세 스탯</span></div>
+  <div class="sectiontitle">${safePlayerName()} <button class="heroRenameBtn" onclick="renameHero()" aria-label="캐릭터 이름 변경">✎ 이름 변경</button><span class="tiny muted">상세 스탯</span></div>
   <div class="statrow"><span>⚔ 공격력</span><span>${totalAtk().toLocaleString()} <span class="up">(+${(eq('weapon')?.power||0)+(eq('ring')?.power||0)})</span></span></div>
   <div class="statrow"><span>🛡 방어력</span><span>${totalDef().toLocaleString()} <span class="up">(+${(eq('armor')?.defense||0)+(eq('shield')?.defense||0)+(eq('ring')?.defense||0)})</span></span></div>
   <div class="statrow"><span>❤ 체력</span><span>${getMaxHp().toLocaleString()} <span class="up">(+${getMaxHp()-1280})</span></span></div>
