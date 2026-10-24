@@ -776,6 +776,46 @@ button:disabled{cursor:not-allowed;filter:saturate(.55);opacity:.58}
 .paper{border-radius:3px;box-shadow:inset 0 1px #fff5,0 5px 12px #0004}
 .nav{border-radius:0}
 @media(max-width:460px){.screen{padding:9px 8px 13px}.forgeTabs{gap:1px}.forgeTabs .segbtn{border-radius:0}.resources{gap:0}.reschip{padding:5px 4px}}
+
+/* Codex art direction v3 — restrained fantasy collection gallery */
+.codexTabs.compactNav,.codexTabs{display:flex;gap:5px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 1px 10px;scrollbar-width:none}
+.codexTabs::-webkit-scrollbar{display:none}
+.codexTabs .segbtn{flex:0 0 auto;min-height:38px;padding:8px 11px;border:1px solid rgba(199,174,126,.22);border-radius:9px;background:linear-gradient(145deg,#212631,#121820);color:#b9b8b2;font-size:12px;box-shadow:none;scroll-snap-align:start}
+.codexTabs .segbtn.active{color:#ffe8b3;border-color:rgba(241,190,99,.7);background:linear-gradient(140deg,#51402c,#282429 67%,#171d28);box-shadow:inset 0 1px rgba(255,232,169,.24),0 5px 16px rgba(0,0,0,.2)}
+.codexHero,.bossCollectionSummary.codexHero{position:relative;isolation:isolate;overflow:hidden;border-radius:15px;border:1px solid rgba(209,168,104,.35);background:radial-gradient(ellipse at 90% 0%,rgba(192,133,62,.17),transparent 64%),linear-gradient(125deg,rgba(36,42,53,.96),rgba(15,22,32,.98));box-shadow:0 10px 26px rgba(0,0,0,.22);padding:14px}
+.codexHero::after{content:"✦";position:absolute;right:14px;top:-16px;font-size:94px;color:rgba(249,198,115,.07);z-index:-1;pointer-events:none}
+.codexHero strong{letter-spacing:.1px;color:#f7d59b}
+.codexCollectionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.codexTreasure{position:relative;min-width:0;overflow:hidden;border:1px solid rgba(194,171,139,.3);border-radius:13px;background:radial-gradient(circle at 50% 24%,rgba(114,129,163,.20),transparent 62%),linear-gradient(165deg,#252936,#0e141d);box-shadow:inset 0 1px rgba(255,255,255,.09),0 5px 14px rgba(0,0,0,.25);padding:7px 5px 9px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.codexTreasure.found{border-color:rgba(226,178,107,.54)}
+.codexTreasure.found::before{content:"";position:absolute;inset:0;background:linear-gradient(123deg,transparent 28%,rgba(255,240,199,.07) 49%,transparent 65%);pointer-events:none}
+.codexTreasure .codexArt{width:100%;aspect-ratio:1;display:grid;place-items:center;position:relative;filter:drop-shadow(0 9px 7px rgba(0,0,0,.42))}
+.codexTreasure .codexArt img{height:100%;width:100%;object-fit:contain}
+.codexTreasure .codexRank{align-self:flex-start;font-size:10px;letter-spacing:.6px;font-weight:900;color:#f0cd95;border:1px solid rgba(233,191,116,.3);border-radius:6px;padding:2px 6px}
+.codexTreasure .codexLabel{font-size:11px;font-weight:800;color:#f3e6d1;text-align:center;line-height:1.3}
+.codexTreasure .codexStatus{font-size:10px;color:#a9d9bc}
+.codexTreasure.unfound{border-style:dashed;opacity:.76;background:linear-gradient(160deg,#1e252f,#10151c)}
+.codexTreasure.unfound .codexLocked{font-size:32px;opacity:.3;text-shadow:0 0 20px rgba(209,205,181,.28)}
+.codexTreasure.unfound .codexStatus{color:#9c9ba0}
+.codexFilters{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0}
+.codexFilters .segbtn,.codexSide .sideTab{border-radius:8px;border:1px solid rgba(195,164,114,.28);background:rgba(28,33,42,.84);box-shadow:none}
+.codexFilters .segbtn.active,.codexSide .sideTab.active{background:linear-gradient(150deg,#55402d,#292b34);border-color:#d6a766}
+.codexCreatureGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:10px}
+.codexCreature{min-width:0;overflow:hidden;border:1px solid rgba(189,166,134,.28)!important;border-radius:13px;background:linear-gradient(180deg,#252b36,#101721);box-shadow:0 9px 21px rgba(0,0,0,.26)}
+.codexCreature .visual{position:relative;display:grid;place-items:center;height:128px;overflow:hidden;background:radial-gradient(circle at 50% 54%,rgba(72,123,165,.24),#161d27 70%)}
+.codexCreature .visual img{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 7px 9px rgba(0,0,0,.55))}
+.codexCreature .info{padding:10px}
+.codexCreature .info strong{display:block;margin:5px 0;color:#f1d29e;font-size:13px}
+.codexCreature .info small{font-size:11px;color:#c4bcaf;line-height:1.6}
+.codexCreature .chip{font-size:9px;letter-spacing:.2px}
+.regionArtwork img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover!important;opacity:.38;filter:saturate(.65)!important}
+.regionArtwork::after{content:"";position:absolute;inset:0;background:radial-gradient(circle,var(--region-glow),transparent 73%);opacity:.3}
+.regionArtwork .regionSigil{position:relative;z-index:2;font-size:46px;filter:drop-shadow(0 3px 10px var(--region-glow))}
+.bossCollectionItem{border-radius:12px;border:1px solid rgba(219,170,100,.38);background:linear-gradient(135deg,#2b2530,#141c28);box-shadow:0 7px 17px rgba(0,0,0,.2)}
+.guideSection{border-radius:12px;border-color:rgba(204,171,123,.28);box-shadow:0 5px 17px rgba(0,0,0,.18)}
+.guideTable th{background:rgba(207,152,75,.1)}
+@media(max-width:390px){.codexCollectionGrid{gap:5px}.codexTreasure{padding:5px 3px 7px}.codexCreatureGrid{gap:6px}.codexCreature .visual{height:102px}.codexCreature .info{padding:8px}.codexTabs .segbtn{padding:8px 9px}}
+@media(prefers-reduced-motion:no-preference){.codexTreasure,.codexCreature{transition:transform .18s ease,border-color .18s ease}.codexTreasure:active,.codexCreature:active{transform:scale(.98)}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2369,7 +2409,7 @@ function renderMonsterCodex(){
  return `${renderHeader('도감','📖')}<div class="codexTabs compactNav">${codexTabButtons()}</div><section class="codexHero"><strong>몬스터 기록관</strong><p class="researchNote">지역별 몬스터와 보스 정보</p></section><div class="codexCreatureGrid">${grid}</div>`;
 }
 function renderRegionCodex(){
- const grid=REGIONS.map((r,i)=>`<article class="codexCreature" style="border-color:${r.tint}88"><div class="visual" style="min-height:90px;background:radial-gradient(circle,${r.tint}44,transparent 70%)"><span style="font-size:42px">${['💧','☠','⚡','🔥','⛰'][i]}</span></div><div class="info"><span class="chip">REGION ${i+1}</span><strong>${r.name}</strong><small>${r.enemy} / ${r.boss}<br>재료: ${r.material} · 보유 ${S.materials?.[r.key]||0}개<br>추천: ${ELEMENT_LABELS[Object.keys(ELEMENT_COUNTERS).find(k=>ELEMENT_COUNTERS[k]===r.key)]||'기본'}</small></div></article>`).join('');
+ const grid=REGIONS.map((r,i)=>`<article class="codexCreature" style="border-color:${r.tint}88"><div class="visual regionArtwork" style="--region-glow:${r.tint}"><img loading="lazy" src="assets/art/dungeon.webp" alt="${r.name} 지역 배경"><span class="regionSigil" aria-hidden="true">${['💧','☠','⚡','🔥','⛰'][i]}</span></div><div class="info"><span class="chip">REGION ${i+1}</span><strong>${r.name}</strong><small>${r.enemy} / ${r.boss}<br>재료: ${r.material} · 보유 ${S.materials?.[r.key]||0}개<br>추천: ${ELEMENT_LABELS[Object.keys(ELEMENT_COUNTERS).find(k=>ELEMENT_COUNTERS[k]===r.key)]||'기본'}</small></div></article>`).join('');
  return `${renderHeader('도감','📖')}<div class="codexTabs compactNav">${codexTabButtons()}</div><section class="codexHero"><strong>다섯 지역의 기록</strong><p class="researchNote">지역과 속성 관계를 한눈에 확인하세요.</p></section><div class="codexCreatureGrid">${grid}</div>`;
 }
 function codexTabButtons(){return [{v:'guide',t:'📚 모험 가이드'},{v:'equipment',t:'장비 도감'},{v:'monster',t:'몬스터 도감'},{v:'region',t:'지역 도감'},{v:'boss',t:'보스 장비'+(pendingBossCollectionReward()?' ●':'')}].map(x=>`<button class="segbtn ${S.codexTab===x.v?'active':''}" onclick="S.codexTab='${x.v}';render()">${x.t}</button>`).join('')}
