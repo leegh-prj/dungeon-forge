@@ -851,7 +851,20 @@ button:active:not(:disabled){transform:scale(.965);filter:brightness(1.18)}
 .heroLoadoutStage .heroEquipmentArt{-webkit-mask-image:radial-gradient(ellipse 72% 75% at 50% 50%,#000 62%,transparent 99%);mask-image:radial-gradient(ellipse 72% 75% at 50% 50%,#000 62%,transparent 99%)}
 .charwrap .slot{overflow:hidden}
 .charwrap .slot img,.charwrap .slot svg{object-fit:contain;max-width:100%;max-height:100%}
-.operatorTestPanel{margin:10px 0;padding:13px;border:1px solid #ab8a56;background:linear-gradient(130deg,#2d2a22,#151b25);border-radius:11px}.operatorTestPanel p,.operatorTestPanel small{display:block;font-size:12px;color:#ddc7a2;line-height:1.5;margin:7px 0}.operatorTestPanel button{padding:10px 14px;border-radius:8px;border:1px solid #cda968;background:#5a422b;color:#fff1d4;font-weight:800}.operatorTestPanel button:disabled{opacity:.55}.forgeGroupHint{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:9px 0;padding:9px 10px;border-left:3px solid #dca964;background:linear-gradient(90deg,#45332488,#191e25);font-size:12px}.forgeGroupHint b{color:#f7d5a1}.forgeGroupHint span{color:#d7c5ac}.forgeGroupHint button{margin-left:auto;padding:5px 9px;background:#2a2b30;border:1px solid #9b7748;border-radius:6px;color:#f3d9ad}</style>
+.operatorTestPanel{margin:10px 0;padding:13px;border:1px solid #ab8a56;background:linear-gradient(130deg,#2d2a22,#151b25);border-radius:11px}.operatorTestPanel p,.operatorTestPanel small{display:block;font-size:12px;color:#ddc7a2;line-height:1.5;margin:7px 0}.operatorTestPanel button{padding:10px 14px;border-radius:8px;border:1px solid #cda968;background:#5a422b;color:#fff1d4;font-weight:800}.operatorTestPanel button:disabled{opacity:.55}.forgeGroupHint{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:9px 0;padding:9px 10px;border-left:3px solid #dca964;background:linear-gradient(90deg,#45332488,#191e25);font-size:12px}.forgeGroupHint b{color:#f7d5a1}.forgeGroupHint span{color:#d7c5ac}.forgeGroupHint button{margin-left:auto;padding:5px 9px;background:#2a2b30;border:1px solid #9b7748;border-radius:6px;color:#f3d9ad}
+/* Monster codex: full portrait, no cropped sprites, accessible rarity filters */
+.monsterFilters{display:flex;gap:7px;margin:10px 0 12px;overflow-x:auto;scrollbar-width:none}
+.monsterFilter{flex:1;min-width:60px;padding:10px 8px;border:1px solid rgba(183,166,138,.3);border-radius:9px;background:#1b222c;color:#dfd3bb;font-size:12px;font-weight:800}
+.monsterFilter.active{border-color:#e2bb7f;background:linear-gradient(140deg,#62492f,#31313b);color:#fff0d1}
+.codexCreatureGrid .monsterCodexCard{border:1px solid rgba(191,171,140,.35)!important}
+.monsterCodexCard.monster-boss{border-color:rgba(229,172,91,.69)!important;box-shadow:inset 0 1px rgba(248,207,143,.12),0 9px 23px rgba(0,0,0,.24)}
+.monsterCodexCard .monsterPortrait{position:relative;isolation:isolate;display:flex!important;align-items:center!important;justify-content:center!important;height:190px!important;min-height:190px!important;overflow:hidden!important;background:radial-gradient(circle at center,rgba(96,121,154,.24),#171f2b 75%)!important}
+.monsterCodexCard .monsterPortrait img{position:relative!important;display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;object-position:center center!important;transform:none!important;margin:0!important;padding:8px!important;filter:none!important}
+.monsterCodexCard .monsterType{position:absolute;z-index:2;top:8px;right:8px;padding:3px 6px;border-radius:5px;border:1px solid rgba(223,199,150,.4);background:rgba(15,21,29,.85);font-size:9px;font-weight:900;color:#ebd6ad}
+.monsterCodexCard.monster-boss .monsterType{color:#ffc777;border-color:#d6a454}
+.monsterEmpty{grid-column:1/-1;padding:20px 12px;color:#d9c6aa;text-align:center;font-size:13px}
+@media(max-width:390px){.monsterCodexCard .monsterPortrait{height:154px!important;min-height:154px!important}.monsterCodexCard .monsterPortrait img{padding:5px!important}.monsterFilter{min-width:53px;padding:9px 5px}}
+</style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
 <link rel="manifest" href="assets/ui/manifest.webmanifest?v=5">
@@ -2489,9 +2502,32 @@ function renderCodex(){
 <div class="codexWrap compactCodex"><div class="codexSide">${cats.map(k=>`<button class="sideTab ${S.codexSide===k?'active':''}" onclick="setCodexSide('${k}')">${kindLabel[k]} <small>${collectedCodexKeysForKind(k)}/42</small></button>`).join('')}</div>
 <div><div class="codexCollectionGrid">${grid||'<p class="hint">이 조건에 해당하는 항목이 없습니다.</p>'}</div><div class="right" style="margin-top:10px"><button class="segbtn" onclick="changeCodexPage(-1)" ${codexPage===0?'disabled':''}>◀</button><span class="muted">${codexPage+1} / ${pages}</span><button class="segbtn" onclick="changeCodexPage(1)" ${codexPage+1>=pages?'disabled':''}>▶</button></div></div></div>`;
 }
+let monsterCodexFilter='all';
+function setMonsterCodexFilter(value){if(!['all','normal','epic','boss'].includes(value))return;monsterCodexFilter=value;render()}
 function renderMonsterCodex(){
- const grid=REGIONS.map((r,i)=>`<article class="codexCreature"><div class="visual"><img loading="lazy" src="assets/hd/${r.key==='fire'?'magma':r.key}/idle-0.webp" onerror="handleGraphicError(this,'monster')" alt="${r.boss}"></div><div class="info"><span class="chip">지역 ${i+1} · ${r.name}</span><strong>${r.boss}</strong><small>일반 적: ${r.enemy}<br>획득 재료: ${r.material}</small></div></article>`).join('');
- return `${renderHeader('도감','📖')}<div class="codexTabs compactNav">${codexTabButtons()}</div><section class="codexHero"><strong>몬스터 기록관</strong><p class="researchNote">지역별 몬스터와 보스 정보</p></section><div class="codexCreatureGrid">${grid}</div>`;
+ // Epic monsters are not implemented as a combat tier yet; never imply they can drop.
+ const entries=REGIONS.flatMap((region,index)=>[
+  {region,index,type:'normal',name:region.enemy},
+  {region,index,type:'boss',name:region.boss}
+ ]);
+ const visible=entries.filter(e=>monsterCodexFilter==='all'||e.type===monsterCodexFilter);
+ const labels={all:'전체',normal:'일반',epic:'에픽',boss:'보스'};
+ const filters=Object.entries(labels).map(([key,label])=>
+  '<button class="monsterFilter '+(monsterCodexFilter===key?'active':'')+'" aria-pressed="'+(monsterCodexFilter===key)+'" onclick="setMonsterCodexFilter(\''+key+'\')">'+label+'</button>').join('');
+ const cards=visible.map(({region:r,index:i,type,name})=>{
+  const enemyId=r.key==='fire'?'magma':r.key;
+  const imagePath='assets/hd/'+enemyId+'/idle-0.webp';
+  const portrait='<img loading="lazy" src="'+imagePath+'" onerror="handleGraphicError(this,\'monster\')" alt="'+name+'">';
+  return '<article class="codexCreature monsterCodexCard monster-'+type+'">'+
+   '<div class="visual monsterPortrait">'+portrait+'<span class="monsterType">'+(type==='boss'?'BOSS':'NORMAL')+'</span></div>'+
+   '<div class="info"><span class="chip">지역 '+(i+1)+' · '+r.name+'</span><strong>'+name+'</strong>'+
+   '<small>속성: '+(ELEMENT_LABELS[r.key]||r.key)+'<br>획득 재료: '+r.material+
+   '<br>'+(type==='boss'?'3회 일반 전투 후 등장 · 보스 전리품':'일반 전투 등장')+'</small></div></article>';
+ }).join('');
+ return renderHeader('도감','📖')+'<div class="codexTabs compactNav">'+codexTabButtons()+'</div>'+
+ '<section class="codexHero"><strong>몬스터 기록관</strong><p class="researchNote">일반 몬스터와 보스를 지역별로 확인합니다. 에픽 몬스터는 향후 업데이트 예정입니다.</p></section>'+
+ '<div class="monsterFilters" role="group" aria-label="몬스터 등급 필터">'+filters+'</div>'+
+ '<div class="codexCreatureGrid">'+(cards||(monsterCodexFilter==='epic'?'<p class="monsterEmpty">에픽 몬스터는 아직 전투에 등장하지 않습니다. 추후 업데이트 예정입니다.</p>':'<p class="monsterEmpty">해당 몬스터가 없습니다.</p>'))+'</div>';
 }
 function renderRegionCodex(){
  const grid=REGIONS.map((r,i)=>`<article class="codexCreature" style="border-color:${r.tint}88"><div class="visual regionArtwork" style="--region-glow:${r.tint}"><img loading="lazy" src="assets/art/dungeon.webp" alt="${r.name} 지역 배경"><span class="regionSigil" aria-hidden="true">${['💧','☠','⚡','🔥','⛰'][i]}</span></div><div class="info"><span class="chip">REGION ${i+1}</span><strong>${r.name}</strong><small>${r.enemy} / ${r.boss}<br>재료: ${r.material} · 보유 ${S.materials?.[r.key]||0}개<br>추천: ${ELEMENT_LABELS[Object.keys(ELEMENT_COUNTERS).find(k=>ELEMENT_COUNTERS[k]===r.key)]||'기본'}</small></div></article>`).join('');
