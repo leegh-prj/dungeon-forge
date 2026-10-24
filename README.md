@@ -1,23 +1,64 @@
-# 던전 대장간 (Dungeon Forge)
+# DUNGEON FORGE ⚒️
 
-제작 60% / 전투 40%의 판타지 방치형 RPG. Godot 4 프로젝트와 HTML 기반 플레이 테스트 버전이 포함되어 있습니다.
+**Forge Your Legend. Conquer the Dungeon.**
 
-## 빠른 실행
-- **브라우저:** `PLAY-NOW.html`을 열거나 `index.html`을 GitHub Pages로 게시합니다.
-- **Godot:** Godot 4.3+에서 `project.godot`을 가져와 F5 실행합니다.
-- **GitHub:** `GITHUB-PUBLISH.md`를 따라 게시합니다.
+DUNGEON FORGE (던전 대장간) is a fantasy single-player forging and dungeon-combat game. Craft and enhance equipment, discover elemental advantages, defeat regional bosses, and collect gear across seven rarity tiers.
 
-## Day 2 구현 사항
-- 무기·갑옷·방패·반지 무작위 제작과 장비 효과
-- 제작 집중 선택: 균형 / 공격(+3) / 방어(+3), 집중 제작은 결정 1개 추가 소모
-- 자동 전투 + 강타/방어 스킬, 방어력 피해 감소, 방어 장비 빌드
-- 보스전 패배 후 보스 도전 상태 보존
-- 스킬 처치 시 공격을 중복 적용하던 문제 수정
-- 탐험 보상 버튼 60초 쿨다운, 로컬 저장 및 최대 8시간 오프라인 보상
-- 장비 도감과 랜덤 보상
+## Core Features
 
-## 개발 상태와 제약
-- 2일 차 **소스 프로토타입**입니다. 플레이 밸런스와 모든 기기 동작은 검증 전입니다.
-- HTML의 JavaScript는 Node.js 문법 검사를 통과했습니다. Godot 엔진 실행 검증과 Android/iOS 내보내기 검증은 수행되지 않았습니다.
-- 브라우저판과 Godot판의 데이터 및 밸런스 구현은 별개이므로 추후 통합 검증이 필요합니다.
-- `index.html`은 GitHub Pages용 파일입니다. 광고와 인앱결제는 구현하지 않았습니다.
+- ⚔️ Manual and automatic dungeon battles with boss attack patterns
+- ⚒️ Equipment crafting, enhancement (+20), fusion, promotion and dismantling
+- 🛡️ Four equipment categories: weapons, armor, shields and rings
+- ✨ Seven rarity tiers: C, B, A, S, SS, SSS and L
+- 🔥 Elemental combat matchups, status effects and region-specific set bonuses
+- 📖 Adventure guide, equipment collection, regional and monster codex
+- 🎒 Bag and warehouse management with filtered bulk transfers and expansion
+- 🧑 Customizable character name and equipment loadout
+- 📱 Responsive browser gameplay with local save data
+
+## Tech Stack
+
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Browser Local Storage
+- GitHub and Vercel deployment
+
+## Play
+
+**Production:** https://dungeon-forge-gilt.vercel.app/
+
+Progress is stored locally in the browser. Clearing browser data or switching devices can result in a separate save. Keep game data intact while testing.
+
+## Development Status
+
+**Playable web build — ongoing development.** Gameplay systems are implemented and continually refined; graphic assets, mobile rendering and full device QA remain active areas of work.
+
+### Current Asset Notes
+
+- Combat animation frame images and codex portrait artwork serve different purposes.
+- Dedicated normal/boss monster portraits are specified in [Monster Codex Asset Specification](docs/monster-codex-assets.md) but have **not** all been produced or deployed.
+- An epic-monster codex category exists as a planned-content placeholder; epic combat encounters are not yet implemented.
+- Some equipment art still uses fallbacks until HD assets pass validation.
+
+## Roadmap
+
+- Full-quality monster portraits for five regions (10 unique assets)
+- Further character/gear artwork cleanup and mobile visual QA
+- Epic enemy combat, special mechanics and rewards
+- Equipment and forging interface polish
+- More regions, stage variety, bosses and long-term progression
+- Secure in-app purchase integration for optional storage expansion
+- Rewarded advertising integration and appropriate consent flows
+- Android / iOS release preparation
+
+## Testing and QA
+
+- `python tools/regression_smoke.py` — static game-code regression checks
+- `python tools/verify_gear_assets.py` — HD gear validation when 168 gear assets are installed
+- Do not treat successful CI / production deployment as proof of mobile-device image correctness.
+- The optional operator-test currency grant is for local QA, **not** authenticated admin access.
+
+## License
+
+All rights reserved.
