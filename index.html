@@ -842,6 +842,12 @@ button:active:not(:disabled){transform:scale(.965);filter:brightness(1.18)}
 .warehouseBulkFields button{grid-column:1/-1;padding:11px;border:1px solid #cba267;border-radius:8px;background:linear-gradient(#806032,#4a3928);font-weight:800;color:#fff1ce}
 .tierResult.tierLevel3,.tierResult.tierLevel4,.tierResult.tierLevel5{background:radial-gradient(ellipse at 50% 35%,rgba(var(--tier-rgb),.22),transparent 68%),linear-gradient(135deg,#151921,#2b2630)}
 .tierResult.tierLevel3 .tierRadiance,.tierResult.tierLevel4 .tierRadiance,.tierResult.tierLevel5 .tierRadiance{opacity:1;filter:drop-shadow(0 0 16px var(--tier-color))}
+
+/* Feather baked sprite-background rectangles; keep PNG/WebP source unmodified */
+.battlefield .highres-sprite img,.battlefield img.highres-sprite,.battlefield #heroSprite,.battlefield #enemySprite{mix-blend-mode:screen;-webkit-mask-image:radial-gradient(ellipse 68% 72% at 50% 50%,#000 56%,transparent 98%);mask-image:radial-gradient(ellipse 68% 72% at 50% 50%,#000 56%,transparent 98%)}
+.heroLoadoutStage .heroEquipmentArt{-webkit-mask-image:radial-gradient(ellipse 72% 75% at 50% 50%,#000 62%,transparent 99%);mask-image:radial-gradient(ellipse 72% 75% at 50% 50%,#000 62%,transparent 99%)}
+.charwrap .slot{overflow:hidden}
+.charwrap .slot img,.charwrap .slot svg{object-fit:contain;max-width:100%;max-height:100%}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
