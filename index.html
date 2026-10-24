@@ -830,7 +830,7 @@ button:active:not(:disabled){transform:scale(.965);filter:brightness(1.18)}
 .heroLoadoutGear{max-width:27%;max-height:27%;overflow:hidden;display:grid;place-items:center}
 .heroLoadoutIcon,.slotGearArt{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain!important}
 .slotGearArt svg,.heroLoadoutIcon svg{max-width:100%;max-height:100%}
-.battlefield .highres-sprite{mix-blend-mode:screen}
+
 @media(max-width:430px){.charwrap{grid-template-columns:minmax(53px,1fr) minmax(0,2.65fr) minmax(53px,1fr);gap:4px}.charwrap .heroLoadoutStage{min-height:220px}.charwrap .slotcol{gap:6px}}
 @media(prefers-reduced-motion:reduce){button{transition:none}}
 
@@ -844,7 +844,10 @@ button:active:not(:disabled){transform:scale(.965);filter:brightness(1.18)}
 .tierResult.tierLevel3 .tierRadiance,.tierResult.tierLevel4 .tierRadiance,.tierResult.tierLevel5 .tierRadiance{opacity:1;filter:drop-shadow(0 0 16px var(--tier-color))}
 
 /* Feather baked sprite-background rectangles; keep PNG/WebP source unmodified */
-.battlefield .highres-sprite img,.battlefield img.highres-sprite,.battlefield #heroSprite,.battlefield #enemySprite{mix-blend-mode:screen;-webkit-mask-image:radial-gradient(ellipse 68% 72% at 50% 50%,#000 56%,transparent 98%);mask-image:radial-gradient(ellipse 68% 72% at 50% 50%,#000 56%,transparent 98%)}
+/* Restore sharp battle sprites. Visual effects belong to separate effect layers. */
+.battlefield .highres-sprite,.battlefield .highres-sprite img,.battlefield img.highres-sprite,.battlefield #heroSprite,.battlefield #enemySprite{
+ mix-blend-mode:normal!important;-webkit-mask-image:none!important;mask-image:none!important;filter:none;
+}
 .heroLoadoutStage .heroEquipmentArt{-webkit-mask-image:radial-gradient(ellipse 72% 75% at 50% 50%,#000 62%,transparent 99%);mask-image:radial-gradient(ellipse 72% 75% at 50% 50%,#000 62%,transparent 99%)}
 .charwrap .slot{overflow:hidden}
 .charwrap .slot img,.charwrap .slot svg{object-fit:contain;max-width:100%;max-height:100%}
