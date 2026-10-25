@@ -6,6 +6,8 @@ on:
     paths:
       - 'assets/codex/monsters/*.svg'
       - 'scripts/build_codex_portraits.py'
+      - 'index.html'
+      - 'tools/check_codex_integration.py'
       - '.github/workflows/codex-portraits.yml'
   workflow_dispatch:
 
