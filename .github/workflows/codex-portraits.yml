@@ -1,0 +1,38 @@
+name: Build monster codex WebP portraits
+on:
+  push:
+    branches:
+      - feat/codex-pixel-portraits
+    paths:
+      - 'assets/codex/monsters/*.svg'
+      - 'scripts/build_codex_portraits.py'
+      - '.github/workflows/codex-portraits.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-portraits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --disable-pip-version-check Pillow==11.3.0 CairoSVG==2.8.2
+      - name: Export portraits and assert alpha/uniqueness
+        run: python scripts/build_codex_portraits.py
+      - name: Check JavaScript syntax and game regression
+        run: |
+          node --version
+          node tests/smoke.cjs
+      - name: Commit generated assets to feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html assets/codex/monsters/*.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "build(codex): export validated transparent monster WebP portraits"
+            git push origin HEAD:feat/codex-pixel-portraits
+          fi
