@@ -864,6 +864,11 @@ button:active:not(:disabled){transform:scale(.965);filter:brightness(1.18)}
 .monsterCodexCard.monster-boss .monsterType{color:#ffc777;border-color:#d6a454}
 .monsterEmpty{grid-column:1/-1;padding:20px 12px;color:#d9c6aa;text-align:center;font-size:13px}
 @media(max-width:390px){.monsterCodexCard .monsterPortrait{height:154px!important;min-height:154px!important}.monsterCodexCard .monsterPortrait img{padding:5px!important}.monsterFilter{min-width:53px;padding:9px 5px}}
+
+/* Monster codex: improve small-screen legibility and filter affordances. */
+.monsterFilterCount{display:inline-block;min-width:18px;margin-left:3px;padding:1px 4px;border-radius:9px;background:rgba(255,255,255,.1);font-variant-numeric:tabular-nums}
+.monsterFilter:focus-visible{outline:2px solid #f7c66a;outline-offset:2px}
+@media(max-width:390px){.monsterFilters{gap:4px}.monsterFilter{min-width:0;padding:9px 3px;font-size:11px}.monsterCodexCard .monsterPortrait{height:148px!important;min-height:148px!important}.monsterCodexCard .monsterPortrait img{padding:4px!important}.monsterCodexCard .info{padding:8px 7px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2512,8 +2517,9 @@ function renderMonsterCodex(){
  ]);
  const visible=entries.filter(e=>monsterCodexFilter==='all'||e.type===monsterCodexFilter);
  const labels={all:'전체',normal:'일반',epic:'에픽',boss:'보스'};
+ const counts={all:entries.length,normal:entries.filter(e=>e.type==='normal').length,epic:0,boss:entries.filter(e=>e.type==='boss').length};
  const filters=Object.entries(labels).map(([key,label])=>
-  '<button class="monsterFilter '+(monsterCodexFilter===key?'active':'')+'" aria-pressed="'+(monsterCodexFilter===key)+'" onclick="setMonsterCodexFilter(\''+key+'\')">'+label+'</button>').join('');
+  '<button type="button" class="monsterFilter '+(monsterCodexFilter===key?'active':'')+'" aria-pressed="'+(monsterCodexFilter===key)+'" onclick="setMonsterCodexFilter(\''+key+'\')">'+label+' <span class="monsterFilterCount">'+counts[key]+'</span></button>').join('');
  const cards=visible.map(({region:r,index:i,type,name})=>{
   const imagePath='assets/codex/monsters/'+r.key+'_'+type+'.webp';
   const portrait='<img loading="lazy" decoding="async" src="'+imagePath+'" onerror="this.onerror=null;this.src=\'assets/codex/monsters/placeholder.svg\'" alt="'+name+'">';
@@ -2524,7 +2530,7 @@ function renderMonsterCodex(){
    '<br>'+(type==='boss'?'3회 일반 전투 후 등장 · 보스 전리품':'일반 전투 등장')+'</small></div></article>';
  }).join('');
  return renderHeader('도감','📖')+'<div class="codexTabs compactNav">'+codexTabButtons()+'</div>'+
- '<section class="codexHero"><strong>몬스터 기록관</strong><p class="researchNote">일반 몬스터와 보스를 지역별로 확인합니다. 에픽 몬스터는 향후 업데이트 예정입니다.</p></section>'+
+ '<section class="codexHero"><strong>몬스터 기록관</strong><p class="researchNote">지역별 일반 몬스터 5종 · 보스 5종. 에픽 몬스터는 향후 업데이트 예정입니다.</p></section>'+
  '<div class="monsterFilters" role="group" aria-label="몬스터 등급 필터">'+filters+'</div>'+
  '<div class="codexCreatureGrid">'+(cards||(monsterCodexFilter==='epic'?'<p class="monsterEmpty">에픽 몬스터는 아직 전투에 등장하지 않습니다. 추후 업데이트 예정입니다.</p>':'<p class="monsterEmpty">해당 몬스터가 없습니다.</p>'))+'</div>';
 }

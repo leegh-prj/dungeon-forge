@@ -27,6 +27,7 @@ jobs:
         run: |
           node --version
           python tools/regression_smoke.py
+          python tools/check_codex_integration.py
       - name: Commit generated assets to feature branch
         run: |
           git config user.name "github-actions[bot]"
