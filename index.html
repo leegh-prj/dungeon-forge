@@ -877,6 +877,15 @@ button:active:not(:disabled){transform:scale(.965);filter:brightness(1.18)}
 }
 .equipThumb,.slot,.codexArt{overflow:hidden;min-width:0;min-height:0}
 @media(max-width:430px){.equipThumb img,.slot img,.invItem img,.forgeItem img{padding:3px!important}}
+
+/* Stability pass: contained, accessible, touch-safe navigation and images. */
+#screen{min-width:0;overflow-wrap:break-word}
+#nav button,.monsterFilter,.segbtn,.sideTab{touch-action:manipulation}
+#nav button:focus-visible,.monsterFilter:focus-visible,.segbtn:focus-visible,.sideTab:focus-visible{outline:2px solid #f3c57a;outline-offset:2px}
+.codexCreature,.inventoryItem,.warehouseItem,.equipCard,.forgeItem{min-width:0}
+img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-position:center}
+@media(max-width:430px){.codexCreature .info,.equipCard .name{min-width:0;overflow-wrap:anywhere}}
+@media(prefers-reduced-motion:reduce){#nav button,.monsterFilter,.segbtn,.sideTab{transition:none!important}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -1015,8 +1024,9 @@ function fallbackFromElement(img){
  if(!kind){if(/hero|guard/i.test(src))kind='hero';else if(/slime|magma|assets\/hd\//i.test(src))kind='monster';else kind='weapon'}
  handleGraphicError(img,kind);
 }
+function escapeImageAttr(value){return String(value??'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
 function graphicImage(src,kind='weapon',tier=0,alt='',extra=''){
- return '<img src="'+src+'" alt="'+String(alt).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')+'" data-graphic-kind="'+kind+'" data-graphic-tier="'+Math.max(0,Math.min(MAX_TIER,Number(tier)||0))+'" onerror="handleGraphicError(this)" decoding="async" '+(String(extra).includes('loading=')?'':'loading="lazy" ')+extra+'>';
+ return '<img src="'+escapeImageAttr(src)+'" alt="'+escapeImageAttr(alt)+'" data-graphic-kind="'+escapeImageAttr(kind)+'" data-graphic-tier="'+Math.max(0,Math.min(MAX_TIER,Number(tier)||0))+'" onerror="handleGraphicError(this)" decoding="async" '+(String(extra).includes('loading=')?'':'loading="lazy" ')+extra+'>';
 }
 /* Day43: deployment-safe HD artwork resolver. No missing asset becomes a broken icon. */
 const HD_GEAR_GRADES=['C','B','A','S','SS','SSS','L'];
@@ -2627,9 +2637,12 @@ function showStartupError(error){
  document.getElementById('gameErrorRetry').onclick=()=>location.reload();
  document.getElementById('gameErrorCopy').onclick=()=>{if(navigator.clipboard?.writeText)navigator.clipboard.writeText(reason).catch(()=>{});};
 }
+/* Centralize tab dispatch without changing tab labels, view functions or saved state. */
+const SCREEN_RENDERERS={'던전':renderDungeon,'대장간':renderForge,'장비':renderEquipment,'도감':renderCodex,'상점':renderShop};
+function renderCurrentScreen(){return (SCREEN_RENDERERS[TAB]||renderShop)()}
 function render(){
  try{
- normalizeState(); const view = TAB==='던전'?renderDungeon():TAB==='대장간'?renderForge():TAB==='장비'?renderEquipment():TAB==='도감'?renderCodex():renderShop(); document.getElementById('screen').innerHTML=view; if(TAB==='장비'&&storageTab==='bag')filterInventoryCards(inventorySearch); displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}}
+ normalizeState(); const view = renderCurrentScreen(); const screenEl=document.getElementById('screen'); if(!screenEl)return; screenEl.innerHTML=view; if(TAB==='장비'&&storageTab==='bag')filterInventoryCards(inventorySearch); displayCombatFX(); document.getElementById('nav').innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('');if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}}
  }catch(error){showStartupError(error)}
 }
 /* DAY41 diagnostic: read-only matrix, available only with ?gearqa=1 */
