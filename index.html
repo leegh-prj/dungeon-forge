@@ -869,6 +869,14 @@ button:active:not(:disabled){transform:scale(.965);filter:brightness(1.18)}
 .monsterFilterCount{display:inline-block;min-width:18px;margin-left:3px;padding:1px 4px;border-radius:9px;background:rgba(255,255,255,.1);font-variant-numeric:tabular-nums}
 .monsterFilter:focus-visible{outline:2px solid #f7c66a;outline-offset:2px}
 @media(max-width:390px){.monsterFilters{gap:4px}.monsterFilter{min-width:0;padding:9px 3px;font-size:11px}.monsterCodexCard .monsterPortrait{height:148px!important;min-height:148px!important}.monsterCodexCard .monsterPortrait img{padding:4px!important}.monsterCodexCard .info{padding:8px 7px}}
+
+/* Gear image integrity: no thumbnail cropping across equipment screens. */
+.equipThumb img,.equipCard .equipThumb img,.slot img,.invItem img,.forgeItem img,.codexItem img,.codexArt img,.introEquipQuick img,.mini img{
+  display:block!important;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;
+  object-fit:contain!important;object-position:center center!important;transform:none!important;
+}
+.equipThumb,.slot,.codexArt{overflow:hidden;min-width:0;min-height:0}
+@media(max-width:430px){.equipThumb img,.slot img,.invItem img,.forgeItem img{padding:3px!important}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -992,6 +1000,7 @@ function handleGraphicError(img,forcedKind){
   const key=failedSrc.split('/').pop().replace(/\.webp(?:\?.*)?$/,'');
   HD_GEAR_STATE.available.delete(key);
   if(img.dataset?.graphicKind&&['weapon','armor','shield','ring'].includes(kind)){
+   img.onerror=function(){this.onerror=null;this.src=graphicFallback(kind,tier);this.classList?.add('graphicFallbackUsed')};
    img.src=tierArtwork({kind,tier,effect:({fire:'화상',leech:'흡혈',barrier:'보호막',counter:'반격',fortify:'견고함',ice:'냉기'})[key.split('_').pop()]||''});
    return;
   }
