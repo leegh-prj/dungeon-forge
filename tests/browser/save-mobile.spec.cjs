@@ -7,7 +7,7 @@ const baseSave={playerName:'QA SAVED',gold:777,ore:120,crystals:20,stage:2,hp:12
 {id:'qa-spare',kind:'weapon',name:'QA Spare',tier:0,effect:'화상',power:5,defense:0}
 ],warehouse:[],equip:{weapon:0,armor:1,shield:null,ring:2},last:Date.now()};
 test.beforeEach(async({page})=>{
- await page.addInitScript(({key,saved})=>{localStorage.setItem(key,JSON.stringify(saved));localStorage.setItem(key+'-backup',JSON.stringify(saved))},{key:KEY,saved:baseSave});
+ await page.addInitScript(({key,saved})=>{if(sessionStorage.getItem('qa-seeded')!=='1'){localStorage.setItem(key,JSON.stringify(saved));localStorage.setItem(key+'-backup',JSON.stringify(saved));sessionStorage.setItem('qa-seeded','1')}},{key:KEY,saved:baseSave});
 });
 test('existing save survives reload and equipment identity remains stable',async({page})=>{
  await page.goto('/');
