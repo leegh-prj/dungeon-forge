@@ -56,3 +56,50 @@ function testSaves(){
  console.log('PASS existing backup, malformed primary recovery, first save and quota failure');
 }
 testRemoval();testSaves();
+
+/* End-to-end state transition model using actual removal/move/forge functions. */
+function testInventoryReloadJourney(){
+ const K='dungeon-forge-ui-v2';
+ const mk=(id,kind,tier=0)=>({id,kind,tier,level:0,locked:false});
+ const state={inventory:[mk('weapon','weapon'),mk('armor','armor'),mk('ring','ring'),mk('material1','weapon'),mk('material2','weapon'),mk('material3','weapon')],
+  warehouse:[],warehouseCapacity:400,bagCapacity:200,equip:{weapon:0,armor:1,shield:null,ring:2},gold:300,ore:100,crystals:10,last:0};
+ const initialIds=state.inventory.slice(0,3).map(v=>v.id);
+ const store=storage();
+ const ctx={S:state,K,localStorage:store,saveErrorReported:false,console,document:{getElementById:()=>null},Date,
+  forgeSelection:[],isLocked:it=>!!it.locked,isEquipped:i=>Object.values(state.equip).includes(i),
+  toast:()=>{},render:()=>{},getMaxHp:()=>1280,introAdvance:()=>{},closeCraft:()=>{},showForgeSummary:()=>{}};
+ vm.createContext(ctx);
+ const move=fn('moveToWarehouse','function moveToBag(');
+ const bag=fn('moveToBag','function bulkWarehouseToBag(');
+ const forge=fn('removeForgeItems','function runForge(');
+ vm.runInContext(removeSource+move+bag+forge+saveSource,ctx);
+ const invariant=()=>{
+  for(const [kind,index] of Object.entries(state.equip))if(index!==null){
+   assert.equal(state.inventory[index]?.kind,kind);
+   assert.equal(state.inventory[index]?.id,initialIds[['weapon','armor','ring'].indexOf(kind)]);
+  }
+  const ids=[...state.inventory,...state.warehouse].map(v=>v.id);
+  assert.equal(new Set(ids).size,ids.length,'item duplication');
+ };
+ assert.equal(ctx.save(),true);
+ state.inventory[0].level=1;assert.equal(ctx.save(),true); // simulated enhancement
+ ctx.forgeSelection=[3,4,5];ctx.removeForgeItems([3,4,5]); // simulated fusion material consumption
+ state.inventory.push(mk('fused','weapon',1));
+ invariant();assert.equal(ctx.save(),true);
+ ctx.moveToWarehouse(3);
+ invariant();assert.equal(state.warehouse[0].id,'fused');
+ ctx.moveToBag(0);
+ invariant();assert.equal(ctx.save(),true);
+ // Simulated browser refresh: JSON reload into a fresh object with the same legacy schema.
+ const restored=JSON.parse(store.getItem(K));
+ assert.deepEqual(restored.inventory.map(x=>x.id),state.inventory.map(x=>x.id));
+ assert.deepEqual(restored.equip,state.equip);
+ assert.equal(restored.inventory[restored.equip.weapon].level,1);
+ assert.equal(restored.gold,300);
+ // Power interruption / damaged primary: backup remains parsable and slot-safe.
+ store.setItem(K,'{interrupted');
+ const recovered=JSON.parse(store.getItem(K+'-backup'));
+ assert.equal(recovered.inventory[recovered.equip.weapon].id,'weapon');
+ console.log('PASS craft-like generation, upgrade, fusion removal, warehouse round-trip, reload and recovery');
+}
+testInventoryReloadJourney();
