@@ -1,0 +1,26 @@
+name: Save and equipment index integrity
+on:
+  push:
+    paths:
+      - 'index.html'
+      - 'tests/save-index.cjs'
+      - 'tools/save_index_smoke.py'
+      - '.github/workflows/save-index.yml'
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'tests/save-index.cjs'
+      - 'tools/save_index_smoke.py'
+      - '.github/workflows/save-index.yml'
+  workflow_dispatch:
+jobs:
+  save-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/save-index.cjs
+      - run: python tools/save_index_smoke.py
+      - run: python tools/regression_smoke.py

@@ -1154,9 +1154,22 @@ function save(){
  try{
   const now=Date.now();
   const payload=JSON.stringify({...S,last:now});
+  // Preserve the last readable primary snapshot before replacing it.
+  // Never replace a valid recovery point with malformed JSON.
+  let prior=null;
+  try{
+   const priorRaw=localStorage.getItem(K);
+   if(priorRaw){const parsed=JSON.parse(priorRaw);if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))prior=priorRaw}
+  }catch(readError){console.warn('기존 주 저장본 유효성 검사 실패',readError)}
+  if(prior){try{localStorage.setItem(K+'-backup',prior)}catch(backupError){console.warn('복구 백업 저장 실패',backupError)}}
   localStorage.setItem(K,payload);
-  // A recovery copy is best-effort and never prevents a successful primary save.
-  try{localStorage.setItem(K+'-backup',payload)}catch(backupError){console.warn('복구 백업 저장 실패',backupError)}
+  // Initial saves also establish a backup if no valid previous snapshot exists.
+  if(!prior){try{
+   const existing=localStorage.getItem(K+'-backup');
+   let valid=false;
+   if(existing){const p=JSON.parse(existing);valid=!!p&&typeof p==='object'&&!Array.isArray(p)}
+   if(!valid)localStorage.setItem(K+'-backup',payload);
+  }catch(backupError){console.warn('초기 백업 저장 실패',backupError)}}
   S.last=now;
   saveErrorReported=false;
   return true;
@@ -1737,12 +1750,22 @@ function storeNewItem(item,skipAuto=false){
  if(S.warehouse.length<S.warehouseCapacity){S.warehouse.push(item);return 'warehouse'}
  return 'full';
 }
+/* Inventory index integrity: preserve equipped item identities after removals. */
+function removeInventoryAt(index){
+ if(!Number.isInteger(index)||index<0||index>=S.inventory.length)return null;
+ if(Object.values(S.equip).includes(index))throw Error('Cannot remove equipped gear');
+ const removed=S.inventory.splice(index,1)[0];
+ for(const kind of ['weapon','armor','shield','ring']){
+  const slot=S.equip[kind];
+  if(Number.isInteger(slot)&&slot>index)S.equip[kind]=slot-1;
+ }
+ return removed;
+}
 function moveToWarehouse(index){
  const item=S.inventory[index];if(!item)return toast('장비를 찾을 수 없습니다');
  if(isEquipped(index))return toast('장착 해제 후 창고로 보관하세요');
  if(S.warehouse.length>=S.warehouseCapacity)return toast('창고가 가득 찼습니다');
- S.warehouse.push(item);S.inventory.splice(index,1);
- for(const key of Object.keys(S.equip)){if(S.equip[key]!=null&&S.equip[key]>index)S.equip[key]--}
+ S.warehouse.push(item);removeInventoryAt(index);
  forgeSelection=[];save();render();
 }
 function moveToBag(index){
@@ -2191,11 +2214,7 @@ function removeForgeItems(indices){
   // Validate all inputs before removing anything. Reject duplicates and stale indices.
   if(unique.length!==indices.length||unique.some(idx=>!Number.isInteger(idx)||idx<0||idx>=S.inventory.length||Object.values(S.equip).includes(idx)||isLocked(S.inventory[idx])))throw Error('Protected or invalid material rejected');
   for(const idx of unique.sort((a,b)=>b-a)){
-    S.inventory.splice(idx,1);
-    for(const kind of Object.keys(S.equip)){
-      const slot=S.equip[kind];
-      if(slot!==null&&slot!==undefined&&slot>idx)S.equip[kind]=slot-1;
-    }
+    removeInventoryAt(idx);
   }
   forgeSelection=[];
 }
