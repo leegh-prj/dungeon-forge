@@ -67,13 +67,12 @@ test('storage quota failure retains previously committed save',async({page})=>{
  await page.goto('/');
  const result=await page.evaluate(key=>{
   const before=localStorage.getItem(key);
-  const original=Storage.prototype.setItem;
+  // Keep the quota failure active through beforeunload; a successful retry on
+  // unload would otherwise legitimately persist the in-memory value.
   Storage.prototype.setItem=function(){throw new DOMException('Storage quota exceeded','QuotaExceededError')};
-  try{
-   S.gold=55555;
-   const success=save();
-   return {success,before,after:localStorage.getItem(key),inMemoryGold:S.gold};
-  }finally{Storage.prototype.setItem=original}
+  S.gold=55555;
+  const success=save();
+  return {success,before,after:localStorage.getItem(key),inMemoryGold:S.gold};
  },KEY);
  expect(result.success).toBe(false);
  expect(result.after).toBe(result.before);
