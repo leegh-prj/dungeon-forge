@@ -49,3 +49,36 @@ for(const width of [320,360,390,430]){
   expect(overflows).toBe(false);
  });
 }
+
+test('dismantle leaves equipped item IDs intact across immediate reload',async({page})=>{
+ await page.goto('/');
+ await page.evaluate(()=>{
+  forgeSelection=[3];
+  applyDismantle();
+ });
+ await page.reload();
+ const state=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),KEY);
+ expect(state.inventory.map(x=>x.id)).not.toContain('qa-spare');
+ expect(state.inventory[state.equip.weapon].id).toBe('qa-w');
+ expect(state.inventory[state.equip.armor].id).toBe('qa-a');
+ expect(state.inventory[state.equip.ring].id).toBe('qa-r');
+});
+test('storage quota failure retains previously committed save',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(key=>{
+  const before=localStorage.getItem(key);
+  const original=Storage.prototype.setItem;
+  Storage.prototype.setItem=function(){throw new DOMException('Storage quota exceeded','QuotaExceededError')};
+  try{
+   S.gold=55555;
+   const success=save();
+   return {success,before,after:localStorage.getItem(key),inMemoryGold:S.gold};
+  }finally{Storage.prototype.setItem=original}
+ },KEY);
+ expect(result.success).toBe(false);
+ expect(result.after).toBe(result.before);
+ await page.reload();
+ const persisted=await page.evaluate(key=>JSON.parse(localStorage.getItem(key)),KEY);
+ expect(persisted.gold).not.toBe(55555);
+ expect(persisted.inventory[persisted.equip.weapon].id).toBe('qa-w');
+});
