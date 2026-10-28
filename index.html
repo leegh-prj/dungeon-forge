@@ -1161,16 +1161,14 @@ function save(){
   let prior=null;
   try{
    const priorRaw=localStorage.getItem(K);
-   if(priorRaw){const parsed=JSON.parse(priorRaw);if(parsed&&typeof parsed==='object'&&!Array.isArray(parsed))prior=priorRaw}
+   if(GameSaveCore.validSnapshot(priorRaw))prior=priorRaw;
   }catch(readError){console.warn('기존 주 저장본 유효성 검사 실패',readError)}
   if(prior){try{localStorage.setItem(K+'-backup',prior)}catch(backupError){console.warn('복구 백업 저장 실패',backupError)}}
   localStorage.setItem(K,payload);
   // Initial saves also establish a backup if no valid previous snapshot exists.
   if(!prior){try{
    const existing=localStorage.getItem(K+'-backup');
-   let valid=false;
-   if(existing){const p=JSON.parse(existing);valid=!!p&&typeof p==='object'&&!Array.isArray(p)}
-   if(!valid)localStorage.setItem(K+'-backup',payload);
+   if(!GameSaveCore.validSnapshot(existing))localStorage.setItem(K+'-backup',payload);
   }catch(backupError){console.warn('초기 백업 저장 실패',backupError)}}
   S.last=now;
   saveErrorReported=false;

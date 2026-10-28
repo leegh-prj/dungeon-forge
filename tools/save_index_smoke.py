@@ -6,7 +6,7 @@ checks={
  'legacy save key retained':"const K='dungeon-forge-ui-v2';",
  'backup still supported':"K+'-backup'",
  'valid prior snapshot backed up':"localStorage.setItem(K+'-backup',prior)",
- 'malformed prior cannot replace recovery':"const parsed=JSON.parse(priorRaw)",
+ 'malformed prior cannot replace recovery':"GameSaveCore.validSnapshot(priorRaw)",
  'equipped gear deletion blocked':"GameInventoryCore.removeAt(S,index)",
  'single index remapping helper':"function removeInventoryAt(index)",
  'warehouse removal uses remapping':"S.warehouse.push(item);removeInventoryAt(index);",

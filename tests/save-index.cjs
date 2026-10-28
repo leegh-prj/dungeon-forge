@@ -8,6 +8,7 @@ function fn(name,next){
  return html.slice(start,end);
 }
 const removeSource=fn('removeInventoryAt','function moveToWarehouse(');
+const saveCore=fs.readFileSync(require('node:path').join(__dirname,'..','assets/js/save-core.js'),'utf8');
 const inventoryCore=fs.readFileSync(require('node:path').join(__dirname,'..','assets/js/inventory-core.js'),'utf8');
 function testRemoval(){
  const A={id:'a',kind:'weapon'},B={id:'b',kind:'armor'},C={id:'c',kind:'ring'},D={id:'d',kind:'shield'};
@@ -35,7 +36,7 @@ function storage(seed={}){
 }
 function runSave(store,state){
  const ctx={S:state,K:'dungeon-forge-ui-v2',localStorage:store,saveErrorReported:false,console,document:{getElementById:()=>null},Date};
- vm.createContext(ctx);vm.runInContext(saveSource,ctx);return ctx.save();
+ vm.createContext(ctx);vm.runInContext(saveCore,ctx);vm.runInContext(saveSource,ctx);return ctx.save();
 }
 function testSaves(){
  const K='dungeon-forge-ui-v2',B=K+'-backup';
@@ -73,7 +74,7 @@ function testInventoryReloadJourney(){
  const move=fn('moveToWarehouse','function moveToBag(');
  const bag=fn('moveToBag','function bulkWarehouseToBag(');
  const forge=fn('removeForgeItems','function runForge(');
- vm.runInContext(inventoryCore,ctx);vm.runInContext(removeSource+move+bag+forge+saveSource,ctx);
+ vm.runInContext(inventoryCore,ctx);vm.runInContext(saveCore,ctx);vm.runInContext(removeSource+move+bag+forge+saveSource,ctx);
  const invariant=()=>{
   for(const [kind,index] of Object.entries(state.equip))if(index!==null){
    assert.equal(state.inventory[index]?.kind,kind);
@@ -104,3 +105,19 @@ function testInventoryReloadJourney(){
  console.log('PASS craft-like generation, upgrade, fusion removal, warehouse round-trip, reload and recovery');
 }
 testInventoryReloadJourney();
+
+function testSnapshotValidation(){
+ const context={};vm.createContext(context);vm.runInContext(saveCore,context);
+ for(const raw of [null,'','null','[]','3','"x"','{broken']){
+  assert.equal(context.GameSaveCore.validSnapshot(raw),false);
+ }
+ assert.equal(context.GameSaveCore.validSnapshot('{"inventory":[],"equip":{}}'),true);
+ const K='dungeon-forge-ui-v2',B=K+'-backup';
+ const good=JSON.stringify({inventory:[{id:'kept',kind:'weapon'}],equip:{weapon:0}});
+ const brokenBackup=storage({[K]:good,[B]:'{damaged'});
+ assert.equal(runSave(brokenBackup,{inventory:[{id:'kept',kind:'weapon'}],equip:{weapon:0},gold:77}),true);
+ assert.equal(JSON.parse(brokenBackup.getItem(B)).inventory[0].id,'kept');
+ assert.equal(JSON.parse(brokenBackup.getItem(K)).gold,77);
+ console.log('PASS save-core snapshot validation and corrupted backup replacement');
+}
+testSnapshotValidation();
