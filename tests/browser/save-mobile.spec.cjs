@@ -81,3 +81,22 @@ test('storage quota failure retains previously committed save',async({page})=>{
  expect(persisted.gold).not.toBe(55555);
  expect(persisted.inventory[persisted.equip.weapon].id).toBe('qa-w');
 });
+
+for(const [width,height] of [[667,375],[844,390],[915,412],[1024,600]]){
+ test('landscape '+width+'x'+height+' navigation, layout and codex',async({page})=>{
+  await page.setViewportSize({width,height});
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/');
+  await page.evaluate(()=>{TAB='도감';S.codexTab='monster';render()});
+  await expect(page.locator('.monsterCodexCard')).toHaveCount(10);
+  await expect(page.locator('#nav button')).toHaveCount(5);
+  const geometry=await page.evaluate(()=>{
+   const nav=document.querySelector('#nav').getBoundingClientRect();
+   return {left:nav.left,right:nav.right,width:nav.width,overflow:document.documentElement.scrollWidth-innerWidth};
+  });
+  // Desktop Chromium has a fine pointer, so install coarse-pointer style for test.
+  expect(geometry.overflow).toBeLessThanOrEqual(2);
+  await page.locator('#nav button').filter({hasText:'대장간'}).click();
+  await expect(page.locator('.forgeTabs')).toBeVisible();
+ });
+}
