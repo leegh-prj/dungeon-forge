@@ -964,6 +964,27 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
 @media(orientation:landscape) and (max-height:350px) and (pointer:coarse){
  #screen .battlefield{height:155px!important;min-height:155px!important}
 }
+
+/* UX flow pass: hierarchy, staged affordances, and accessible touch feedback. */
+.uxJourneyNote{display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;padding:9px 11px;margin:5px 0 9px;border:1px solid rgba(213,165,88,.35);border-radius:11px;background:linear-gradient(110deg,rgba(150,92,28,.18),rgba(21,31,44,.65));color:#ebdac0;font-size:12px;line-height:1.45}
+.uxJourneyNote strong{white-space:nowrap;color:#ffda98;font-size:13px}
+.uxJourneyNote span{flex:1 1 190px;min-width:0}
+.forgeTabs{position:relative;isolation:isolate}
+.forgeTabs button.active,.equipmentPages button.active{outline:2px solid rgba(255,211,134,.7);outline-offset:-2px}
+.forge-help{padding:10px 12px;border-radius:12px;background:rgba(18,30,46,.8);border:1px solid rgba(185,144,83,.35)}
+.forge-help p{margin:5px 0;line-height:1.35}
+.forgePrice{border-radius:10px;padding:10px 12px;background:rgba(11,20,31,.85);border:1px solid rgba(197,153,86,.28)}
+.forgeItem.selected{box-shadow:0 0 0 2px #edba72,inset 0 0 14px rgba(242,169,75,.13);transform:none}
+#screen button:focus-visible,#nav button:focus-visible{outline:2px solid #ffe3ab;outline-offset:2px}
+#screen :is(.primaryBtn,.craftQuickActions button){min-height:44px}
+.equipmentPages{position:sticky;top:0;z-index:12;padding:5px 0;background:linear-gradient(#161b24ef,#161b24ef)}
+.dungeonSwitcher{position:sticky;top:0;z-index:12;padding:4px 0;background:rgba(17,25,35,.92)}
+@media(orientation:landscape) and (max-height:600px){
+ .uxJourneyNote{padding:4px 8px;margin:3px 0 5px;font-size:10px;gap:4px 8px}
+ .uxJourneyNote strong{font-size:11px}
+ .forge-help{padding:6px 8px}
+ .forgePrice{padding:6px 8px}
+}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2146,6 +2167,7 @@ function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100
 ${renderHeader('던전','✦')}
 ${renderIntro()}
 ${renderDungeonTabs()}
+<div class="uxJourneyNote" role="note"><strong>⚔ 전투</strong><span>스테이지와 적 체력을 확인하고 아래 전투 기술을 사용하세요. 보상·제작은 위 탭에서 확인할 수 있습니다.</span></div>
 <div class="dungeonCombatPage" ${dungeonPanel==='fight'?'':'hidden'}>
 ${bossGuide()}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
@@ -2383,6 +2405,7 @@ ${groupHint}<div class="forgeItemGrid">${inventory.length?inventory.map(forgeIte
 function renderForge(){return `
 ${renderHeader('대장간','⚒️')}
 ${renderIntro()}
+<div class="uxJourneyNote" role="note"><strong>⚒ 대장간</strong><span>① 작업 선택　② 장비 선택　③ 재료·비용 확인　④ 실행</span></div>
 <div class="forgeTabs" style="margin-bottom:8px">
  ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${x}</button>`).join('')}
 </div>
@@ -2523,7 +2546,8 @@ ${renderHeader('장비','🛡️')}
 ${renderIntro()}
 ${renderIntroEquip()}
 ${renderWarehouse()}
-${storageTab==='loadout'?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
+<div class="uxJourneyNote" role="note"><strong>🛡 장비 관리</strong><span>착용에서 현재 장비와 능력치를 확인하고, 가방에서 비교·장착, 창고에서 보관 장비를 관리하세요.</span></div>
+${storageTab==='loadout' ?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
   <div class="slotcol">
     ${renderEquipSlot('weapon')}
     ${renderEquipSlot('ring')}
