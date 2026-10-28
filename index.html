@@ -923,6 +923,47 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
  .screenheader .resources{gap:2px!important}
  .battlefield{min-height:155px!important;height:155px!important}
 }
+
+/* Layout stability pass 2 — shared geometry / touch targets / nested scrolling. */
+:root{--ui-touch-min:42px;--ui-gap:8px}
+#app,.screen,#screen{box-sizing:border-box}
+#screen{overflow-wrap:break-word;scroll-padding-bottom:18px}
+#screen :is(.forgeTabs,.categoryTabs,.inventoryTools,.forgeItemGrid,.inventoryGrid,.shopGrid,.codexGrid,.warehouseBulk,.charwrap){min-width:0}
+#screen :is(.forgeItem,.invItem,.shopItem,.codexItem,.panel){min-width:0;max-width:100%}
+#screen :is(button,select,input){max-width:100%;touch-action:manipulation}
+#screen :is(.forgeTabs,.categoryTabs,.focusGrid,.tierBtns){scroll-margin-top:8px}
+#screen :is(.forgeItemGrid,.inventoryGrid,.shopGrid,.codexGrid){align-content:start}
+#screen :is(.forgeItem,.invItem,.shopItem,.codexItem) img{max-width:100%;object-fit:contain}
+#screen :is(.forgeItem,.invItem,.shopItem,.codexItem) :is(strong,small,span){overflow-wrap:anywhere}
+#screen .forgeTabs .segbtn{min-height:var(--ui-touch-min)}
+#screen .forgeItem{min-height:150px}
+#screen :is(.craftQuickActions,.confirmActions,.tierTools){display:flex;flex-wrap:wrap;gap:var(--ui-gap)}
+#screen :is(.craftQuickActions,.confirmActions,.tierTools)>button{min-height:var(--ui-touch-min);flex:1 1 120px}
+#screen .inventoryGrid{max-height:none;overflow:visible}
+#screen .codexGrid{max-height:none;overflow:visible}
+#screen .forgeItemGrid{margin-block:8px}
+#screen :is(.forgePrice,.costRow,.statsBox,.forge-help){overflow-wrap:anywhere}
+@media(max-width:430px) and (orientation:portrait){
+ #screen .forgeTabs{gap:3px}
+ #screen .forgeTabs .segbtn{font-size:11px;padding-inline:1px}
+ #screen .forgeItem{padding:8px 5px}
+ #screen .forgeItem img{height:76px;width:76px}
+ #screen .inventoryGrid{gap:6px}
+}
+@media(orientation:landscape) and (max-height:600px) and (pointer:coarse){
+ #screen{scroll-padding-bottom:12px}
+ #screen .forgeItemGrid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))!important}
+ #screen .inventoryGrid{grid-template-columns:repeat(auto-fill,minmax(126px,1fr))!important}
+ #screen .forgeItem{min-height:133px!important}
+ #screen .forgeItem img{height:65px!important;width:65px!important}
+ #screen .forgeTabs .segbtn{min-height:40px!important}
+ #screen .craftQuickActions>button{flex:1 1 150px}
+ #screen .battlefield{height:clamp(160px,43dvh,260px)!important;min-height:160px!important}
+ #screen .charwrap{max-width:min(440px,90%);margin-inline:auto}
+}
+@media(orientation:landscape) and (max-height:350px) and (pointer:coarse){
+ #screen .battlefield{height:155px!important;min-height:155px!important}
+}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
