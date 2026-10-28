@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'assets/js/**'
       - 'tests/browser/**'
       - 'playwright.config.cjs'
       - 'package.json'
@@ -10,6 +11,7 @@ on:
   pull_request:
     paths:
       - 'index.html'
+      - 'assets/js/**'
       - 'tests/browser/**'
       - 'playwright.config.cjs'
       - 'package.json'

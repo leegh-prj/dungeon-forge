@@ -3,6 +3,8 @@ on:
   push:
     paths:
       - 'index.html'
+      - 'assets/js/**'
+      - 'assets/js/**'
       - 'tests/save-index.cjs'
       - 'tools/save_index_smoke.py'
       - '.github/workflows/save-index.yml'
