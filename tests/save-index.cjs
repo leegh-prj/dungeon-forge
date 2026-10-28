@@ -8,10 +8,11 @@ function fn(name,next){
  return html.slice(start,end);
 }
 const removeSource=fn('removeInventoryAt','function moveToWarehouse(');
+const inventoryCore=fs.readFileSync(require('node:path').join(__dirname,'..','assets/js/inventory-core.js'),'utf8');
 function testRemoval(){
  const A={id:'a',kind:'weapon'},B={id:'b',kind:'armor'},C={id:'c',kind:'ring'},D={id:'d',kind:'shield'};
  const state={inventory:[A,B,C,D],equip:{weapon:0,armor:1,ring:2,shield:3}};
- const ctx={S:state};vm.createContext(ctx);vm.runInContext(removeSource,ctx);
+ const ctx={S:state};vm.createContext(ctx);vm.runInContext(inventoryCore,ctx);vm.runInContext(removeSource,ctx);
  assert.throws(()=>ctx.removeInventoryAt(0),/equipped/);
  assert.equal(state.inventory.length,4);
  state.equip.armor=null;
@@ -72,7 +73,7 @@ function testInventoryReloadJourney(){
  const move=fn('moveToWarehouse','function moveToBag(');
  const bag=fn('moveToBag','function bulkWarehouseToBag(');
  const forge=fn('removeForgeItems','function runForge(');
- vm.runInContext(removeSource+move+bag+forge+saveSource,ctx);
+ vm.runInContext(inventoryCore,ctx);vm.runInContext(removeSource+move+bag+forge+saveSource,ctx);
  const invariant=()=>{
   for(const [kind,index] of Object.entries(state.equip))if(index!==null){
    assert.equal(state.inventory[index]?.kind,kind);

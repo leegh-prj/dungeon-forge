@@ -7,7 +7,7 @@ checks={
  'backup still supported':"K+'-backup'",
  'valid prior snapshot backed up':"localStorage.setItem(K+'-backup',prior)",
  'malformed prior cannot replace recovery':"const parsed=JSON.parse(priorRaw)",
- 'equipped gear deletion blocked':"if(Object.values(S.equip).includes(index))throw Error('Cannot remove equipped gear')",
+ 'equipped gear deletion blocked':"GameInventoryCore.removeAt(S,index)",
  'single index remapping helper':"function removeInventoryAt(index)",
  'warehouse removal uses remapping':"S.warehouse.push(item);removeInventoryAt(index);",
  'forge removal uses remapping':"removeInventoryAt(idx);",

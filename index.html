@@ -902,6 +902,8 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
   </section>
 </main>
 <nav id="nav" class="nav"></nav>
+<script src="assets/js/inventory-core.js"></script>
+<script src="assets/js/save-core.js"></script>
 <script>
 const K='dungeon-forge-ui-v2';
 let itemIdSerial=0;
@@ -1751,16 +1753,7 @@ function storeNewItem(item,skipAuto=false){
  return 'full';
 }
 /* Inventory index integrity: preserve equipped item identities after removals. */
-function removeInventoryAt(index){
- if(!Number.isInteger(index)||index<0||index>=S.inventory.length)return null;
- if(Object.values(S.equip).includes(index))throw Error('Cannot remove equipped gear');
- const removed=S.inventory.splice(index,1)[0];
- for(const kind of ['weapon','armor','shield','ring']){
-  const slot=S.equip[kind];
-  if(Number.isInteger(slot)&&slot>index)S.equip[kind]=slot-1;
- }
- return removed;
-}
+function removeInventoryAt(index){return GameInventoryCore.removeAt(S,index)}
 function moveToWarehouse(index){
  const item=S.inventory[index];if(!item)return toast('장비를 찾을 수 없습니다');
  if(isEquipped(index))return toast('장착 해제 후 창고로 보관하세요');
