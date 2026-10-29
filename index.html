@@ -985,6 +985,14 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
  .forge-help{padding:6px 8px}
  .forgePrice{padding:6px 8px}
 }
+
+/* Comparison clarity and action readiness — additive, save-format-neutral UI. */
+.equipmentCompare{display:flex;flex-wrap:wrap;gap:3px 7px;align-items:center;width:100%;border-radius:8px;padding:5px 6px;background:rgba(13,23,36,.72);border:1px solid rgba(186,147,91,.28);font-size:11px}
+.equipmentCompare small{flex:1 0 100%;font-size:10px;color:#d8c7a5;overflow-wrap:anywhere}
+.equipmentCompare span{font-weight:700;font-variant-numeric:tabular-nums}
+.equipmentCompare .down{color:#e99691}
+.forgeActionStatus{padding:7px 9px;margin:5px 0 6px;border-radius:9px;border:1px solid rgba(213,170,90,.3);background:rgba(20,32,38,.8);font-size:12px;color:#f2d5a8;font-weight:700}
+@media(orientation:landscape) and (max-height:600px){.equipmentCompare{font-size:10px;padding:4px}.forgeActionStatus{padding:5px 7px;font-size:11px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2399,6 +2407,7 @@ ${groupHint}<div class="forgeItemGrid">${inventory.length?inventory.map(forgeIte
  ${forgeMode==='분해'?`<div class="forgeChance">선택 반환 예상 · 광석 +${dismantleReturns(forgeSelection).ore} · 결정 +${dismantleReturns(forgeSelection).crystals}</div>`:''}
  ${forgeMode==='강화'?enhancementPreview(S.inventory[forgeSelection[0]]):''}
  <div class="forgePrice">비용 · 🪙 ${price.gold.toLocaleString()} · ⛏ ${price.ore} · 💎 ${price.crystals}</div>
+ <div class="forgeActionStatus" role="status" aria-live="polite">${valid&&!tooHigh&&(forgeMode==='분해'||enough(price))?'✓ 실행 준비 완료':tooHigh?'최대 등급·강화 한도 도달':!valid?'필요한 장비를 선택하세요':'재료가 부족합니다'}</div>
  <button class="primaryBtn" ${(!valid||tooHigh||(forgeMode!=='분해'&&!enough(price)))?'disabled':''} onclick="runForge()">${forgeMode==='분해'?'⚠ 선택한 장비 분해':'⚒ '+forgeMode+' 실행'}</button>
  ${!valid?'<p class="hint">'+(forgeMode==='분해'?'분해할 장비를 선택하세요.':'같은 부위·등급을 필요한 수량만큼 선택하세요.')+'</p>':tooHigh?'<p class="hint">최대 등급·강화 한도입니다.</p>':!enough(price)?'<p class="hint">재료가 부족합니다.</p>':''}`;
 }
@@ -2541,6 +2550,16 @@ function renderHeroLoadout(){
     graphicImage('assets/art/hero_guard.webp','hero',0,safePlayerName(),'class="heroEquipmentArt" loading="eager"')+
     overlays+'<div class="heroLoadoutCount" aria-label="장착 장비 '+active.length+'개">장착 '+active.length+'/4</div></div>';
 }
+function equipmentComparison(item){
+ const equipped=equippedItem(item.kind);
+ const currentPower=Number(equipped?.power)||0,currentDefense=Number(equipped?.defense)||0;
+ const deltaPower=(Number(item.power)||0)-currentPower,deltaDefense=(Number(item.defense)||0)-currentDefense;
+ const fmt=n=>(n>0?'+':'')+n;
+ return '<div class="equipmentCompare" aria-label="현재 착용 장비 대비 능력치">'+
+ '<small>착용 비교 · '+(equipped?equipped.name:'빈 슬롯')+'</small>'+
+ '<span class="'+(deltaPower>0?'up':deltaPower<0?'down':'')+'">공격 '+fmt(deltaPower)+'</span>'+
+ '<span class="'+(deltaDefense>0?'up':deltaDefense<0?'down':'')+'">방어 '+fmt(deltaDefense)+'</span></div>';
+}
 function renderEquipment(){const all=filteredInventory(); return `
 ${renderHeader('장비','🛡️')}
 ${renderIntro()}
@@ -2568,7 +2587,7 @@ ${compactPanel('✦ 속성 세트 효과',renderSetPanel(),false,'uxSet')}
 ${compactPanel('🏆 업적 현황',renderLegendaryAchievements(),false,'uxAchievement')}
 <div class="equipmentJump"><button onclick="setStorageTab('bag')">🎒 보유 장비 관리 →</button></div>`:''}
 ${storageTab==='bag'?`<div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
-<div class="inventoryTools"><label>장비 찾기<input type="search" placeholder="이름·등급·속성 검색" value="${inventorySearch.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}" oninput="filterInventoryCards(this.value)"></label><label>정렬<select onchange="sortInventory(this.value)">${[['tier','등급 높은 순'],['power','능력치 높은 순'],['level','강화 높은 순'],['newest','최근 획득 순'],['oldest','오래된 순']].map(([v,l])=>`<option value="${v}" ${inventorySort===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="inventoryCount">표시 장비 <strong id="inventoryVisibleCount">${all.length}</strong>개 / 가방 ${S.inventory.length}개</div><div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" data-search="${[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"><div class="mini">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}<span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div><button onclick="openEquipmentDetails(${idx})">상세</button><button onclick="moveToWarehouse(${idx})" ${isEquipped(idx)?'disabled':''}>보관</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>`:''}
+<div class="inventoryTools"><label>장비 찾기<input type="search" placeholder="이름·등급·속성 검색" value="${inventorySearch.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}" oninput="filterInventoryCards(this.value)"></label><label>정렬<select onchange="sortInventory(this.value)">${[['tier','등급 높은 순'],['power','능력치 높은 순'],['level','강화 높은 순'],['newest','최근 획득 순'],['oldest','오래된 순']].map(([v,l])=>`<option value="${v}" ${inventorySort===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="inventoryCount">표시 장비 <strong id="inventoryVisibleCount">${all.length}</strong>개 / 가방 ${S.inventory.length}개</div><div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" data-search="${[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"><div class="mini">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}<span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div>${equipmentComparison(it)}<button onclick="openEquipmentDetails(${idx})">상세</button><button onclick="moveToWarehouse(${idx})" ${isEquipped(idx)?'disabled':''}>보관</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>`:''}
 ${storageTab==='warehouse'?compactPanel('🎒 창고 확장 및 자동 분해 설정',renderStorageControls()+renderExpansion(),false,'uxStorage'):''}
 `;}
 function setCodexCollectionFilter(v){codexCollectionFilter=v;codexPage=0;render()}
