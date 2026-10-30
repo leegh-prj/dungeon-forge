@@ -8,6 +8,7 @@ for(const [width,height] of [[390,844],[844,390]]){
   await expect(page.locator('.battleQuickStatus')).toBeVisible();
   await expect(page.locator('.combatSkill')).toHaveCount(3);
   await page.locator('#nav button').filter({hasText:'대장간'}).click();
+  await page.locator('.forgeTabs button').filter({hasText:'강화'}).click();
   await expect(page.locator('.forgeSelectionSummary')).toBeVisible();
   await page.locator('#nav button').filter({hasText:'장비'}).click();
   await page.evaluate(()=>{storageTab='bag';render()});
