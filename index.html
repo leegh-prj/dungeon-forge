@@ -1003,6 +1003,22 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
 .forgeSelectionSummary{display:flex;flex-wrap:wrap;align-items:center;gap:5px 12px;padding:8px 10px;margin:5px 0 8px;border:1px solid rgba(197,150,85,.38);border-radius:10px;background:rgba(14,24,36,.78);font-size:12px}
 .forgeSelectionSummary span{flex:1 1 140px;min-width:0;overflow-wrap:anywhere;color:#e9d5b4}
 @media(orientation:landscape) and (max-height:600px){.combatOverview,.forgeSelectionSummary{padding:4px 7px;margin:3px 0;font-size:10px}.combatActionTitle{padding:2px 5px;margin:2px 0}.combatActions .combatSkill{min-height:39px!important}}
+
+/* Six-priority pass: compact HUD, outcomes, bag controls, low-end rendering. */
+.dungeonCombatPage .battleQuickStatus{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding:7px 9px;border-radius:9px;background:rgba(13,24,35,.88)}
+.dungeonCombatPage .enemyMeter{max-height:9px;overflow:hidden}
+.combatActions .combatSkill{min-width:0;white-space:normal;overflow-wrap:anywhere}
+.craftModal .tierResultConfirm{display:block;width:100%;min-height:44px;margin-top:10px}
+.craftModal .bulkRewardGrid{max-height:min(38dvh,320px);overflow-y:auto;overscroll-behavior:contain}
+.inventoryCount{margin:6px 0;font-variant-numeric:tabular-nums}
+.inventoryGrid .invItem button{min-height:40px}
+@media(orientation:landscape) and (max-height:600px){
+ .dungeonCombatPage .battleQuickStatus{padding:4px 7px}
+ .craftModal .bulkRewardGrid{max-height:27dvh}
+}
+@media(prefers-reduced-motion:reduce){
+ .forgeItem,.invItem,.craftModal,.battlefield *{animation:none!important;transition:none!important}
+}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2079,7 +2095,7 @@ function showForgeSummary(title,items,detail,batchResults=null){
  const best=allResults.length?Math.max(...allResults.map(x=>x.item.tier)):0;
  const counts=rarityLetter.map((letter,tier)=>({letter,count:allResults.filter(x=>x.item.tier===tier).length})).filter(x=>x.count);
  const gradeSummary=counts.length?counts.map(x=>x.letter+' '+x.count).join(' · '):'보관 장비 없음';
- modal.innerHTML=`<div class="grade">⚒ ${title}</div><p class="researchNote">${detail} · ${allResults.length?'최고 등급 '+rarityLetter[best]:'결과 없음'}</p><div class="bulkGradeSummary">${gradeSummary}</div><div class="bulkRewardGrid">${allResults.map(({item:it,discarded})=>`<article class="bulkRewardCard ${rarityClass(it.tier)} ${discarded?'bulkSalvaged':''}"><div class="bulkRewardIcon">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}</div><strong>${rarityLetter[it.tier]} · ${discarded?'자동 분해':(it.effect||'기본')}${it.locked?' 🔒':''}</strong><small>${it.name}</small><small class="bulkCompare">${discarded?'재료 환급 완료':craftItemComparison(it)}</small></article>`).join('')}</div>${craftRepeatButtons()}<button class="tierResultConfirm" onclick="closeCraft()">결과 확인</button>`;
+ modal.innerHTML=`<div class="grade">⚒ ${title}</div><p class="researchNote">${detail} · ${allResults.length?'최고 등급 '+rarityLetter[best]:'결과 없음'}</p><div class="bulkGradeSummary">${gradeSummary}</div><div class="bulkRewardGrid">${allResults.map(({item:it,discarded})=>`<article class="bulkRewardCard ${rarityClass(it.tier)} ${discarded?'bulkSalvaged':''}"><div class="bulkRewardIcon">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}</div><strong>${rarityLetter[it.tier]} · ${discarded?'자동 분해':(it.effect||'기본')}${it.locked?' 🔒':''}</strong><small>${it.name}</small><small class="bulkCompare">${discarded?'재료 환급 완료':craftItemComparison(it)}</small></article>`).join('')}</div>${craftRepeatButtons()}<button class="tierResultConfirm" onclick="closeCraft()">계속 플레이</button>`;
  document.getElementById('craftOverlay').classList.add('show');
 }
 function bulkDismantle(){selectDismantleAll();if(forgeSelection.length)confirmDismantle();else toast('분해 가능한 장비가 없습니다')}
@@ -2206,7 +2222,7 @@ ${bossGuide()}
     <div class="hpbox"><div class="hplabel"><span>${currentEnemyName()}</span><span class="subtxt" id="enemyHealthText">${Math.ceil(S.enemyHp)} / ${getEnemyMax()}</span></div><div class="bar"><div class="fill blue" id="enemyHealthBar" style="width:${ePct}%"></div></div></div>
   </div>
 </div>
-<div class="combatActionTitle" aria-hidden="true"><strong>전투 스킬</strong><span>${S.battleMode==='manual'?'공격 · 강타 · 방어':'자동 전투 진행 중'}</span></div>
+<div class="combatActionTitle" role="heading" aria-level="3"><strong>전투 스킬</strong><span>${S.battleMode==='manual'?'공격 · 강타 · 방어':'자동 전투 진행 중'}</span></div>
 <div class="combatActions ${S.battleMode==='manual'?'manualSticky':''}">
  <button class="combatSkill basic" onclick="attack()" ${S.battleMode!=='manual'?'disabled':''}>⚔ 공격<small id="attackTimer">준비 완료</small></button>
  <button class="combatSkill strong" onclick="strike()" ${S.battleMode!=='manual'?'disabled':''}>🔥 강타<small id="strikeTimer">준비 완료</small></button>
@@ -2377,7 +2393,7 @@ function finishForge(item,message,detail=''){
  save();render();toast(message);
  if(detail&&typeof detail==='object'&&detail.previous){
    const modal=document.getElementById('craftModal');modal.className='craftModal';
-   modal.innerHTML='<span class="beam">✦ ⚒ ✦</span><div class="grade">'+message+'</div><img class="craftedIcon" src="'+iconFor(item)+'" alt="강화된 장비"><p class="researchNote">'+(detail.text||'장비 능력치 성장')+'</p>'+forgeStatComparison(item,detail.previous)+'<button onclick="closeCraft()">확인</button>';
+   modal.innerHTML='<span class="beam">✦ ⚒ ✦</span><div class="grade">'+message+'</div><img class="craftedIcon" src="'+iconFor(item)+'" alt="강화된 장비"><p class="researchNote">'+(detail.text||'장비 능력치 성장')+'</p>'+forgeStatComparison(item,detail.previous)+'<button class="tierResultConfirm" onclick="closeCraft()">계속 플레이</button>';
    document.getElementById('craftOverlay').classList.add('show');craftOverlayOpen=true;
  }else showForgeSummary(message,[item],detail||('공격 +'+item.power+' · 방어 +'+item.defense));
 }
@@ -2601,7 +2617,7 @@ ${compactPanel('✦ 속성 세트 효과',renderSetPanel(),false,'uxSet')}
 ${compactPanel('🏆 업적 현황',renderLegendaryAchievements(),false,'uxAchievement')}
 <div class="equipmentJump"><button onclick="setStorageTab('bag')">🎒 보유 장비 관리 →</button></div>`:''}
 ${storageTab==='bag'?`<div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
-<div class="inventoryTools"><label>장비 찾기<input type="search" placeholder="이름·등급·속성 검색" value="${inventorySearch.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}" oninput="filterInventoryCards(this.value)"></label><label>정렬<select onchange="sortInventory(this.value)">${[['tier','등급 높은 순'],['power','능력치 높은 순'],['level','강화 높은 순'],['newest','최근 획득 순'],['oldest','오래된 순']].map(([v,l])=>`<option value="${v}" ${inventorySort===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="inventoryCount">표시 장비 <strong id="inventoryVisibleCount">${all.length}</strong>개 / 가방 ${S.inventory.length}개</div><div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" data-search="${[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"><div class="mini">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}<span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div>${equipmentComparison(it)}<button onclick="openEquipmentDetails(${idx})">상세</button><button onclick="moveToWarehouse(${idx})" ${isEquipped(idx)?'disabled':''}>보관</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>`:''}
+<div class="inventoryTools"><label>장비 찾기<input type="search" placeholder="이름·등급·속성 검색" value="${inventorySearch.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}" oninput="filterInventoryCards(this.value)"></label><label>정렬<select onchange="sortInventory(this.value)">${[['tier','등급 높은 순'],['power','능력치 높은 순'],['level','강화 높은 순'],['newest','최근 획득 순'],['oldest','오래된 순']].map(([v,l])=>`<option value="${v}" ${inventorySort===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="inventoryCount" aria-live="polite">표시 장비 <strong id="inventoryVisibleCount">${all.length}</strong>개 / 가방 ${S.inventory.length}개</div><div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" data-search="${[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"><div class="mini">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}<span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div>${equipmentComparison(it)}<button onclick="openEquipmentDetails(${idx})" aria-label="${it.name} 상세 비교">비교</button><button onclick="moveToWarehouse(${idx})" ${isEquipped(idx)?'disabled':''}>보관</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>`:''}
 ${storageTab==='warehouse'?compactPanel('🎒 창고 확장 및 자동 분해 설정',renderStorageControls()+renderExpansion(),false,'uxStorage'):''}
 `;}
 function setCodexCollectionFilter(v){codexCollectionFilter=v;codexPage=0;render()}
