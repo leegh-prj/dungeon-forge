@@ -2438,7 +2438,8 @@ function renderLegendaryAchievements(){
 function compareItemToEquipped(index){
  const item=S.inventory[index];if(!item)return '';
  const current=eq(item.kind);
- const old=current&&current!==item?current:null;
+ // An equipped item compared against itself must show zero deltas.
+ const old=current||null;
  const fields=[
   ['⚔ 공격력',old?.power||0,item.power||0],
   ['🛡 방어력',old?.defense||0,item.defense||0],
