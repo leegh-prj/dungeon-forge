@@ -993,6 +993,16 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
 .equipmentCompare .down{color:#e99691}
 .forgeActionStatus{padding:7px 9px;margin:5px 0 6px;border-radius:9px;border:1px solid rgba(213,170,90,.3);background:rgba(20,32,38,.8);font-size:12px;color:#f2d5a8;font-weight:700}
 @media(orientation:landscape) and (max-height:600px){.equipmentCompare{font-size:10px;padding:4px}.forgeActionStatus{padding:5px 7px;font-size:11px}}
+
+/* P0: clear combat HUD and forge decision hierarchy without save changes. */
+.combatOverview{display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;padding:7px 10px;margin:5px 0;border:1px solid rgba(196,157,91,.4);border-radius:10px;background:rgba(19,30,44,.85);font-size:12px;color:#e9d3ae}
+.combatOverview strong{color:#ffdb9b}
+.combatActionTitle{display:flex;justify-content:space-between;align-items:center;padding:5px 7px;margin-top:5px;color:#edd4a8;font-size:12px}
+.combatActions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px!important}
+.combatActions .combatSkill{min-width:0!important;max-width:100%!important}
+.forgeSelectionSummary{display:flex;flex-wrap:wrap;align-items:center;gap:5px 12px;padding:8px 10px;margin:5px 0 8px;border:1px solid rgba(197,150,85,.38);border-radius:10px;background:rgba(14,24,36,.78);font-size:12px}
+.forgeSelectionSummary span{flex:1 1 140px;min-width:0;overflow-wrap:anywhere;color:#e9d5b4}
+@media(orientation:landscape) and (max-height:600px){.combatOverview,.forgeSelectionSummary{padding:4px 7px;margin:3px 0;font-size:10px}.combatActionTitle{padding:2px 5px;margin:2px 0}.combatActions .combatSkill{min-height:39px!important}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2177,6 +2187,7 @@ ${renderIntro()}
 ${renderDungeonTabs()}
 <div class="uxJourneyNote" role="note"><strong>⚔ 전투</strong><span>스테이지와 적 체력을 확인하고 아래 전투 기술을 사용하세요. 보상·제작은 위 탭에서 확인할 수 있습니다.</span></div>
 <div class="dungeonCombatPage" ${dungeonPanel==='fight'?'':'hidden'}>
+<div class="combatOverview" role="group" aria-label="전투 현황"><span>⚔ STAGE ${S.stage}</span><strong>${S.boss?'⚠ 보스 전투':'일반 전투'}</strong><span>${S.battleMode==='manual'?'직접 조작':'자동 진행'}</span></div>
 ${bossGuide()}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div>
@@ -2195,6 +2206,7 @@ ${bossGuide()}
     <div class="hpbox"><div class="hplabel"><span>${currentEnemyName()}</span><span class="subtxt" id="enemyHealthText">${Math.ceil(S.enemyHp)} / ${getEnemyMax()}</span></div><div class="bar"><div class="fill blue" id="enemyHealthBar" style="width:${ePct}%"></div></div></div>
   </div>
 </div>
+<div class="combatActionTitle" aria-hidden="true"><strong>전투 스킬</strong><span>${S.battleMode==='manual'?'공격 · 강타 · 방어':'자동 전투 진행 중'}</span></div>
 <div class="combatActions ${S.battleMode==='manual'?'manualSticky':''}">
  <button class="combatSkill basic" onclick="attack()" ${S.battleMode!=='manual'?'disabled':''}>⚔ 공격<small id="attackTimer">준비 완료</small></button>
  <button class="combatSkill strong" onclick="strike()" ${S.battleMode!=='manual'?'disabled':''}>🔥 강타<small id="strikeTimer">준비 완료</small></button>
@@ -2408,6 +2420,7 @@ ${groupHint}<div class="forgeItemGrid">${inventory.length?inventory.map(forgeIte
  ${forgeMode==='강화'?enhancementPreview(S.inventory[forgeSelection[0]]):''}
  <div class="forgePrice">비용 · 🪙 ${price.gold.toLocaleString()} · ⛏ ${price.ore} · 💎 ${price.crystals}</div>
  <div class="forgeActionStatus" role="status" aria-live="polite">${valid&&!tooHigh&&(forgeMode==='분해'||enough(price))?'✓ 실행 준비 완료':tooHigh?'최대 등급·강화 한도 도달':!valid?'필요한 장비를 선택하세요':'재료가 부족합니다'}</div>
+ <div class="forgeSelectionSummary" aria-label="대장간 작업 확인"><strong>${forgeMode} · ${forgeSelection.length}${forgeMode==='분해'?'개 선택':'/'+need+'개 선택'}</strong><span>${forgeSelection.length?forgeSelection.map(i=>S.inventory[i]?.name).filter(Boolean).slice(0,3).join(' · '):'장비를 선택하면 여기에 표시됩니다'}</span></div>
  <button class="primaryBtn" ${(!valid||tooHigh||(forgeMode!=='분해'&&!enough(price)))?'disabled':''} onclick="runForge()">${forgeMode==='분해'?'⚠ 선택한 장비 분해':'⚒ '+forgeMode+' 실행'}</button>
  ${!valid?'<p class="hint">'+(forgeMode==='분해'?'분해할 장비를 선택하세요.':'같은 부위·등급을 필요한 수량만큼 선택하세요.')+'</p>':tooHigh?'<p class="hint">최대 등급·강화 한도입니다.</p>':!enough(price)?'<p class="hint">재료가 부족합니다.</p>':''}`;
 }
