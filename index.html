@@ -1052,6 +1052,24 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
  .dungeonCombatPage .combatActions{grid-template-columns:repeat(3,minmax(0,1fr))}
  .forgeTabs .segbtn,.equipmentPages .segbtn{overflow-wrap:anywhere}
 }
+/* Workspace redesign v3: contextual equipment comparison and focused forge layout */
+.forgeWorkspace{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);gap:6px;align-items:start}
+.forgeMainPanel{min-width:0}
+.gearSnapshot{display:grid;gap:7px;margin:9px 0;padding:10px;border:1px solid rgba(207,164,96,.48);border-radius:12px;background:linear-gradient(135deg,rgba(79,56,34,.43),rgba(17,31,46,.95))}
+.gearSnapshot>strong{font-size:12px;color:#ffe0a5}
+.gearSnapshotGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.gearSnapshotSlot{display:flex;flex-wrap:wrap;gap:3px 8px;min-width:0;padding:7px;border:1px solid rgba(193,150,88,.26);border-radius:8px;background:rgba(12,22,32,.54)}
+.gearSnapshotSlot span{font-size:11px;color:#d5bb90;white-space:nowrap}
+.gearSnapshotSlot b{font-size:11px;overflow-wrap:anywhere;min-width:0}
+@media(orientation:landscape) and (max-height:600px) and (min-width:650px){
+.forgeWorkspace{grid-template-columns:minmax(125px,22%) minmax(0,1fr);gap:10px}
+.forgeWorkspace>.forgeTabs{position:sticky;top:4px;display:flex;flex-direction:column;gap:4px;margin:0!important}
+.forgeWorkspace>.forgeTabs .segbtn{width:100%;min-height:35px}
+.forgeWorkspace .forgeMainPanel{min-width:0}
+.gearSnapshotGrid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.gearSnapshot{padding:7px;margin:5px 0}
+}
+@media(max-width:360px){.gearSnapshotGrid{grid-template-columns:minmax(0,1fr)}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2477,10 +2495,10 @@ function renderForge(){return `
 ${renderHeader('대장간','⚒️')}
 ${renderIntro()}
 <p class="uxSectionCaption">작업을 선택하고 장비와 재료를 확인하세요.</p>
-<div class="uxQuickLinks"><button onclick="quickOpenEquipment(\'bag\')">🎒 가방 바로가기</button><button onclick="quickOpenEquipment(\'warehouse\')">📦 창고 바로가기</button></div><div class="forgeTabs" style="margin-bottom:8px">
+<div class="uxQuickLinks"><button onclick="quickOpenEquipment(\'bag\')">🎒 가방 바로가기</button><button onclick="quickOpenEquipment(\'warehouse\')">📦 창고 바로가기</button></div><div class="forgeWorkspace"><div class="forgeTabs" style="margin-bottom:8px">
  ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${x}</button>`).join('')}
 </div>
-${forgePanel()}
+<div class="forgeMainPanel">${forgePanel()}</div></div>
 ${compactPanel('👑 보스 전리품 특별 제작',renderBossForge(),false,'uxBossForge')}
 ${compactPanel('🧪 지역 재료 확인',`<div class="materialVault"><strong>지역 재료 보관함</strong><div class="materialVaultGrid">${REGIONS.map((region,i)=>`<div class="matSlot"><img src="assets/materials/${['01','10','08','04','13'][i]}.webp" alt="" loading="lazy"><span>${region.material}<b>${S.materials?.[region.key]||0}개</b></span></div>`).join('')}</div></div>`,false,'uxMaterials')}
 ${compactPanel('🎒 보관 공간·자동 분해 설정',renderStorageControls()+renderExpansion(),false,'uxStorage')}
@@ -2623,6 +2641,9 @@ function equipmentComparison(item){
  '<span class="'+(deltaPower>0?'up':deltaPower<0?'down':'')+'">공격 '+fmt(deltaPower)+'</span>'+
  '<span class="'+(deltaDefense>0?'up':deltaDefense<0?'down':'')+'">방어 '+fmt(deltaDefense)+'</span></div>';
 }
+function renderEquippedSnapshot(){
+ return '<aside class="gearSnapshot" aria-label="현재 착용 장비"><strong>⚔ 현재 착용 · 공격 '+totalAtk().toLocaleString()+' / 방어 '+totalDef().toLocaleString()+'</strong><div class="gearSnapshotGrid">'+['weapon','armor','shield','ring'].map(kind=>{const it=equippedItem(kind);return '<div class="gearSnapshotSlot"><span>'+kindLabel[kind]+'</span><b>'+(it?it.name+' +'+itemPlus(it):'미착용')+'</b></div>'}).join('')+'</div></aside>';
+}
 function renderEquipment(){const all=filteredInventory(); return `
 ${renderHeader('장비','🛡️')}
 ${renderIntro()}
@@ -2649,7 +2670,7 @@ ${storageTab==='loadout' ?`${compactPanel('⚔ 장비 프리셋 관리',renderPr
 ${compactPanel('✦ 속성 세트 효과',renderSetPanel(),false,'uxSet')}
 ${compactPanel('🏆 업적 현황',renderLegendaryAchievements(),false,'uxAchievement')}
 <div class="equipmentJump"><button onclick="setStorageTab('bag')">🎒 보유 장비 관리 →</button></div>`:''}
-${storageTab==='bag'?`<div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
+${storageTab==='bag'?`${renderEquippedSnapshot()}<div class="subnav" style="margin-top:10px">${['전체','무기','갑옷','방패','반지','기타'].map(x=>`<button class="segbtn ${inventoryFilter===x?'active':''}" onclick="setInventoryFilter('${x}')">${x}</button>`).join('')}</div>
 <div class="inventoryTools"><label>장비 찾기<input type="search" placeholder="이름·등급·속성 검색" value="${inventorySearch.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}" oninput="filterInventoryCards(this.value)"></label><label>정렬<select onchange="sortInventory(this.value)">${[['tier','등급 높은 순'],['power','능력치 높은 순'],['level','강화 높은 순'],['newest','최근 획득 순'],['oldest','오래된 순']].map(([v,l])=>`<option value="${v}" ${inventorySort===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="inventoryCount" aria-live="polite">표시 장비 <strong id="inventoryVisibleCount">${all.length}</strong>개 / 가방 ${S.inventory.length}개</div><div class="inventoryGrid">${all.length?all.map(({it,idx})=>`<div class="invItem tierGear tierGear${it.tier} ${it.tier===MAX_TIER?'legendaryCard':''}" data-search="${[it.name,it.effect,kindLabel[it.kind],rarityLetter[it.tier],SET_NAMES[it.infusion]].filter(Boolean).join(' ').toLocaleLowerCase().replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}"><div class="mini">${graphicImage(iconFor(it),it.kind,it.tier,it.name)}<span class="rar ${rarityClass(it.tier)}">${rarityLetter[it.tier]}</span></div><div class="txt">${it.name}<br><span class="${rarityClass(it.tier)}">${it.effect}</span>${it.tier===MAX_TIER?`<small class="legendaryInline">${legendaryPassive(it)}</small>`:''} </div>${equipmentComparison(it)}<button onclick="openEquipmentDetails(${idx})" aria-label="${it.name} 상세 비교">비교</button><button onclick="moveToWarehouse(${idx})" ${isEquipped(idx)?'disabled':''}>보관</button><button onclick="equipItem(${idx})">${isEquipped(idx)?'해제':'장착'}</button><button class="lockControl ${isLocked(it)?'locked':''}" onclick="toggleItemLock(${idx})">${isLocked(it)?'🔒 잠금':'🔓 잠금 설정'}</button></div>`).join(''):'<p class="hint">선택한 분류에 장비가 없습니다.</p>'}</div>`:''}
 ${storageTab==='warehouse'?compactPanel('🎒 창고 확장 및 자동 분해 설정',renderStorageControls()+renderExpansion(),false,'uxStorage'):''}
 `;}
