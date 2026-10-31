@@ -1020,6 +1020,12 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
  .forgeItem,.invItem,.craftModal,.battlefield *{animation:none!important;transition:none!important}
 }
 .uxQuickLinks{display:flex;gap:6px;flex-wrap:wrap;margin:5px 0}.uxQuickLinks button{flex:1 1 120px;min-height:42px;border-radius:10px;border:1px solid #917042;background:#192531;color:#ffdaa0;padding:7px 9px;font-weight:700}@media(orientation:landscape) and (max-height:600px){.uxQuickLinks button{min-height:34px;font-size:11px}}
+/* Completion polish: prioritize actions over repeated help text. */
+.uxActionHub{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:5px 0 8px}
+.uxActionHub button{min-width:0;min-height:42px;padding:7px 3px;background:#1c3041;color:#ffdaa4;border:1px solid #7d6445;border-radius:9px;font-size:12px;font-weight:700;touch-action:manipulation}
+.uxSectionCaption{margin:4px 0 7px;color:#c6b79f;font-size:11px;line-height:1.3}
+@media(orientation:landscape) and (max-height:600px){.uxActionHub{gap:4px;margin:3px 0 5px}.uxActionHub button{min-height:35px;font-size:10px}.uxSectionCaption{margin:2px 0 4px}}
+@media(max-width:350px){.uxActionHub button{font-size:10px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2202,7 +2208,7 @@ function renderDungeon(){const hpPct=Math.max(0,Math.min(100,S.hp/getMaxHp()*100
 ${renderHeader('던전','✦')}
 ${renderIntro()}
 ${renderDungeonTabs()}
-<div class="uxJourneyNote" role="note"><strong>⚔ 전투</strong><span>스테이지와 적 체력을 확인하고 아래 전투 기술을 사용하세요. 보상·제작은 위 탭에서 확인할 수 있습니다.</span></div>
+<div class="uxActionHub" role="group" aria-label="전투 빠른 이동"><button onclick="quickOpenForge(\'제작\')">⚒ 제작</button><button onclick="quickOpenEquipment(\'bag\')">🎒 장비 확인</button><button onclick="setDungeonPanel(\'tasks\')">🎁 보상 확인</button></div>
 <div class="dungeonCombatPage" ${dungeonPanel==='fight'?'':'hidden'}>
 <div class="combatOverview" role="group" aria-label="전투 현황"><span>⚔ STAGE ${S.stage}</span><strong>${S.boss?'⚠ 보스 전투':'일반 전투'}</strong><span>${S.battleMode==='manual'?'직접 조작':'자동 진행'}</span></div>
 ${bossGuide()}
@@ -2444,7 +2450,7 @@ ${groupHint}<div class="forgeItemGrid">${inventory.length?inventory.map(forgeIte
 function renderForge(){return `
 ${renderHeader('대장간','⚒️')}
 ${renderIntro()}
-<div class="uxJourneyNote" role="note"><strong>⚒ 대장간</strong><span>① 작업 선택　② 장비 선택　③ 재료·비용 확인　④ 실행</span></div>
+<p class="uxSectionCaption">작업을 선택하고 장비와 재료를 확인하세요.</p>
 <div class="uxQuickLinks"><button onclick="quickOpenEquipment(\'bag\')">🎒 가방 바로가기</button><button onclick="quickOpenEquipment(\'warehouse\')">📦 창고 바로가기</button></div><div class="forgeTabs" style="margin-bottom:8px">
  ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${x}</button>`).join('')}
 </div>
@@ -2596,7 +2602,7 @@ ${renderHeader('장비','🛡️')}
 ${renderIntro()}
 ${renderIntroEquip()}
 ${renderWarehouse()}
-<div class="uxQuickLinks"><button onclick="quickOpenForge(\'강화\')">⚒ 강화 바로가기</button><button onclick="quickOpenForge(\'분해\')">♻ 분해 바로가기</button></div><div class="uxJourneyNote" role="note"><strong>🛡 장비 관리</strong><span>착용에서 현재 장비와 능력치를 확인하고, 가방에서 비교·장착, 창고에서 보관 장비를 관리하세요.</span></div>
+<div class="uxQuickLinks"><button onclick="quickOpenForge(\'강화\')">⚒ 강화 바로가기</button><button onclick="quickOpenForge(\'분해\')">♻ 분해 바로가기</button></div><p class="uxSectionCaption">착용 · 가방 · 창고를 전환해 장비를 관리하세요.</p>
 ${storageTab==='loadout' ?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
   <div class="slotcol">
     ${renderEquipSlot('weapon')}
