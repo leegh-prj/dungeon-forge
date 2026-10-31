@@ -1019,6 +1019,7 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
 @media(prefers-reduced-motion:reduce){
  .forgeItem,.invItem,.craftModal,.battlefield *{animation:none!important;transition:none!important}
 }
+.uxQuickLinks{display:flex;gap:6px;flex-wrap:wrap;margin:5px 0}.uxQuickLinks button{flex:1 1 120px;min-height:42px;border-radius:10px;border:1px solid #917042;background:#192531;color:#ffdaa0;padding:7px 9px;font-weight:700}@media(orientation:landscape) and (max-height:600px){.uxQuickLinks button{min-height:34px;font-size:11px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2444,7 +2445,7 @@ function renderForge(){return `
 ${renderHeader('대장간','⚒️')}
 ${renderIntro()}
 <div class="uxJourneyNote" role="note"><strong>⚒ 대장간</strong><span>① 작업 선택　② 장비 선택　③ 재료·비용 확인　④ 실행</span></div>
-<div class="forgeTabs" style="margin-bottom:8px">
+<div class="uxQuickLinks"><button onclick="quickOpenEquipment(\'bag\')">🎒 가방 바로가기</button><button onclick="quickOpenEquipment(\'warehouse\')">📦 창고 바로가기</button></div><div class="forgeTabs" style="margin-bottom:8px">
  ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${x}</button>`).join('')}
 </div>
 ${forgePanel()}
@@ -2595,7 +2596,7 @@ ${renderHeader('장비','🛡️')}
 ${renderIntro()}
 ${renderIntroEquip()}
 ${renderWarehouse()}
-<div class="uxJourneyNote" role="note"><strong>🛡 장비 관리</strong><span>착용에서 현재 장비와 능력치를 확인하고, 가방에서 비교·장착, 창고에서 보관 장비를 관리하세요.</span></div>
+<div class="uxQuickLinks"><button onclick="quickOpenForge(\'강화\')">⚒ 강화 바로가기</button><button onclick="quickOpenForge(\'분해\')">♻ 분해 바로가기</button></div><div class="uxJourneyNote" role="note"><strong>🛡 장비 관리</strong><span>착용에서 현재 장비와 능력치를 확인하고, 가방에서 비교·장착, 창고에서 보관 장비를 관리하세요.</span></div>
 ${storageTab==='loadout' ?`${compactPanel('⚔ 장비 프리셋 관리',renderPresets(),false,'uxPreset')}<div class="charwrap">
   <div class="slotcol">
     ${renderEquipSlot('weapon')}
@@ -2787,6 +2788,8 @@ shopSection==='journey'?renderPass():`
 `;}
 
 let previousRenderedTab=null;
+function quickOpenEquipment(tab){storageTab=tab;switchMainTab('장비')}
+function quickOpenForge(mode){forgeMode=mode;forgeSelection=[];switchMainTab('대장간')}
 function switchMainTab(next){if(!navTabs.includes(next))return;if(next==='던전')dungeonPanel='fight';TAB=next;render();}
 function showStartupError(error){
  console.error('던전 대장간 화면 오류',error);
