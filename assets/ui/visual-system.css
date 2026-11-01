@@ -27,3 +27,52 @@
 @media(min-width:700px) and (orientation:landscape){#app{max-width:860px}.battlefield{min-height:290px}.battleactors{min-height:205px}.actor.hero img{height:165px}.actor.enemy img{height:140px}}
 @media(max-width:380px){.equipCard{padding:4px}.cardsRow{gap:5px}.segbtn{padding:8px 10px}}
 @media(prefers-reduced-motion:reduce){.actor.hero img,.actor.enemy img,.fxslash,.waterburst{animation:none!important}.segbtn,.primaryBtn,.sideicon,.skillbtn button{transition:none!important}}
+
+/* Layout recovery v3: remove collisions from accumulated legacy landscape rules. */
+html,body{overflow-x:hidden}
+#app{box-sizing:border-box;min-width:0}
+.screen{isolation:isolate;min-width:0}
+#screen{min-width:0}
+.screenheader{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;min-width:0;height:auto;overflow:visible}
+.screenheader .headerleft{display:flex;align-items:center;flex:0 1 auto;min-width:0}
+.screenheader .screentitle{white-space:nowrap;line-height:1.25}
+.screenheader .resources{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex:0 1 auto;min-width:0;max-width:100%;overflow:visible}
+.screenheader .reschip{display:inline-flex;align-items:center;flex:0 1 auto;min-width:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums;line-height:1.3}
+#screen .dungeonSwitcher,#screen .uxActionHub{position:relative;z-index:1;min-width:0;max-width:100%;height:auto}
+#screen .dungeonSwitcher button,#screen .uxActionHub button{min-width:0;white-space:normal;overflow-wrap:anywhere}
+#screen .dungeonCombatPage{display:flex;flex-direction:column;gap:7px;min-width:0;min-height:0;align-content:initial}
+#screen .dungeonCombatPage[hidden]{display:none!important}
+#screen .dungeonCombatPage>*{position:relative;grid-column:auto;grid-row:auto;min-width:0;max-width:100%;margin-top:0;margin-bottom:0}
+#screen .dungeonCombatPage>.stagebar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px;padding:8px 10px!important;min-height:42px;height:auto;line-height:1.35;overflow:visible}
+#screen .dungeonCombatPage>.battlefield{position:relative;display:block;grid-row:auto;width:100%;min-height:280px!important;height:clamp(280px,36vw,455px)!important;overflow:hidden;flex-shrink:0}
+#screen .dungeonCombatPage>.combatTelegraph{display:flex;align-items:center;min-height:44px;flex-shrink:0;z-index:2}
+#screen .dungeonCombatPage>.battlefield .battleactors{min-height:0;height:70%;position:relative}
+#screen .dungeonCombatPage>.battlefield .bars{position:relative;z-index:2}
+#screen .dungeonCombatPage .actor img{max-width:100%;object-fit:contain}
+#screen .dungeonCombatPage>.battlefield .righticons{z-index:3}
+@media(min-width:800px){
+ #app{width:min(100% - 24px,1100px);max-width:1100px;margin:0 auto;padding:12px 16px 110px}
+ #screen .dungeonCombatPage>.battlefield{min-height:340px!important;height:clamp(340px,42vw,500px)!important}
+ #screen .dungeonCombatPage>.battlefield .actor.hero img{height:clamp(145px,18vw,230px)!important}
+ #screen .dungeonCombatPage>.battlefield .actor.enemy img{height:clamp(135px,17vw,215px)!important}
+}
+@media(max-width:799px){
+ #app{max-width:100%;min-width:0}
+ #screen .dungeonCombatPage>.battlefield{min-height:260px!important;height:clamp(260px,64vw,400px)!important}
+ .screenheader .resources{width:auto;flex-wrap:wrap}
+}
+@media(orientation:landscape) and (max-height:650px) and (min-width:700px){
+ body{overflow:auto!important}
+ #app{height:auto!important;min-height:100dvh!important;overflow:visible!important;display:block!important;width:calc(100vw - 90px)!important;max-width:none!important;margin:0 6px 0 78px!important;padding:8px 10px 76px!important}
+ .screen{height:auto!important;min-height:0!important;overflow:visible!important}
+ #screen{height:auto!important;overflow:visible!important}
+ #screen .dungeonCombatPage{display:flex!important;flex-direction:column!important;grid-template-columns:none!important}
+ #screen .dungeonCombatPage>.battlefield{height:clamp(250px,45vw,440px)!important;min-height:250px!important}
+ #nav{position:fixed!important}
+}
+@media(max-width:450px){
+ .screenheader{align-items:flex-start}
+ .screenheader .resources{flex:1 1 100%;justify-content:space-between}
+ .screenheader .reschip{font-size:11px!important;padding:4px!important}
+ #screen .dungeonCombatPage>.battlefield{height:280px!important;min-height:280px!important}
+}
