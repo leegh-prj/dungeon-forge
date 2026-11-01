@@ -2384,7 +2384,6 @@ ${renderDungeonTabs()}
 <div class="uxActionHub" role="group" aria-label="전투 빠른 이동"><button onclick="quickOpenForge(\'제작\')">⚒ 제작</button><button onclick="quickOpenEquipment(\'bag\')">🎒 장비 확인</button><button onclick="setDungeonPanel(\'tasks\')">🎁 보상 확인</button></div>
 <div class="dungeonCombatPage" ${dungeonPanel==='fight'?'':'hidden'}>
 <div class="combatTelegraph" role="status" aria-live="polite"><span class="combatTelegraphIcon">${S.boss?'⚠':'⚔'}</span><div class="combatTelegraphBody"><strong>${S.boss?'보스 패턴 · '+getBossPattern()[0]:'지역 전투 · '+currentEnemyName()}</strong><small>${S.boss?'경고 후 방어 타이밍을 확인하세요':'공격·강타·방어로 전투를 진행하세요'}</small></div><span class="combatTelegraphMode">${S.battleMode==='manual'?'수동':'자동'}</span></div>
-<div class="combatOverview" role="group" aria-label="전투 현황"><span>⚔ STAGE ${S.stage}</span><strong>${S.boss?'⚠ 보스 전투':'일반 전투'}</strong><span>${S.battleMode==='manual'?'직접 조작':'자동 진행'}</span></div>
 ${bossGuide()}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div>
