@@ -54,3 +54,10 @@ GitHub 원격 저장소 clone 시 DNS 연결 실패로 로컬 실행 환경 구�
 - **P0 자동 TC 3개 추가:** 보스 처치 콜백 중복 호출 시 단계/전리품 1회 지급, 10회 제작 재화 소모·장비 ID 유일성, localStorage 저장 실패 시 이전 저장본/last 타임스탬프 유지.
 - 개발 브랜치 소스 반영 완료. Chromium/실기기 실행은 아직 수행하지 못했으므로 테스트 결과는 NOT RUN 유지.
 - 운영 배포 진행하지 않음.
+
+## P0 저장 복구 결함 수정 (2026-11-01)
+- 실제 결함 확인: JSON 파싱 가능한 불완전 객체(예: {garbage:true})를 저장본으로 허용하여 백업 복구를 건너뛸 가능성.
+- assets/js/save-core.js의 validSnapshot에 스테이지·골드·가방·장착 구조 유효성 검사 추가.
+- index.html 초기 복원 로직에서 primary 구조 검증 실패 시 backup으로 폴백하도록 변경.
+- tests/p0-save-recovery.spec.cjs에 손상된 JSON 구조 복원 및 비정상 스냅샷 차단 2개 자동 시나리오 추가.
+- 수정 커밋은 개발 브랜치에만 반영. 이번 세션에서는 GitHub 원격 clone DNS 불가, Playwright 실행 결과는 확보하지 못함. 신규 TC = NOT RUN.
