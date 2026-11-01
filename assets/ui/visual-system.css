@@ -1,0 +1,29 @@
+/* Dungeon Forge — shared visual skin v1. All gameplay and save logic stays in index.html. */
+:root{--df-ink:#0a1019;--df-surface:#171e29;--df-surface-raised:#252b36;--df-edge:#a47b45;--df-edge-lit:#f2ca83;--df-copper:#cd7436;--df-blue:#70c7f5;--df-shadow:0 12px 28px rgba(0,0,0,.38)}
+.screen{background:linear-gradient(155deg,rgba(34,39,49,.97),rgba(11,15,23,.98) 72%);border-color:var(--df-edge);box-shadow:inset 0 1px 0 rgba(255,233,193,.14),0 12px 38px rgba(0,0,0,.47)}
+.panel,.forgeMainPanel,.forgeWorkspace{border-color:rgba(197,149,78,.55)}
+.battlefield,.forgeBanner,.heroBanner{isolation:isolate;box-shadow:inset 0 0 45px rgba(5,8,13,.6),0 8px 20px rgba(0,0,0,.3)}
+.battlefield:after,.heroBanner:after,.forgeBanner:after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:linear-gradient(180deg,rgba(255,219,149,.07),transparent 31%,rgba(3,7,13,.32) 100%)}
+.battleactors,.bars,.righticons{z-index:1}
+.equipCard,.forgeItemCard,.slot{position:relative;isolation:isolate;border-color:rgba(208,164,92,.7);box-shadow:inset 0 1px 0 rgba(255,245,215,.08),0 5px 13px rgba(0,0,0,.24)}
+.equipCard:before,.forgeItemCard:before{content:"";position:absolute;inset:1px;border-radius:inherit;border:1px solid rgba(255,224,167,.055);pointer-events:none}
+.equipThumb{background-color:#101722;background-size:contain;border-color:rgba(233,190,119,.18);box-shadow:inset 0 0 22px rgba(0,0,0,.45)}
+.equipCard .name{overflow-wrap:anywhere}
+.segbtn,.primaryBtn,.sideicon,.skillbtn button{transition:transform .14s ease,filter .14s ease,box-shadow .14s ease}
+.segbtn:active,.primaryBtn:active,.sideicon:active,.skillbtn button:active{transform:translateY(2px) scale(.985)}
+.segbtn:focus-visible,.primaryBtn:focus-visible,.sideicon:focus-visible,.skillbtn button:focus-visible{outline:3px solid var(--df-blue);outline-offset:2px}
+.primaryBtn{box-shadow:inset 0 1px 0 rgba(255,245,210,.64),inset 0 -3px 0 rgba(103,49,11,.55),0 8px 16px rgba(0,0,0,.34)}
+.primaryBtn:disabled{filter:grayscale(.6);opacity:.6;cursor:not-allowed}
+.actor img{transform-origin:center bottom;will-change:transform;backface-visibility:hidden;image-rendering:auto}
+.actor.hero img{animation:df-hero-idle 2.8s ease-in-out infinite}
+.actor.enemy img{animation:df-enemy-idle 3.3s ease-in-out infinite}
+.fxslash{animation:df-impact .3s ease-out both}
+.waterburst{animation:df-burst .5s ease-out both}
+@keyframes df-hero-idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes df-enemy-idle{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.015)}}
+@keyframes df-impact{from{opacity:0;transform:rotate(15deg) scale(.72)}50%{opacity:1}to{opacity:0;transform:rotate(45deg) scale(1.15)}}
+@keyframes df-burst{from{opacity:.9;transform:scale(.55)}to{opacity:0;transform:scale(1.35)}}
+@media(hover:hover){.segbtn:hover:not(:disabled),.primaryBtn:hover:not(:disabled){filter:brightness(1.12)}}
+@media(min-width:700px) and (orientation:landscape){#app{max-width:860px}.battlefield{min-height:290px}.battleactors{min-height:205px}.actor.hero img{height:165px}.actor.enemy img{height:140px}}
+@media(max-width:380px){.equipCard{padding:4px}.cardsRow{gap:5px}.segbtn{padding:8px 10px}}
+@media(prefers-reduced-motion:reduce){.actor.hero img,.actor.enemy img,.fxslash,.waterburst{animation:none!important}.segbtn,.primaryBtn,.sideicon,.skillbtn button{transition:none!important}}
