@@ -56,3 +56,22 @@ test('P0 save: valid primary snapshot is backed up before replacement', async ({
  });
  expect(result).toEqual({a:true,b:true,oldGold:12345,newGold:23456,firstValid:true});
 });
+
+test('P0 save: gold and inventory identity restore after reload', async ({page}) => {
+ await page.goto('/');
+ const itemId=await page.evaluate(() => {
+  const def=recipeDefs.find(r=>r.kind==='shield');
+  const item=mkItem(def,0,effects[0]);
+  S.inventory.push(item);
+  S.gold=98765;
+  if (!save()) throw Error('save returned false');
+  return item.id;
+ });
+ await page.reload({waitUntil:'domcontentloaded'});
+ const state=await page.evaluate(id => ({
+  gold:S.gold,
+  itemPresent:S.inventory.some(it=>it.id===id),
+  errorVisible:!!document.getElementById('gameErrorDetail')
+ }),itemId);
+ expect(state).toEqual({gold:98765,itemPresent:true,errorVisible:false});
+});
