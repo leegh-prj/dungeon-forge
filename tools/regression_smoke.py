@@ -20,7 +20,7 @@ checks={
  "6. Save format unchanged":"const K='dungeon-forge-ui-v2';",
 }
 visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
-checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=6"'
+checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=7"'
 checks["7. Visual style file is modular"]=visual_css.is_file() and "prefers-reduced-motion" in visual_css.read_text(encoding="utf-8")
 checks["7. Five regional fallback references"]='assets/backgrounds/${regionInfo().key}-fallback.svg'
 checks["8. Region monster sprite resolver"]="assets/sprites/regions/"
@@ -31,6 +31,7 @@ checks["9. Hidden tasks remain hidden"]="[hidden]{display:none!important}" in vi
 checks["10. Combat text contrast overlay"]="Readability recovery v4" in visual_css.read_text(encoding="utf-8")
 checks["11. Duplicate combat stage status removed"]='class="combatOverview" role="group"' not in s
 checks["12. Bounded combat action grid"]="grid-template-columns:repeat(3,minmax(0,1fr))!important" in visual_css.read_text(encoding="utf-8")
+checks["13. Shared workspace grid"]="shared responsive workspace geometry" in visual_css.read_text(encoding="utf-8")
 for name,anchor in checks.items():
     ok=anchor if isinstance(anchor,bool) else anchor in s
     print(("PASS" if ok else "FAIL")+" "+name)
