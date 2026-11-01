@@ -104,3 +104,21 @@ html,body{overflow-x:hidden}
 #screen .dungeonCombatPage>.battlefield .hplabel{font-weight:800}
 #screen .dungeonCombatPage>.battlefield .hplabel .subtxt{color:#ead8b7!important}
 @media(max-width:450px){#screen .dungeonCombatPage>.stagebar .name{font-size:14px}}
+
+/* v5: strong legibility and single-stage visual hierarchy. */
+#screen .dungeonCombatPage>.combatOverview{display:none!important}
+#screen .dungeonCombatPage>.stagebar{background:#101825!important;color:#fff4df!important;border:1px solid #b68c53!important;border-left:4px solid #edb563!important;isolation:isolate;z-index:3}
+#screen .dungeonCombatPage>.stagebar::before,#screen .dungeonCombatPage>.stagebar::after{content:none!important}
+#screen .dungeonCombatPage>.stagebar *{position:relative;z-index:1}
+#screen .dungeonCombatPage>.combatTelegraph{background:#111923!important;isolation:isolate}
+#screen .dungeonCombatPage>.combatTelegraph::before,#screen .dungeonCombatPage>.combatTelegraph::after{content:none!important}
+#screen .dungeonCombatPage>.battlefield{background-blend-mode:normal;background-color:#101623!important}
+#screen .dungeonCombatPage>.battlefield::before{background:linear-gradient(180deg,rgba(6,10,17,.42),rgba(6,10,17,.1) 46%,rgba(6,10,17,.62))!important;z-index:0}
+#screen .dungeonCombatPage>.battlefield .bars{background:#0d1724f5!important}
+#screen .dungeonCombatPage>.battlefield .actorname{font-size:clamp(12px,1.3vw,16px)!important;white-space:nowrap}
+#screen .dungeonCombatPage>.battlefield .combatAlert{background:#6e1f18f5!important;color:#fff4e3!important;text-shadow:0 1px 3px #000;z-index:4}
+#screen .dungeonCombatPage>.regionBadge,#screen .dungeonCombatPage>.combatInstruction{background:#111a27!important;color:#ffedd2!important;padding:8px 12px!important;line-height:1.5!important}
+.screenheader .resources .reschip{background:#101925ee!important;border:1px solid #99764799!important;border-radius:8px!important;padding:5px 8px!important}
+.screenheader .screentitle{background:#101925ee;border-radius:7px;padding:5px 10px}
+@media(min-width:700px){.screenheader{display:grid!important;grid-template-columns:minmax(120px,1fr) auto;align-items:center}.screenheader .resources{flex-wrap:nowrap!important;max-width:100%}.screenheader .reschip{font-size:clamp(11px,1.3vw,16px)!important}}
+@media(max-width:699px){.screenheader{display:flex!important;flex-wrap:wrap!important}.screenheader .resources{flex-basis:100%;justify-content:flex-start!important;flex-wrap:wrap!important}}
