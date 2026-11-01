@@ -1191,6 +1191,12 @@ body::before{background:linear-gradient(180deg,rgba(6,9,21,.60),rgba(8,9,19,.88)
 @media(max-width:430px){.screen{padding:10px!important}}
 /* Prevent legacy mobile nav height rules from creating overlapping tap targets. */
 @media(orientation:landscape) and (min-width:700px) and (max-height:650px){#nav{gap:3px!important}#nav button{flex:0 0 54px!important;height:54px!important;min-height:0!important;max-height:54px!important;padding:3px 0!important;overflow:hidden!important}#nav .icon,#nav .navArtIcon{pointer-events:none!important;flex-shrink:0}}
+/* Approved pixel-art asset family: independent UI icons */
+.pixelUiIcon{width:21px;height:21px;display:inline-block;vertical-align:middle;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 1px 2px #090711);pointer-events:none}
+.reschip .pixelUiIcon{width:17px;height:17px;margin-right:3px}
+.forgeTabs .segbtn .pixelUiIcon{width:19px;height:19px;margin-right:4px}
+.emblem .pixelUiIcon{width:27px;height:27px}
+@media(orientation:landscape) and (max-height:600px){.forgeTabs .segbtn .pixelUiIcon{width:15px;height:15px;margin-right:2px}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2330,8 +2336,9 @@ function repairStats(){
 
 function filteredItems(kind=null){return S.inventory.filter(it=>!kind||it.kind===kind)}
 function recipeCard(def,tier=4){return `<div class="equipCard tierGear tierGear${tier}"><div class="equipThumb">${graphicImage(iconFor({kind:def.kind,tier}),def.kind,tier,def.name)}<span class="tierbadge ${rarityClass(tier)}">${rarityLetter[tier]}</span></div><div class="name">${def.name}</div></div>`}
-function renderResources(){return `<div class="resources"><div class="reschip"><small>🪙</small>${S.gold.toLocaleString()}</div><div class="reschip"><small>⛏</small>${S.ore.toLocaleString()}</div><div class="reschip"><small>💎</small>${S.crystals.toLocaleString()}</div><div class="reschip plus">＋</div></div>`}
-function renderHeader(title,icon='✦'){return `<div class="screenheader"><div class="headerleft"><div class="emblem">${icon}</div><div class="screentitle">${title}</div></div>${renderResources()}</div>`}
+function pixelIcon(name,alt=''){return '<img class="pixelUiIcon" src="assets/ui/pixel-'+name+'.svg" alt="'+alt+'" draggable="false" loading="lazy">'}
+function renderResources(){return `<div class="resources"><div class="reschip">${pixelIcon("coin","골드")}${S.gold.toLocaleString()}</div><div class="reschip">${pixelIcon("ore","광석")}${S.ore.toLocaleString()}</div><div class="reschip">${pixelIcon("gem","결정")}${S.crystals.toLocaleString()}</div><div class="reschip plus">＋</div></div>`}
+function renderHeader(title,icon='✦'){const art=({던전:'dungeon',대장간:'forge',장비:'gear',도감:'codex',상점:'shop'})[title];return `<div class="screenheader"><div class="headerleft"><div class="emblem">${art?'<img class="pixelUiIcon" src="assets/ui/'+art+'.svg" alt="">':icon}</div><div class="screentitle">${title}</div></div>${renderResources()}</div>`}
 function openStageInfo(){
  const r=regionInfo(),pattern=r.patterns.map(x=>x[0]).join(' · ');
  document.getElementById('craftModal').innerHTML=`<span class="beam">🏰</span><div class="grade">${r.name}</div><p class="researchNote">일반 몬스터: ${r.enemy}<br>보스: ${r.boss}<br>공격 패턴: ${pattern}<br>지역 재료: ${r.material}<br>보유 수량: ${S.materials?.[r.key]||0}</p><button onclick="closeCraft()">닫기</button>`;
@@ -2618,7 +2625,7 @@ ${renderHeader('대장간','⚒️')}
 ${renderIntro()}
 <p class="uxSectionCaption">작업을 선택하고 장비와 재료를 확인하세요.</p>
 <div class="uxQuickLinks"><button onclick="quickOpenEquipment(\'bag\')">🎒 가방 바로가기</button><button onclick="quickOpenEquipment(\'warehouse\')">📦 창고 바로가기</button></div><div class="forgeWorkspace"><div class="forgeTabs" style="margin-bottom:8px">
- ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${x}</button>`).join('')}
+ ${['제작','강화','분해','합성','승급'].map(x=>`<button class="segbtn ${forgeMode===x?'active':''}" onclick="setForgeMode('${x}')">${pixelIcon(({제작:'craft',강화:'enhance',분해:'dismantle',합성:'fusion',승급:'enhance'})[x])}${x}</button>`).join('')}
 </div>
 <div class="forgeMainPanel">${forgePanel()}</div></div>
 ${compactPanel('👑 보스 전리품 특별 제작',renderBossForge(),false,'uxBossForge')}
