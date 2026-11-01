@@ -76,3 +76,31 @@ html,body{overflow-x:hidden}
  .screenheader .reschip{font-size:11px!important;padding:4px!important}
  #screen .dungeonCombatPage>.battlefield{height:280px!important;min-height:280px!important}
 }
+
+/* Readability recovery v4: foreground hierarchy over detailed fantasy art. */
+#screen .dungeonCombatPage>.battlefield{isolation:isolate}
+#screen .dungeonCombatPage>.battlefield::before{
+ content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+ background:linear-gradient(180deg,rgba(5,9,17,.55),rgba(5,9,17,.17) 35%,rgba(5,9,17,.16) 65%,rgba(5,9,17,.66));
+}
+#screen .dungeonCombatPage>.battlefield .battleactors{z-index:1}
+#screen .dungeonCombatPage>.battlefield .bars{z-index:2;padding:8px 10px;background:linear-gradient(180deg,rgba(8,13,22,.86),rgba(8,13,22,.78));border:1px solid rgba(210,166,100,.4);border-radius:8px}
+#screen .dungeonCombatPage>.battlefield .righticons{z-index:3}
+#screen .dungeonCombatPage :is(.combatTelegraph,.stagebar,.regionBadge,.combatInstruction,.combatOverview,.stageRewardNote){
+ background:rgba(12,18,29,.96)!important;
+ border:1px solid rgba(206,159,89,.68)!important;
+ color:#fff1d4!important;
+ box-shadow:0 3px 12px rgba(0,0,0,.30);
+}
+#screen .dungeonCombatPage>.stagebar{border-left:4px solid #dfae61!important;background:linear-gradient(90deg,#171f2d 0%,#111a27 100%)!important}
+#screen .dungeonCombatPage :is(.combatTelegraph strong,.combatTelegraph small,.stagebar .name,.stagebar .name small,.hplabel,.actorname,.sideicon span,.regionBadge,.combatInstruction){
+ color:#ffefd1!important;text-shadow:0 1px 2px #000,0 2px 5px rgba(0,0,0,.75);
+}
+#screen .dungeonCombatPage .combatTelegraph small{color:#e8d2ac!important}
+#screen .dungeonCombatPage .stagebar .name{font-size:clamp(14px,1.4vw,19px);font-weight:900}
+#screen .dungeonCombatPage .stagebar .name small{display:block;color:#e9c28a!important}
+#screen .dungeonCombatPage>.battlefield .actorname{background:rgba(8,13,22,.94)!important;border:1px solid rgba(220,177,105,.62)!important;padding:5px 9px;border-radius:7px}
+#screen .dungeonCombatPage>.battlefield .sideicon{background:rgba(10,16,26,.95)!important;border:1px solid rgba(225,174,91,.8)!important}
+#screen .dungeonCombatPage>.battlefield .hplabel{font-weight:800}
+#screen .dungeonCombatPage>.battlefield .hplabel .subtxt{color:#ead8b7!important}
+@media(max-width:450px){#screen .dungeonCombatPage>.stagebar .name{font-size:14px}}
