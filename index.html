@@ -1537,7 +1537,7 @@ function currentRegionAffinity(){const r=getStageData(S.stage),count=equippedSet
 
 function regionInfo(){return getStageData(S.stage)}
 function currentEnemyName(){return S.boss?regionInfo().boss:regionInfo().enemy}
-function currentEnemyImg(){return S.boss?'assets/art/magma.webp':'assets/art/slime.webp'}
+function currentEnemyImg(){const region=regionInfo()?.key;return ['water','poison','storm','fire','earth'].includes(region)?'assets/sprites/regions/'+region+'-'+(S.boss?'boss':'normal')+'.svg':(S.boss?'assets/art/magma.webp':'assets/art/slime.webp')}
 const BOSS_SLOW_PATTERNS=new Set(['용암 내려찍기','암석 분쇄','전격 강하','버섯 폭발','파도 밀치기']);
 const BOSS_FAST_PATTERNS=new Set(['회복 젤','방어 태세','독안개','번개 깃털','연속 할퀴기']);
 function bossAttackInterval(name=getBossPattern()[0]){
