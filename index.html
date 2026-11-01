@@ -1851,6 +1851,8 @@ function renderBossForge(){
  }).join('')+'</div>';
 }
 function enemyDown(){
+ // A delayed hit or repeated callback must not grant rewards for an already-reset enemy.
+ if(S.enemyHp>0)return;
  const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;const pass=normalizePass();pass.xp=Math.min(100,pass.xp+(S.boss?5:1));
  const wasBoss=S.boss,defeatedRegion=regionInfo();const reward=awardBattleRewards(S.boss);if(wasBoss)S.bossTrophies[defeatedRegion.key]=(S.bossTrophies[defeatedRegion.key]||0)+1;S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
  introAdvance(wasBoss?'boss':'kill');
