@@ -20,7 +20,7 @@ checks={
  "6. Save format unchanged":"const K='dungeon-forge-ui-v2';",
 }
 visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
-checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=4"'
+checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=5"'
 checks["7. Visual style file is modular"]=visual_css.is_file() and "prefers-reduced-motion" in visual_css.read_text(encoding="utf-8")
 checks["7. Five regional fallback references"]='assets/backgrounds/${regionInfo().key}-fallback.svg'
 checks["8. Region monster sprite resolver"]="assets/sprites/regions/"
@@ -29,8 +29,9 @@ checks["8. Ten monster sprites present"]=all((region_sprite_dir/f"{region}-{role
 checks["9. Dungeon recovery scope"]=".dungeonCombatPage>.battlefield" in visual_css.read_text(encoding="utf-8")
 checks["9. Hidden tasks remain hidden"]="[hidden]{display:none!important}" in visual_css.read_text(encoding="utf-8")
 checks["10. Combat text contrast overlay"]="Readability recovery v4" in visual_css.read_text(encoding="utf-8")
+checks["11. Duplicate combat stage status removed"]='class="combatOverview" role="group"' not in s
 for name,anchor in checks.items():
     ok=anchor if isinstance(anchor,bool) else anchor in s
     print(("PASS" if ok else "FAIL")+" "+name)
-if not all(anchor in s for anchor in checks.values()):raise SystemExit(1)
+if not all(anchor if isinstance(anchor,bool) else anchor in s for anchor in checks.values()):raise SystemExit(1)
 print("PASS all",len(checks),"static regression checks")
