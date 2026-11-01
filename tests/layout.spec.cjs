@@ -24,10 +24,14 @@ for (const viewport of viewports) {
     });
     for (const screen of screens) {
       test(screen + ': controls remain inside viewport', async ({ page }) => {
+        const pageErrors = [];
+        page.on('pageerror', error => pageErrors.push(error.message));
         await page.goto('/', { waitUntil: 'domcontentloaded' });
         await page.locator('#nav button').filter({ hasText: screen }).click();
         await expect(page.locator('#nav button.active')).toContainText(screen);
         await expect(page.locator('#screen')).not.toBeEmpty();
+        expect(pageErrors, 'navigation must not throw JS errors').toEqual([]);
+        await page.locator('#screen img').evaluateAll(async images => { await Promise.all(images.filter(img => img.getClientRects().length && !img.closest('[hidden]')).map(img => img.decode().catch(() => {}))); });
         const bad = await page.evaluate(() => {
           const width = document.documentElement.clientWidth;
           return [...document.querySelectorAll('#screen button')].filter(el => {
