@@ -1160,6 +1160,37 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
 .battlefield.anim-guard:before{background-image:url('assets/fx/shield-aura.svg');left:13%;top:16%;width:36%;height:72%}
 @keyframes fxImpact{0%{opacity:0;transform:scale(.48) rotate(-12deg)}28%{opacity:1;transform:scale(1.08) rotate(3deg)}100%{opacity:0;transform:scale(1.18)}}
 @media(prefers-reduced-motion:reduce){.battlefield.anim-attack:before,.battlefield.anim-strong:before,.battlefield.anim-guard:before{animation:none;opacity:0}}
+
+/* Approved pixel-fantasy visual system: authored scalable atlas-free UI artwork */
+:root{--bg:#0a0c16;--panel:#151725;--panel2:#211d27;--line:#b67d35;--gold:#ffd98e;--gold2:#e6a446;--paper:#fff0d1;--muted:#dec7a1;--text:#fff0d8}
+body{background:#080b13;color:var(--text)}
+body::before{background:linear-gradient(180deg,rgba(6,9,21,.60),rgba(8,9,19,.88)),url('assets/art/dungeon.webp') center/cover no-repeat}
+.screen,.panel,.craftModal,.statsBox,.gearSnapshot{border-image-source:url('assets/ui/pixel-panel-frame.svg');border-image-slice:20 fill;border-image-width:12px;border-image-repeat:stretch;border-radius:5px!important;background-color:rgba(15,17,30,.96)!important;box-shadow:0 8px 24px rgba(0,0,0,.45),inset 0 0 12px rgba(222,145,51,.08)}
+.screen{padding:14px!important}
+#screen button,.forgeTabs .segbtn,.equipmentPages .segbtn{border-radius:5px;font-weight:800}
+#screen button.primaryBtn,.craftQuickActions .primaryBtn,.tierResultConfirm{background:#382319 url('assets/ui/pixel-button-gold.svg') center/100% 100% no-repeat!important;color:#fff4d6!important;border:0!important;text-shadow:0 2px #342014;box-shadow:0 4px 9px rgba(0,0,0,.42)}
+#screen .segbtn.active,#nav button.active{background:linear-gradient(180deg,#663614,#2a1b25)!important;border-color:#ffbb58!important;color:#ffdf95!important;text-shadow:0 1px 3px #000}
+.topbrand .brandtitle,.screentitle{font-family:Georgia,'Malgun Gothic',serif;letter-spacing:.03em;text-shadow:0 2px #1a0b0a,0 0 12px rgba(250,151,38,.28)}
+#screen :is(.invItem,.forgeItem,.warehouseItem){border-radius:5px!important;background:linear-gradient(140deg,#272437,#111827)!important}
+#nav{background:linear-gradient(180deg,#11121f,#0b1224)!important;border-color:#be7f37!important}
+#nav button{border-radius:4px!important}
+#nav .navArtIcon{image-rendering:pixelated}
+.battlefield{outline:2px solid rgba(239,177,77,.65);outline-offset:-2px;box-shadow:inset 0 0 28px rgba(20,11,37,.72)}
+@media(orientation:landscape) and (min-width:700px) and (max-height:650px){
+ #app{max-width:none!important;width:calc(100vw - 78px)!important;margin:0 8px 0 70px!important;padding:5px 8px 8px!important}
+ .screen{border-radius:3px!important;padding:9px 12px!important}
+ .topbrand{margin-bottom:3px!important}
+ .screenheader{margin-bottom:5px}
+ #nav{width:65px!important}
+ #nav button{min-height:58px}
+ .dungeonCombatPage{grid-template-columns:minmax(0,1.65fr) minmax(190px,.7fr)!important;gap:6px 12px!important}
+ .dungeonCombatPage>.battlefield{height:clamp(190px,54dvh,360px)!important}
+ .forgeWorkspace{grid-template-columns:minmax(140px,20%) minmax(0,1fr)!important}
+ .inventoryGrid{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important}
+}
+@media(max-width:430px){.screen{padding:10px!important}}
+/* Prevent legacy mobile nav height rules from creating overlapping tap targets. */
+@media(orientation:landscape) and (min-width:700px) and (max-height:650px){#nav{gap:3px!important}#nav button{flex:0 0 54px!important;height:54px!important;min-height:0!important;max-height:54px!important;padding:3px 0!important;overflow:hidden!important}#nav .icon,#nav .navArtIcon{pointer-events:none!important;flex-shrink:0}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
