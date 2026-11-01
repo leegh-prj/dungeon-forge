@@ -173,3 +173,12 @@ html,body{overflow-x:hidden}
  #screen :is(.forgeItemGrid,.inventoryGrid,.codexGrid,.codexMonsterGrid,.warehouseGrid){grid-template-columns:repeat(auto-fit,minmax(130px,1fr))!important}
  #screen :is(.forgeTabs,.categoryTabs,.codexTabs,.storageTabs,.equipmentPages){overflow:visible!important}
 }
+
+/* v8: constrain forge action buttons and compact workspace on every viewport. */
+#screen .forgeWorkspace,#screen .forgeMainPanel,#screen .forgeMainPanel *{box-sizing:border-box}
+#screen .forgeWorkspace,#screen .forgeMainPanel{width:100%;min-width:0;max-width:100%;overflow-wrap:anywhere}
+#screen .forgeMainPanel button,#screen .forgeWorkspace button{max-width:100%;min-width:0;white-space:normal;overflow-wrap:anywhere}
+#screen .forgeMainPanel :is(.forgeSelectionSummary,.forgeActionStatus,.forgeActions,.forgeOption,.forgeItemGrid){min-width:0;max-width:100%;overflow-wrap:anywhere}
+#screen .forgeMainPanel :is(.forgeSelectionSummary,.forgeActionStatus)>*{min-width:0;max-width:100%}
+#screen .forgeMainPanel :is(.primaryBtn,.segbtn){width:auto;max-width:100%;overflow-wrap:anywhere}
+@media(max-width:480px){#screen .forgeMainPanel button{font-size:clamp(11px,3.1vw,14px)}}
