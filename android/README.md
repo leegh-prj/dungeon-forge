@@ -16,3 +16,6 @@ The GitHub runner must actually execute the workflow, and green browser QA is re
 
 ## Local asset smoke validation
 The Android WebView URL is `https://appassets.androidplatform.net/assets/index.html`, mapped to packaged `app/src/main/assets/index.html`; the page's relative `assets/...` paths resolve under the same package. This APK does not depend on the production Vercel domain.
+
+## Build artifact integrity
+The GitHub Actions APK job now verifies the application ID and checks that the APK ZIP contains the HTML entry point, save script and visual-system stylesheet before uploading. Each successful artifact includes `android-apk-sha256.txt` for checksum verification. The release gate still requires all static and Playwright QA jobs to pass. A committed workflow is **not** proof that a run succeeded.
