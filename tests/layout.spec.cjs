@@ -25,22 +25,19 @@ for (const viewport of viewports) {
     for (const screen of screens) {
       test(screen + ': controls remain inside viewport', async ({ page }) => {
         await page.goto('/', { waitUntil: 'domcontentloaded' });
-        await page.evaluate((target) => {
-          // Internal renderer is used solely for view verification; no save or currency changes.
-          TAB = target;
-          render();
-        }, screen);
+        await page.locator('#nav button').filter({ hasText: screen }).click();
+        await expect(page.locator('#nav button.active')).toContainText(screen);
         await expect(page.locator('#screen')).not.toBeEmpty();
         const bad = await page.evaluate(() => {
           const width = document.documentElement.clientWidth;
           return [...document.querySelectorAll('#screen button')].filter(el => {
-            if (!el.getClientRects().length) return false;
+            if (!el.getClientRects().length || el.closest('[hidden]')) return false;
             const r = el.getBoundingClientRect();
             return r.width > 0 && (r.left < -3 || r.right > width + 3);
           }).slice(0, 5).map(el => ({ text: el.textContent.trim().slice(0, 40), x: el.getBoundingClientRect().x }));
         });
         expect(bad).toEqual([]);
-        const missingImages = await page.evaluate(() => [...document.querySelectorAll('#screen img')].filter(img => img.complete && img.naturalWidth === 0 && img.getClientRects().length).slice(0, 8).map(img => img.getAttribute('src')));
+        const missingImages = await page.evaluate(() => [...document.querySelectorAll('#screen img')].filter(img => img.complete && img.naturalWidth === 0 && img.getClientRects().length && !img.closest('[hidden]')).slice(0, 8).map(img => img.getAttribute('src')));
         expect(missingImages, 'visible broken image URLs').toEqual([]);
         await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 3)).toBe(true);
       });
