@@ -1401,7 +1401,7 @@ let strikeReady=0,guardReady=0,guardActiveUntil=0,basicReady=0,enemyAttackAt=Dat
 let logs=[];
 function initializeGameState(){
  let hasSavedGame=false;
- try{let saved;try{saved=JSON.parse(localStorage.getItem(K))}catch(error){console.warn('주 저장 파일 오류, 백업 복구 시도',error);saved=null}if(!saved){try{saved=JSON.parse(localStorage.getItem(K+'-backup'))}catch(error){console.warn('백업 저장 파일도 읽을 수 없습니다',error)}} if(saved&&typeof saved==='object'&&!Array.isArray(saved)){hasSavedGame=true;S={...stateInit(),...saved};if(!Object.prototype.hasOwnProperty.call(saved,'intro'))S.intro=null;}}
+ try{let saved=null;const primary=localStorage.getItem(K);const backup=localStorage.getItem(K+'-backup');if(GameSaveCore.validSnapshot(primary))saved=JSON.parse(primary);else if(primary)console.warn('주 저장 파일 구조 오류, 백업 복구 시도');if(!saved&&GameSaveCore.validSnapshot(backup))saved=JSON.parse(backup);if(saved){hasSavedGame=true;S={...stateInit(),...saved};if(!Object.prototype.hasOwnProperty.call(saved,'intro'))S.intro=null;}}
  catch(e){console.warn('기존 저장 데이터 읽기 실패',e)}
  if(!hasSavedGame)seedStarterItems();
  normalizeState();
