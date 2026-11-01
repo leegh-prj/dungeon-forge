@@ -19,8 +19,11 @@ checks={
  "6. Equipped loadout still available":"function renderEquipment()",
  "6. Save format unchanged":"const K='dungeon-forge-ui-v2';",
 }
+visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
+checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=1"'
+checks["7. Visual style file is modular"]=visual_css.is_file() and "prefers-reduced-motion" in visual_css.read_text(encoding="utf-8")
 for name,anchor in checks.items():
-    ok=anchor in s
+    ok=anchor if isinstance(anchor,bool) else anchor in s
     print(("PASS" if ok else "FAIL")+" "+name)
 if not all(anchor in s for anchor in checks.values()):raise SystemExit(1)
 print("PASS all",len(checks),"static regression checks")
