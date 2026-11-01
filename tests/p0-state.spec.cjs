@@ -1,10 +1,9 @@
 const { test, expect } = require('@playwright/test');
 
 // Tests use a fresh browser context per case. No production or user save is touched.
-test('P0 equip: toggles exactly the selected slot and survives reload', async ({page}) => {
+test('P0 equip: toggles selected slot and persists in storage', async ({page}) => {
  await page.goto('/');
  const result=await page.evaluate(() => {
-  const before=JSON.stringify(S.inventory), old=S.equip.weapon, oldHp=S.hp;
   const def=recipeDefs.find(r=>r.kind==='weapon');
   const it=mkItem(def,0,effects[0]); S.inventory.push(it);
   const idx=S.inventory.length-1;
@@ -38,10 +37,11 @@ test('P0 crafting: successful craft conserves currency and adds item', async ({p
   S.ore=100000;S.crystals=100000;
   const before={ore:S.ore,crystals:S.crystals,items:S.inventory.length+S.warehouse.length};
   const previousFocus=S.focus;S.focus='balanced';
-  const result=craft('weapon',true,true);
+  const made=craft('weapon',true,true);
   S.focus=previousFocus;
-  return {created:!!result, oreSpent:before.ore-S.ore, crystalSpent:before.crystals-S.crystals,itemsAdded:S.inventory.length+S.warehouse.length-before.items,expectedOre:def.ore,expectedCrystals:def.crystal};
+  return {created:!!made, oreSpent:before.ore-S.ore, crystalSpent:before.crystals-S.crystals,itemsAdded:S.inventory.length+S.warehouse.length-before.items,expectedOre:def.ore,expectedCrystals:def.crystal};
  });
+ expect(result.created).toBe(true);
  expect(result.oreSpent).toBe(result.expectedOre);
  expect(result.crystalSpent).toBe(result.expectedCrystals);
  expect(result.itemsAdded).toBe(1);
