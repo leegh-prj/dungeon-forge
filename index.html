@@ -1151,6 +1151,15 @@ img[data-graphic-kind]{display:block;max-width:100%;object-fit:contain;object-po
 @keyframes impactHeavy{0%,100%{transform:translateX(0) scale(1)}30%{transform:translateX(12px) scale(.92);filter:brightness(2)}62%{transform:translateX(-9px) scale(1.08)}}
 @keyframes impactHero{0%,100%{transform:translateX(0)}24%{transform:translateX(-9px);filter:brightness(1.65)}55%{transform:translateX(5px)}}
 @media(prefers-reduced-motion:reduce){.battlefield.anim-attack .actor.enemy img,.battlefield.anim-strong .actor.enemy img,.battlefield.anim-hurt .actor.hero img,.battlefield.anim-guard .actor.hero img,.battlefield.anim-attack:after{animation:none!important}}
+
+/* Original authored icon and FX assets: shared SVG language across all five nav tabs. */
+#nav .navArtIcon{display:block;width:27px;height:27px;object-fit:contain;margin:auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}
+#nav button.active .navArtIcon{filter:drop-shadow(0 0 7px rgba(255,183,76,.65))}
+.battlefield.anim-attack:before,.battlefield.anim-strong:before,.battlefield.anim-guard:before{content:"";position:absolute;z-index:5;pointer-events:none;width:34%;height:54%;top:20%;left:47%;background:url('assets/fx/impact-slash.svg') center/contain no-repeat;animation:fxImpact .42s ease-out both}
+.battlefield.anim-strong:before{background-image:url('assets/fx/impact-burst.svg');width:45%;height:68%;left:43%;top:12%}
+.battlefield.anim-guard:before{background-image:url('assets/fx/shield-aura.svg');left:13%;top:16%;width:36%;height:72%}
+@keyframes fxImpact{0%{opacity:0;transform:scale(.48) rotate(-12deg)}28%{opacity:1;transform:scale(1.08) rotate(3deg)}100%{opacity:0;transform:scale(1.18)}}
+@media(prefers-reduced-motion:reduce){.battlefield.anim-attack:before,.battlefield.anim-strong:before,.battlefield.anim-guard:before{animation:none;opacity:0}}
 </style>
 <link rel="icon" type="image/png" sizes="192x192" href="assets/ui/forge-app-icon-192.png?v=5">
 <link rel="apple-touch-icon" href="assets/ui/forge-app-icon-512.png?v=5">
@@ -2941,7 +2950,7 @@ const SCREEN_RENDERERS={'던전':renderDungeon,'대장간':renderForge,'장비':
 function renderCurrentScreen(){return (SCREEN_RENDERERS[TAB]||renderShop)()}
 function render(){
  try{
- normalizeState(); const view = renderCurrentScreen(); const screenEl=document.getElementById('screen'); if(!screenEl)return; screenEl.innerHTML=view; if(TAB==='장비'&&storageTab==='bag')filterInventoryCards(inventorySearch); displayCombatFX(); const navEl=document.getElementById('nav'); if(navEl){if(navEl.children.length!==navTabs.length){navEl.innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${t==='던전'?'🏰':t==='대장간'?'⚒️':t==='장비'?'🛡️':t==='도감'?'📖':'🛒'}</span><span>${t}</span></button>`).join('')}else{navTabs.forEach((tab,i)=>{const btn=navEl.children[i];const active=tab===TAB;btn.classList.toggle('active',active);btn.setAttribute('aria-current',active?'page':'false')})}};if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}}
+ normalizeState(); const view = renderCurrentScreen(); const screenEl=document.getElementById('screen'); if(!screenEl)return; screenEl.innerHTML=view; if(TAB==='장비'&&storageTab==='bag')filterInventoryCards(inventorySearch); displayCombatFX(); const navEl=document.getElementById('nav'); if(navEl){if(navEl.children.length!==navTabs.length){navEl.innerHTML=navTabs.map(t=>`<button class="${t===TAB?'active':''}" onclick="switchMainTab('${t}')"><span class="icon">${`<img class="navArtIcon" src="assets/ui/${({던전:'dungeon',대장간:'forge',장비:'gear',도감:'codex',상점:'shop'})[t]}.svg" alt="" draggable="false">`}</span><span>${t}</span></button>`).join('')}else{navTabs.forEach((tab,i)=>{const btn=navEl.children[i];const active=tab===TAB;btn.classList.toggle('active',active);btn.setAttribute('aria-current',active?'page':'false')})}};if(previousRenderedTab!==TAB){previousRenderedTab=TAB;const viewPane=document.getElementById('screen');if(viewPane)viewPane.scrollTop=0;try{window.scrollTo?.(0,0)}catch(e){}}
  }catch(error){showStartupError(error)}
 }
 /* DAY41 diagnostic: read-only matrix, available only with ?gearqa=1 */
