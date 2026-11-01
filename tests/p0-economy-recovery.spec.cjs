@@ -4,8 +4,10 @@ test('P0 boss reward: one kill advances one stage and grants one trophy',async({
  await page.goto('/');
  const actual=await page.evaluate(()=>{
    const region=regionInfo().key,stage=S.stage;
-   S.boss=true;S.enemyHp=1;S.bossTrophies[region]=S.bossTrophies[region]||0;
+   S.boss=true;S.enemyHp=0;S.bossTrophies[region]=S.bossTrophies[region]||0;
    const old=S.bossTrophies[region],kills=S.kills;
+   enemyDown();
+   // An asynchronous duplicate callback must not award twice after the enemy resets.
    enemyDown();
    return {stageDelta:S.stage-stage,trophyDelta:S.bossTrophies[region]-old,killDelta:S.kills-kills,notBoss:!S.boss,enemyReset:S.enemyHp===getEnemyMax()};
  });
