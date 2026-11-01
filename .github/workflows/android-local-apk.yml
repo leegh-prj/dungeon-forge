@@ -40,6 +40,7 @@ jobs:
           if-no-files-found: ignore
   apk:
     needs: qa
+    if: always() && needs.qa.result != 'cancelled'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -54,6 +55,10 @@ jobs:
           gradle-version: '8.10.2'
       - name: Install Android platform
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Mark browser QA status in artifact
+        run: |
+          echo 'Browser QA job result: ${{ needs.qa.result }}' > android-qa-status.txt
+          echo 'This APK is for internal testing only, not QA certified.' >> android-qa-status.txt
       - name: Package offline game assets
         run: |
           mkdir -p android/app/src/main/assets
@@ -76,9 +81,10 @@ jobs:
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: dungeon-forge-landscape-qa-apk
+          name: dungeon-forge-landscape-UNVERIFIED-qa-apk
           path: |
             android/app/build/outputs/apk/debug/*.apk
             android-apk-sha256.txt
+            android-qa-status.txt
           if-no-files-found: error
           retention-days: 14
