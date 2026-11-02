@@ -19,3 +19,6 @@ The Android WebView URL is `https://appassets.androidplatform.net/assets/index.h
 
 ## Build artifact integrity
 The GitHub Actions APK job now verifies the application ID and checks that the APK ZIP contains the HTML entry point, save script and visual-system stylesheet before uploading. Each successful artifact includes `android-apk-sha256.txt` for checksum verification. Release approval still requires all static and Playwright QA jobs to pass; an internal test APK may be built despite failed browser checks. A committed workflow is **not** proof that a run succeeded.
+
+## Diagnosing a red Actions run
+Open the newest workflow run, select the `qa` or `apk` job, and expand its first red step. The workflow now prints SDK/Gradle diagnostics, summarizes QA and APK stages, and uploads `android-build-diagnostics` when available. The APK is only downloadable when the `Upload installable debug APK` step succeeds; do not confuse a QA failure artifact with the APK. This change does not itself certify any build.
