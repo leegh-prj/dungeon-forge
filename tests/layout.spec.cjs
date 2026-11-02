@@ -38,7 +38,7 @@ for (const viewport of viewports) {
             if (!el.getClientRects().length || el.closest('[hidden]')) return false;
             const r = el.getBoundingClientRect();
             return r.width > 0 && (r.left < -3 || r.right > width + 3);
-          }).slice(0, 5).map(el => ({ text: el.textContent.trim().slice(0, 40), x: el.getBoundingClientRect().x }));
+          }).slice(0, 5).map(el => ({ text: el.textContent.trim().slice(0, 40), x: Math.round(el.getBoundingClientRect().x), right:Math.round(el.getBoundingClientRect().right), width:Math.round(el.getBoundingClientRect().width), viewport:width, className:el.className, parent:el.parentElement?.className }));
         });
         expect(bad).toEqual([]);
         const missingImages = await page.evaluate(() => [...document.querySelectorAll('#screen img')].filter(img => img.complete && img.naturalWidth === 0 && img.getClientRects().length && !img.closest('[hidden]')).slice(0, 8).map(img => img.getAttribute('src')));
