@@ -61,3 +61,9 @@ GitHub 원격 저장소 clone 시 DNS 연결 실패로 로컬 실행 환경 구�
 - index.html 초기 복원 로직에서 primary 구조 검증 실패 시 backup으로 폴백하도록 변경.
 - tests/p0-save-recovery.spec.cjs에 손상된 JSON 구조 복원 및 비정상 스냅샷 차단 2개 자동 시나리오 추가.
 - 수정 커밋은 개발 브랜치에만 반영. 이번 세션에서는 GitHub 원격 clone DNS 불가, Playwright 실행 결과는 확보하지 못함. 신규 TC = NOT RUN.
+
+## 2026-11-02 후속: 실측 110건 중 실패 8건 대응
+- 사용자가 공유한 GitHub Actions 로그: 102 PASS, 8 FAIL. 실패 구성: 구형 combatOverview 참조 2, 가로 전투 화면 컬럼 배치 전제 1, 대장간 버튼 좌우 영역 이탈 5.
+- 개발 브랜치에서 테스트 선택자·레이아웃 기준 조정, 대장간 반응형 CSS v9 적용.
+- 버튼 이탈 진단 로그에 좌표·폭·부모 CSS 클래스를 포함하여 남은 실패를 빠르게 재현하도록 개선.
+- 위 수정 후 새 실행의 성공 여부는 아직 확인되지 않음. Android APK 완성 판정 보류.
