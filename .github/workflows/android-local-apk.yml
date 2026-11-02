@@ -31,6 +31,12 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Browser and gameplay P0 tests
         run: npx playwright test --reporter=list
+      - name: Report QA outcome
+        if: always()
+        run: |
+          echo '## Dungeon Forge browser QA' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Static regression and Playwright execution results appear in the steps above.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Failed assertions, if any, are saved as qa-failures artifacts.' >> "$GITHUB_STEP_SUMMARY"
       - name: Upload QA evidence on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -84,6 +90,13 @@ jobs:
           unzip -l "$APK" | grep -q 'assets/assets/ui/visual-system.css'
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -q "package: name='com.dungeonforge.mobile'"
           sha256sum "$APK" | tee android-apk-sha256.txt
+      - name: Report APK build status
+        if: always()
+        run: |
+          echo '## Dungeon Forge Android APK' >> "$GITHUB_STEP_SUMMARY"
+          echo 'QA result: ${{ needs.qa.result }}' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Build details: see Build test APK and Verify APK contents steps.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'APK is for internal testing only; a failed QA run is not release-approved.' >> "$GITHUB_STEP_SUMMARY"
       - name: Upload Android failure diagnostics
         if: failure()
         uses: actions/upload-artifact@v4
