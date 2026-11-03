@@ -3,7 +3,7 @@
 ## Build policy
 - Source: `develop/ui-stabilization`, **not** the Vercel production URL.
 - Build: Android 9+ debug APK with embedded local web assets served through AndroidX WebViewAssetLoader (secure HTTPS-like local origin), sensor landscape orientation.
-- Gate: `python3 tools/regression_smoke.py` plus all Playwright browser / P0 scenarios run first. For mobile debugging, the APK build is allowed even if browser QA fails, but is explicitly marked UNVERIFIED and includes android-qa-status.txt. Never treat such builds as QA-approved.
+- The `qa` and `apk` jobs run in parallel. Browser QA results are independent from the APK artifact; an internal test APK may be built even if QA fails, but it is always labeled UNVERIFIED. Check the separate `qa` job before interpreting results. Never treat this build as release-approved.
 - The game uses Android WebView localStorage. Data does **not** sync with the Vercel web game. Back up test progress before uninstalling.
 
 ## Download
@@ -22,3 +22,6 @@ The GitHub Actions APK job now verifies the application ID and checks that the A
 
 ## Diagnosing a red Actions run
 Open the newest workflow run, select the `qa` or `apk` job, and expand its first red step. The workflow now prints SDK/Gradle diagnostics, summarizes QA and APK stages, and uploads `android-build-diagnostics` when available. The APK is only downloadable when the `Upload installable debug APK` step succeeds; do not confuse a QA failure artifact with the APK. This change does not itself certify any build.
+
+## Parallel workflow diagnostics
+The Android build no longer waits for Playwright. Inspect `apk` for build status and `qa` independently for browser failures. A failed build uploads `android-build-diagnostics` with `android-gradle-build.log` where available. `android-qa-status.txt` explicitly does not assert test success. The displayed red workflow status may reflect failed browser QA even if the internal APK artifact was created.
