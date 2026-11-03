@@ -1,4 +1,4 @@
-name: Android APK after full QA (development only)
+name: Android internal QA APK and browser tests
 on:
   workflow_dispatch:
   push:
@@ -45,8 +45,8 @@ jobs:
           path: test-results/
           if-no-files-found: ignore
   apk:
-    needs: qa
-    if: always() && needs.qa.result != 'cancelled'
+    # Build in parallel: this is an explicitly UNVERIFIED internal test package.
+    # Browser QA remains a separate job and never counts as passed by this build.
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
@@ -69,7 +69,7 @@ jobs:
         run: sdkmanager --install 'platforms;android-35' 'build-tools;35.0.0'
       - name: Mark browser QA status in artifact
         run: |
-          echo 'Browser QA job result: ${{ needs.qa.result }}' > android-qa-status.txt
+          echo 'Browser QA: CHECK THE SEPARATE qa JOB IN THIS WORKFLOW RUN' > android-qa-status.txt
           echo 'This APK is for internal testing only, not QA certified.' >> android-qa-status.txt
       - name: Package offline game assets
         run: |
@@ -80,7 +80,7 @@ jobs:
           test -s android/app/src/main/assets/assets/js/save-core.js
       - name: Build test APK
         working-directory: android
-        run: gradle --no-daemon --stacktrace assembleDebug
+        run: gradle --no-daemon --stacktrace assembleDebug 2>&1 | tee ../android-gradle-build.log
       - name: Verify APK contents and package
         run: |
           APK=android/app/build/outputs/apk/debug/app-debug.apk
@@ -94,7 +94,7 @@ jobs:
         if: always()
         run: |
           echo '## Dungeon Forge Android APK' >> "$GITHUB_STEP_SUMMARY"
-          echo 'QA result: ${{ needs.qa.result }}' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Browser QA: see independent qa job in this run (runs in parallel).' >> "$GITHUB_STEP_SUMMARY"
           echo 'Build details: see Build test APK and Verify APK contents steps.' >> "$GITHUB_STEP_SUMMARY"
           echo 'APK is for internal testing only; a failed QA run is not release-approved.' >> "$GITHUB_STEP_SUMMARY"
       - name: Upload Android failure diagnostics
@@ -106,6 +106,7 @@ jobs:
             android/app/build/reports/
             android/app/build/outputs/logs/
             android-qa-status.txt
+            android-gradle-build.log
           if-no-files-found: ignore
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
