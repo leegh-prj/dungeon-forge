@@ -31,3 +31,8 @@ The Android build no longer waits for Playwright. Inspect `apk` for build status
 - The Gradle task is executed using `bash` with `set -euo pipefail`, so `gradle ... | tee ...` cannot falsely report success when Gradle fails.
 - ZIP listing, AAPT package metadata and SHA-256 checksum are saved in the build artifact. Missing HTML, script or CSS files fail the APK verification step.
 - The latest workflow configuration is committed but has not itself been observed completing a successful run; test APK status remains **UNVERIFIED**.
+
+## Next mobile QA build changes
+- WebView now treats an empty `#screen` as a startup failure (not just a missing container) and logs missing local game assets to Android logcat under `DungeonForgeQA`.
+- The Android job is pinned to Ubuntu 24.04. A successful APK upload adds a direct artifact link to the GitHub Actions job summary; the build is still marked UNVERIFIED until the separate browser QA job passes.
+- **No signed APK bytes or successful execution logs have been retrieved in this development session.** Do not report an installable artifact until its job succeeds.
