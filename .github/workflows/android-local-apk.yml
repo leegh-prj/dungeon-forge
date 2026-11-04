@@ -16,7 +16,7 @@ permissions:
   contents: read
 jobs:
   qa:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
@@ -80,15 +80,22 @@ jobs:
           test -s android/app/src/main/assets/assets/js/save-core.js
       - name: Build test APK
         working-directory: android
-        run: gradle --no-daemon --stacktrace assembleDebug 2>&1 | tee ../android-gradle-build.log
-      - name: Verify APK contents and package
+        shell: bash
         run: |
+          set -euo pipefail
+          gradle --no-daemon --stacktrace assembleDebug 2>&1 | tee ../android-gradle-build.log
+      - name: Verify APK contents and package
+        shell: bash
+        run: |
+          set -euo pipefail
           APK=android/app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
-          unzip -l "$APK" | grep -q 'assets/index.html'
-          unzip -l "$APK" | grep -q 'assets/assets/js/save-core.js'
-          unzip -l "$APK" | grep -q 'assets/assets/ui/visual-system.css'
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | grep -q "package: name='com.dungeonforge.mobile'"
+          unzip -l "$APK" > android-apk-contents.txt
+          grep -q 'assets/index.html' android-apk-contents.txt
+          grep -q 'assets/assets/js/save-core.js' android-apk-contents.txt
+          grep -q 'assets/assets/ui/visual-system.css' android-apk-contents.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" > android-apk-badging.txt
+          grep -q "package: name='com.dungeonforge.mobile'" android-apk-badging.txt
           sha256sum "$APK" | tee android-apk-sha256.txt
       - name: Report APK build status
         if: always()
@@ -107,6 +114,8 @@ jobs:
             android/app/build/outputs/logs/
             android-qa-status.txt
             android-gradle-build.log
+            android-apk-contents.txt
+            android-apk-badging.txt
           if-no-files-found: ignore
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
@@ -116,5 +125,7 @@ jobs:
             android/app/build/outputs/apk/debug/*.apk
             android-apk-sha256.txt
             android-qa-status.txt
+            android-apk-contents.txt
+            android-apk-badging.txt
           if-no-files-found: error
           retention-days: 14
