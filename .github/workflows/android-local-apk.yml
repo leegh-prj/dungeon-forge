@@ -30,20 +30,25 @@ jobs:
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
       - name: Browser and gameplay P0 tests
-        run: npx playwright test --reporter=list
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_FILE: qa-results.xml
+        run: npx playwright test --reporter=list,junit
       - name: Report QA outcome
         if: always()
         run: |
           echo '## Dungeon Forge browser QA' >> "$GITHUB_STEP_SUMMARY"
           echo 'Static regression and Playwright execution results appear in the steps above.' >> "$GITHUB_STEP_SUMMARY"
           echo 'Failed assertions, if any, are saved as qa-failures artifacts.' >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload QA evidence on failure
-        if: failure()
+      - name: Upload QA test evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: qa-failures
-          path: test-results/
+          name: qa-test-evidence
+          path: |
+            qa-results.xml
+            test-results/
           if-no-files-found: ignore
+          retention-days: 14
   apk:
     # Build in parallel: this is an explicitly UNVERIFIED internal test package.
     # Browser QA remains a separate job and never counts as passed by this build.
@@ -108,8 +113,8 @@ jobs:
           echo 'Browser QA: see independent qa job in this run (runs in parallel).' >> "$GITHUB_STEP_SUMMARY"
           echo 'Build details: see Build test APK and Verify APK contents steps.' >> "$GITHUB_STEP_SUMMARY"
           echo 'APK is for internal testing only; a failed QA run is not release-approved.' >> "$GITHUB_STEP_SUMMARY"
-      - name: Upload Android failure diagnostics
-        if: failure()
+      - name: Upload Android build diagnostics
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: android-build-diagnostics
@@ -121,6 +126,7 @@ jobs:
             android-apk-contents.txt
             android-apk-badging.txt
           if-no-files-found: ignore
+          retention-days: 14
       - name: Upload installable debug APK
         id: apk_artifact
         uses: actions/upload-artifact@v4
