@@ -98,6 +98,7 @@ jobs:
           set -euo pipefail
           APK=android/app/build/outputs/apk/debug/app-debug.apk
           test -s "$APK"
+          unzip -tqq "$APK"
           unzip -l "$APK" > android-apk-contents.txt
           grep -q 'assets/index.html' android-apk-contents.txt
           grep -q 'assets/assets/js/save-core.js' android-apk-contents.txt
@@ -105,6 +106,9 @@ jobs:
           grep -q 'assets/assets/ui/visual-system.css' android-apk-contents.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" > android-apk-badging.txt
           grep -q "package: name='com.dungeonforge.mobile'" android-apk-badging.txt
+          grep -q 'launchable-activity: name=.com.dungeonforge.mobile.MainActivity.' android-apk-badging.txt
+          grep -q 'sdkVersion:.28.' android-apk-badging.txt
+          grep -q 'targetSdkVersion:.35.' android-apk-badging.txt
           sha256sum "$APK" | tee android-apk-sha256.txt
       - name: Report APK build status
         if: always()
