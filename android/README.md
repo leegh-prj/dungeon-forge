@@ -39,3 +39,8 @@ The Android build no longer waits for Playwright. Inspect `apk` for build status
 
 ## Persistent CI evidence
 Each workflow run now uploads **qa-test-evidence** (JUnit `qa-results.xml` plus Playwright screenshots/traces when available) and **android-build-diagnostics** (Gradle log plus APK manifests when available), including on successful jobs. This lets a failed APK be diagnosed independently of QA. The artifact `dungeon-forge-landscape-UNVERIFIED-qa-apk` appears only after the APK verification step succeeds. Build success is not assumed from the workflow file alone.
+
+## Packaged-game startup and APK validation (2026-11-05)
+- The Android WebView startup probe checks three conditions in a single numeric status: populated game `#screen`, `GameSaveCore`, and `GameInventoryCore`. Status `7` means all three loaded. Failures are shown on-screen and logged as `DungeonForgeQA` without deleting saved data.
+- The APK verification now checks archive integrity (`unzip -tqq`), expected launchable MainActivity, min SDK 28 and target SDK 35 in addition to game asset packaging and checksum.
+- This does not prove real-device gameplay success; builds and actual installs remain unverified until a green APK job and on-device run are observed.
