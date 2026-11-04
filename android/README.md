@@ -25,3 +25,9 @@ Open the newest workflow run, select the `qa` or `apk` job, and expand its first
 
 ## Parallel workflow diagnostics
 The Android build no longer waits for Playwright. Inspect `apk` for build status and `qa` independently for browser failures. A failed build uploads `android-build-diagnostics` with `android-gradle-build.log` where available. `android-qa-status.txt` explicitly does not assert test success. The displayed red workflow status may reflect failed browser QA even if the internal APK artifact was created.
+
+## Verified-build pipeline rules (2026-11-04)
+- Both QA and APK jobs are pinned to Ubuntu 24.04 to avoid image migration drift.
+- The Gradle task is executed using `bash` with `set -euo pipefail`, so `gradle ... | tee ...` cannot falsely report success when Gradle fails.
+- ZIP listing, AAPT package metadata and SHA-256 checksum are saved in the build artifact. Missing HTML, script or CSS files fail the APK verification step.
+- The latest workflow configuration is committed but has not itself been observed completing a successful run; test APK status remains **UNVERIFIED**.
