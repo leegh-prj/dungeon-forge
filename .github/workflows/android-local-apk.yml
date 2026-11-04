@@ -78,6 +78,9 @@ jobs:
           cp -R assets android/app/src/main/assets/assets
           test -s android/app/src/main/assets/index.html
           test -s android/app/src/main/assets/assets/js/save-core.js
+          test -s android/app/src/main/assets/assets/js/inventory-core.js
+          test -s android/app/src/main/assets/assets/ui/visual-system.css
+          grep -q 'appassets.androidplatform.net/assets/index.html' android/app/src/main/java/com/dungeonforge/mobile/MainActivity.java
       - name: Build test APK
         working-directory: android
         shell: bash
@@ -93,6 +96,7 @@ jobs:
           unzip -l "$APK" > android-apk-contents.txt
           grep -q 'assets/index.html' android-apk-contents.txt
           grep -q 'assets/assets/js/save-core.js' android-apk-contents.txt
+          grep -q 'assets/assets/js/inventory-core.js' android-apk-contents.txt
           grep -q 'assets/assets/ui/visual-system.css' android-apk-contents.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" > android-apk-badging.txt
           grep -q "package: name='com.dungeonforge.mobile'" android-apk-badging.txt
