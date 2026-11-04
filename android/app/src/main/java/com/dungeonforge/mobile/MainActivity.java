@@ -62,8 +62,9 @@ public class MainActivity extends Activity {
     }
     @Override public void onPageFinished(WebView view,String url) {
       if(!APP_URL.equals(url))return;
-      view.evaluateJavascript("(function(){var s=document.querySelector('#screen');return !!s && !!s.textContent.trim() && !document.querySelector('#gameErrorDetail')})()", result -> {
-        if(!"true".equals(result))showLoadError("초기 게임 화면 검사 실패");
+      view.evaluateJavascript("(function(){var s=document.querySelector('#screen');return (s && s.textContent.trim() && !document.querySelector('#gameErrorDetail') ? 1 : 0) + (window.GameSaveCore ? 2 : 0) + (window.GameInventoryCore ? 4 : 0)})()", result -> {
+        Log.i(TAG,"Offline game startup checks: "+result+" (7=all ready)");
+        if(!"7".equals(result))showLoadError("초기 화면·저장·인벤토리 모듈 검사 실패 (status="+result+")");
       });
     }
   });
