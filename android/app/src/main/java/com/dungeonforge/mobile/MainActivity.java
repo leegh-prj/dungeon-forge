@@ -53,13 +53,16 @@ public class MainActivity extends Activity {
     }
     @Override public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
       if(request.isForMainFrame()) showLoadError("메인 화면 오류: " + error.getDescription());
+      else Log.e(TAG,"Asset request error: "+request.getUrl()+" - "+error.getDescription());
     }
     @Override public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse response) {
       if(request.isForMainFrame()) showLoadError("게임 화면 HTTP " + response.getStatusCode());
+      else if(request.getUrl().toString().startsWith("https://appassets.androidplatform.net/"))
+        Log.e(TAG,"Missing game asset HTTP "+response.getStatusCode()+": "+request.getUrl());
     }
     @Override public void onPageFinished(WebView view,String url) {
       if(!APP_URL.equals(url))return;
-      view.evaluateJavascript("(function(){return !!document.querySelector('#screen') && !document.querySelector('#gameErrorDetail')})()", result -> {
+      view.evaluateJavascript("(function(){var s=document.querySelector('#screen');return !!s && !!s.textContent.trim() && !document.querySelector('#gameErrorDetail')})()", result -> {
         if(!"true".equals(result))showLoadError("초기 게임 화면 검사 실패");
       });
     }
