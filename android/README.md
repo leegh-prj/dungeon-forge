@@ -36,3 +36,6 @@ The Android build no longer waits for Playwright. Inspect `apk` for build status
 - WebView now treats an empty `#screen` as a startup failure (not just a missing container) and logs missing local game assets to Android logcat under `DungeonForgeQA`.
 - The Android job is pinned to Ubuntu 24.04. A successful APK upload adds a direct artifact link to the GitHub Actions job summary; the build is still marked UNVERIFIED until the separate browser QA job passes.
 - **No signed APK bytes or successful execution logs have been retrieved in this development session.** Do not report an installable artifact until its job succeeds.
+
+## Persistent CI evidence
+Each workflow run now uploads **qa-test-evidence** (JUnit `qa-results.xml` plus Playwright screenshots/traces when available) and **android-build-diagnostics** (Gradle log plus APK manifests when available), including on successful jobs. This lets a failed APK be diagnosed independently of QA. The artifact `dungeon-forge-landscape-UNVERIFIED-qa-apk` appears only after the APK verification step succeeds. Build success is not assumed from the workflow file alone.
