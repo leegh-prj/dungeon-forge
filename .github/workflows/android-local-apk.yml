@@ -47,7 +47,7 @@ jobs:
   apk:
     # Build in parallel: this is an explicitly UNVERIFIED internal test package.
     # Browser QA remains a separate job and never counts as passed by this build.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
@@ -122,6 +122,7 @@ jobs:
             android-apk-badging.txt
           if-no-files-found: ignore
       - name: Upload installable debug APK
+        id: apk_artifact
         uses: actions/upload-artifact@v4
         with:
           name: dungeon-forge-landscape-UNVERIFIED-qa-apk
@@ -133,3 +134,9 @@ jobs:
             android-apk-badging.txt
           if-no-files-found: error
           retention-days: 14
+      - name: Add APK download link to build summary
+        if: success()
+        run: |
+          echo '### Internal APK ready for download' >> "$GITHUB_STEP_SUMMARY"
+          echo '[Open APK artifact](${{ steps.apk_artifact.outputs.artifact-url }})' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Extract app-debug.apk from the ZIP; debug build only, QA may still have failed.' >> "$GITHUB_STEP_SUMMARY"
