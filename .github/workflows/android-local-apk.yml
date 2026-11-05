@@ -76,6 +76,8 @@ jobs:
         run: |
           echo 'Browser QA: CHECK THE SEPARATE qa JOB IN THIS WORKFLOW RUN' > android-qa-status.txt
           echo 'This APK is for internal testing only, not QA certified.' >> android-qa-status.txt
+      - name: Validate Android offline launch and asset references
+        run: python3 tools/android_preflight.py
       - name: Package offline game assets
         run: |
           mkdir -p android/app/src/main/assets
