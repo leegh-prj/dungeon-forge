@@ -2076,7 +2076,7 @@ function moveToWarehouse(index){
 function moveToBag(index){
  if(S.inventory.length>=S.bagCapacity)return toast('가방 공간이 부족합니다');
  const item=S.warehouse[index];if(!item)return toast('창고 장비를 찾을 수 없습니다');
- S.inventory.push(item);S.warehouse.splice(index,1);save();render();
+ S.inventory.push(item);S.warehouse.splice(index,1);forgeSelection=[];save();render();
 }
 function bulkWarehouseToBag(){
  const grade=document.getElementById('warehouseBulkGrade')?.value||'all';
@@ -2094,7 +2094,7 @@ function bulkWarehouseToBag(){
  const items=moving.map(i=>S.warehouse[i]);
  S.inventory.push(...items);
  S.warehouse=S.warehouse.filter((_,i)=>!selected.has(i));
- save();render();toast(items.length+'개 가방 이동 완료'+(indexes.length>free?' · 공간 부족으로 일부만 이동':''));
+ forgeSelection=[];save();render();toast(items.length+'개 가방 이동 완료'+(indexes.length>free?' · 공간 부족으로 일부만 이동':''));
 }
 function renderWarehouseBulkControls(){
  if(!S.warehouse.length)return '';
@@ -2333,7 +2333,9 @@ function isEquipped(i){return Number.isInteger(i)&&Object.values(S.equip).includ
 function isLocked(it){return !!it?.locked}
 function toggleItemLock(index){
  const item=S.inventory[index];if(!item)return;
- item.locked=!item.locked;save();render();toast(item.locked?'장비 잠금 설정':'장비 잠금 해제');
+ item.locked=!item.locked;
+ // A selected forge material must be re-confirmed after its protection changes.
+ forgeSelection=[];save();render();toast(item.locked?'장비 잠금 설정':'장비 잠금 해제');
 }
 function repairStats(){
  S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);
@@ -2451,7 +2453,10 @@ function selectForgeItem(index){
     if(index===forgeSelection[0])forgeSelection=[];
     else forgeSelection=forgeSelection.filter(i=>i!==index);
   }else if(max===1)forgeSelection=[index];
-  else if(forgeSelection.length>=max)forgeSelection=[index];
+  else if(forgeSelection.length>=max){
+    if(forgeMode==='분해')return toast('일괄 분해는 최대 50개까지 선택할 수 있습니다');
+    forgeSelection=[index];
+  }
   else if(forgeSelection.length){
     const first=S.inventory[forgeSelection[0]];
     if(forgeMode!=='분해'&&(!first||candidate.kind!==first.kind||candidate.tier!==first.tier))forgeSelection=[index];
