@@ -2509,8 +2509,8 @@ function confirmDismantle(){
  if(!ids.length||ids.length!==forgeSelection.length||ids.length>50)return toast('분해 대상을 다시 선택하세요');
  if(ids.some(i=>!Number.isInteger(i)||!S.inventory[i]||isEquipped(i)||isLocked(S.inventory[i])))return toast('장착·잠금 장비는 분해할 수 없습니다');
  // Both the index and exact item identity must still match when Confirm is tapped.
- pendingDismantle={indices:ids,items:ids.map(i=>S.inventory[i])};
  const p=dismantleReturns(ids);
+ pendingDismantle={indices:ids,items:ids.map(i=>S.inventory[i]),reward:p};
  document.getElementById('craftModal').innerHTML='<div class="grade">분해 최종 확인</div><p class="researchNote">장비 '+ids.length+'개를 영구 분해합니다.<br>광석 +'+p.ore+' · 결정 +'+p.crystals+'<br>되돌릴 수 없습니다.</p><div class="confirmActions"><button onclick="closeCraft()">취소</button><button onclick="applyDismantle()">분해 확정</button></div>';
  document.getElementById('craftOverlay').classList.add('show');craftOverlayOpen=true;
 }
@@ -2526,6 +2526,9 @@ function applyDismantle(){
  // Disarm before mutating to prevent a repeated click granting duplicate salvage.
  pendingDismantle=null;
  const ids=token.indices,p=dismantleReturns(ids);
+ if(p.ore!==token.reward.ore||p.crystals!==token.reward.crystals){
+  closeCraft();return toast('분해 예상 보상이 변경되었습니다. 다시 확인하세요');
+ }
  removeForgeItems(ids);S.ore+=p.ore;S.crystals+=p.crystals;
  closeCraft();save();render();showForgeSummary('분해 완료',[],'장비 '+ids.length+'개 · 광석 +'+p.ore+' · 결정 +'+p.crystals);
 }
