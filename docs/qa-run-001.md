@@ -107,3 +107,5 @@ GitHub 원격 저장소 clone 시 DNS 연결 실패로 로컬 실행 환경 구�
 - 취소 및 확정 후 토큰 삭제. 확정 버튼 중복 실행 시 장비 재소모 및 분해 보상 중복 지급 차단.
 - `tests/p0-dismantle-confirmation.spec.cjs` P0 5건 신규 작성: 동일 인덱스 다른 장비 대체, 잠금, 취소, 중복 확정, 예상 보상 변경.
 - 저장 데이터 구조·장비 인덱스 설계 변경 없음. 테스트는 GitHub 반영 단계이며 실제 실행 PASS 확인 전.
+
+- APK 홀드 설정 확인: `.github/workflows/android-local-apk.yml`에서 개발 브랜치 push 트리거 제거, `workflow_dispatch`만 유지. 개발 브랜치 자동 브라우저 QA는 `.github/workflows/development-qa.yml`로 계속 수행. 이미 시작된 과거 실행의 취소 여부까지 의미하지 않음.
