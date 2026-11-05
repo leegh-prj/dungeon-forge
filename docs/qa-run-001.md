@@ -87,3 +87,9 @@ GitHub 원격 저장소 clone 시 DNS 연결 실패로 로컬 실행 환경 구�
 - `forgeItemCard()`에 선택 상태 `aria-pressed` 추가. 선택된 장비의 아웃라인과 포커스 표시 강화, 대장간 탭·창고 조작 버튼 최소 터치 높이 44px 적용. visual-system.css v10.
 - `tests/p0-forge-autolock.spec.cjs` 신규 TC 2개: 3개 합성 재료/재화 차감·보상 자동잠금, 장비 선택 aria-pressed 상태.
 - 실제 브라우저/실기기 테스트 통과 결과는 아직 확인하지 못했으며, APK 생성 성공도 미확인. Vercel 운영 배포 없음.
+
+## 2026-11-05 강화·합성 실패 경계와 모바일 결과 모달
+- `tests/p0-forge-boundaries.spec.cjs` P0 4개 추가: 강화 재화 부족 무변경, +20 상한 무차감, 강화 실패 시 정확히 한 번 차감 및 장비 ID·레벨 보존, 등급 불일치 합성 시 장비·재화 보존.
+- `visual-system.css` v11: 짧은 모바일 가로 화면에서 제작/강화 결과 모달의 최대 높이, 내부 스크롤, 안전 영역, 44px 터치 영역을 보강.
+- `tests/browser/forge-result-mobile.spec.cjs` 3가지 뷰포트에서 결과 창 화면 경계와 닫기 버튼 조작을 검증하도록 추가.
+- 위 항목은 테스트 코드/스타일 반영 완료이며 GitHub Actions 실행 결과를 확인하지 못해 PASS 판정하지 않음. 저장 포맷·장비 인덱스 변경 및 Vercel 운영 배포 없음.
