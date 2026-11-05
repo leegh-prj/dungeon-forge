@@ -30,8 +30,8 @@ for file in ("assets/js/inventory-core.js", "assets/js/save-core.js", "assets/ui
 
 # Only check literal local <script src> and <link href> paths in the HTML.
 # Runtime-computed equipment and stage art are handled by their own tests.
-for tag in re.findall(r"<(?:script|link)\\b[^>]*>", html, re.I):
-    m = re.search(r'\\b(?:src|href)="([^"]+)"', tag, re.I)
+for tag in re.findall(r"<(?:script|link)\b[^>]*>", html, re.I):
+    m = re.search(r'\b(?:src|href)="([^"]+)"', tag, re.I)
     if not m:
         continue
     uri = m.group(1).split("?", 1)[0]
