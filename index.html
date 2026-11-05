@@ -2305,7 +2305,7 @@ function showLegendaryCutscene(item,detail=''){
 function closeLegendaryCutscene(){closeCraft()}
 function showCraft(item){if(!item)return;return showTierReward(item);}
 function unusedLegacyCraftModal(item){craftOverlayOpen=true;document.getElementById('craftModal').innerHTML=`<span class="beam">⚒ ✦</span><div class="grade ${rarityClass(item.tier)}">${rarityName[item.tier]} 제작 성공!</div>${graphicImage(iconFor(item),item.kind,item.tier,item.name,'class="craftedIcon"')}<div style="font-weight:900">${item.name}</div><p class="researchNote">특수 효과: ${item.effect}<br>공격 +${item.power} · 방어 +${item.defense}</p><button onclick="closeCraft()">확인</button>`;document.getElementById('craftOverlay').classList.add('show')}
-function closeCraft(){craftOverlayOpen=false;clearTimeout(legendaryVisualTimer);const overlay=document.getElementById('craftOverlay');overlay.classList.remove('show','legendaryReveal','legendaryReady','tierReveal');document.getElementById('craftModal').className='craftModal';document.getElementById('craftModal').style.removeProperty('--tier-color');document.getElementById('craftModal').style.removeProperty('--tier-rgb');document.body.classList.remove('legendaryLocked','tierLocked')}
+function closeCraft(){pendingDismantle=null;craftOverlayOpen=false;clearTimeout(legendaryVisualTimer);const overlay=document.getElementById('craftOverlay');overlay.classList.remove('show','legendaryReveal','legendaryReady','tierReveal');document.getElementById('craftModal').className='craftModal';document.getElementById('craftModal').style.removeProperty('--tier-color');document.getElementById('craftModal').style.removeProperty('--tier-rgb');document.body.classList.remove('legendaryLocked','tierLocked')}
 function equipItem(index){const it=S.inventory[index];if(!it)return toast('장비 없음');if(isEquipped(index)){S.equip[it.kind]=null;toast(it.name+' 장착 해제')}else{S.equip[it.kind]=index;introAdvance('equip',it);toast(it.name+' 장착')}S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);save();render()}
 function setInventoryFilter(v){inventoryFilter=v;render()}
 function filteredInventory(){
@@ -2501,18 +2501,32 @@ function setDismantleTier(v){dismantleTierFilter=v;forgeSelection=[];render()}
 function selectDismantleAll(){forgeSelection=dismantleCandidateList().map(x=>x.index);render()}
 function clearDismantle(){forgeSelection=[];render()}
 function dismantleReturns(ids){let ore=0,crystals=0;for(const id of ids){const item=S.inventory[id];if(!item)continue;ore+=10+item.tier*12+itemPlus(item)*4;crystals+=item.tier>=2?item.tier-1:0}return {ore,crystals}}
+// UI-only confirmation token. Never persist index snapshots in the save file.
+let pendingDismantle=null;
 function confirmDismantle(){
+ pendingDismantle=null;
  const ids=[...new Set(forgeSelection)];
- if(!ids.length)return toast('분해할 장비를 선택하세요');
- if(ids.some(i=>!S.inventory[i]||isEquipped(i)||isLocked(S.inventory[i])))return toast('장착·잠금 장비는 분해할 수 없습니다');
+ if(!ids.length||ids.length!==forgeSelection.length||ids.length>50)return toast('분해 대상을 다시 선택하세요');
+ if(ids.some(i=>!Number.isInteger(i)||!S.inventory[i]||isEquipped(i)||isLocked(S.inventory[i])))return toast('장착·잠금 장비는 분해할 수 없습니다');
+ // Both the index and exact item identity must still match when Confirm is tapped.
+ pendingDismantle={indices:ids,items:ids.map(i=>S.inventory[i])};
  const p=dismantleReturns(ids);
  document.getElementById('craftModal').innerHTML='<div class="grade">분해 최종 확인</div><p class="researchNote">장비 '+ids.length+'개를 영구 분해합니다.<br>광석 +'+p.ore+' · 결정 +'+p.crystals+'<br>되돌릴 수 없습니다.</p><div class="confirmActions"><button onclick="closeCraft()">취소</button><button onclick="applyDismantle()">분해 확정</button></div>';
  document.getElementById('craftOverlay').classList.add('show');craftOverlayOpen=true;
 }
 function applyDismantle(){
- const ids=[...new Set(forgeSelection)];
- if(!ids.length||ids.some(i=>!S.inventory[i]||isEquipped(i)||isLocked(S.inventory[i])))return toast('분해 대상을 다시 확인하세요');
- const p=dismantleReturns(ids);removeForgeItems(ids);S.ore+=p.ore;S.crystals+=p.crystals;
+ const token=pendingDismantle;
+ // Cancel or any intervening inventory/selection/protection change invalidates confirmation.
+ const valid=!!token&&forgeMode==='분해'&&forgeSelection.length===token.indices.length&&
+  token.indices.every((idx,n)=>forgeSelection[n]===idx&&S.inventory[idx]===token.items[n]&&!isEquipped(idx)&&!isLocked(S.inventory[idx]));
+ if(!valid){
+  pendingDismantle=null;closeCraft();
+  return toast('장비 상태가 변경되었습니다. 분해 대상을 다시 확인하세요');
+ }
+ // Disarm before mutating to prevent a repeated click granting duplicate salvage.
+ pendingDismantle=null;
+ const ids=token.indices,p=dismantleReturns(ids);
+ removeForgeItems(ids);S.ore+=p.ore;S.crystals+=p.crystals;
  closeCraft();save();render();showForgeSummary('분해 완료',[],'장비 '+ids.length+'개 · 광석 +'+p.ore+' · 결정 +'+p.crystals);
 }
 function forgePrice(mode){
