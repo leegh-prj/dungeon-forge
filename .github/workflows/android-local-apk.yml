@@ -1,17 +1,8 @@
 name: Android internal QA APK and browser tests
+# APK is on hold: development pushes run only development-qa.yml.
+# Resume APK builds only via explicit manual workflow dispatch.
 on:
   workflow_dispatch:
-  push:
-    branches: ['develop/ui-stabilization']
-    paths:
-      - 'android/**'
-      - 'index.html'
-      - 'assets/**'
-      - 'tests/**'
-      - 'tools/**'
-      - 'playwright.config.cjs'
-      - 'package.json'
-      - '.github/workflows/android-local-apk.yml'
 permissions:
   contents: read
 jobs:
