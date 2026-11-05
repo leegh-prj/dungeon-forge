@@ -16,6 +16,7 @@ checks={
  "5. Reduced motion support":"prefers-reduced-motion:reduce",
  "6. Save remains recoverable":"catch(error){\n  S.last=previousLast;",
  "14. Elemental warehouse overflow":"S.inventory.length>=S.bagCapacity&&S.warehouse.length>=S.warehouseCapacity",
+ "15. Mixed dismantle keeps fusion limits":"forgeMode!=='분해'&&(!first||candidate.kind!==first.kind||candidate.tier!==first.tier)",
  "6. QA does not autosave":"if(!gearQaMode)document.addEventListener('visibilitychange'",
  "6. Equipped loadout still available":"function renderEquipment()",
  "6. Save format unchanged":"const K='dungeon-forge-ui-v2';",
