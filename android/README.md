@@ -44,3 +44,6 @@ Each workflow run now uploads **qa-test-evidence** (JUnit `qa-results.xml` plus 
 - The Android WebView startup probe checks three conditions in a single numeric status: populated game `#screen`, `GameSaveCore`, and `GameInventoryCore`. Status `7` means all three loaded. Failures are shown on-screen and logged as `DungeonForgeQA` without deleting saved data.
 - The APK verification now checks archive integrity (`unzip -tqq`), expected launchable MainActivity, min SDK 28 and target SDK 35 in addition to game asset packaging and checksum.
 - This does not prove real-device gameplay success; builds and actual installs remain unverified until a green APK job and on-device run are observed.
+
+## Offline Android preflight
+The `apk` job now executes `python3 tools/android_preflight.py` before copying game assets or invoking Gradle. The check validates the launcher package, secure offline WebView URL, DOM storage, required script and stylesheet files, and literal HTML asset references. A red preflight step is an asset/configuration problem, not a Gradle compilation failure. APK availability still depends on a successful build run.
