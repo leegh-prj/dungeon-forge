@@ -2434,7 +2434,7 @@ function setForgeMode(mode){forgeMode=mode;forgeSelection=[];render()}
 function itemStrength(it){if(!it)return 0;return Math.max(0,Number(it.power)||0)+Math.max(0,Number(it.defense)||0)+Math.max(0,Number(it.level)||0)*2}
 function itemPlus(it){return Math.max(0,Math.floor(it?.level||0))}
 function forgeMatchAnchor(){
- if(!['분해','합성','승급'].includes(forgeMode)||!forgeSelection.length)return null;
+ if(!['합성','승급'].includes(forgeMode)||!forgeSelection.length)return null;
  return S.inventory[forgeSelection[0]]||null;
 }
 function forgeUsable(){
@@ -2454,7 +2454,7 @@ function selectForgeItem(index){
   else if(forgeSelection.length>=max)forgeSelection=[index];
   else if(forgeSelection.length){
     const first=S.inventory[forgeSelection[0]];
-    if(!first||candidate.kind!==first.kind||candidate.tier!==first.tier)forgeSelection=[index];
+    if(forgeMode!=='분해'&&(!first||candidate.kind!==first.kind||candidate.tier!==first.tier))forgeSelection=[index];
     else forgeSelection.push(index);
   }else forgeSelection.push(index);
   render();
