@@ -61,3 +61,18 @@ test('P0 confirmed dismantle pays salvage once even if confirm is triggered agai
  expect(result.crystalGain).toBe(result.expected.crystals);
  expect(result.pendingCleared).toBe(true);
 });
+
+test('P0 changed salvage valuation requires reconfirmation',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  const item=mkItem(recipeDefs.find(x=>x.kind==='weapon'),1,effects[0]);
+  S.inventory.push(item);const idx=S.inventory.length-1;
+  forgeMode='분해';forgeSelection=[idx];confirmDismantle();
+  item.level=4;
+  const ore=S.ore,crystals=S.crystals;
+  applyDismantle();
+  return {itemPreserved:S.inventory[idx]===item,oreUnchanged:S.ore===ore,
+    crystalsUnchanged:S.crystals===crystals,pendingCleared:pendingDismantle===null};
+ });
+ expect(result).toEqual({itemPreserved:true,oreUnchanged:true,crystalsUnchanged:true,pendingCleared:true});
+});
