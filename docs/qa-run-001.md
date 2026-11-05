@@ -109,3 +109,9 @@ GitHub 원격 저장소 clone 시 DNS 연결 실패로 로컬 실행 환경 구�
 - 저장 데이터 구조·장비 인덱스 설계 변경 없음. 테스트는 GitHub 반영 단계이며 실제 실행 PASS 확인 전.
 
 - APK 홀드 설정 확인: `.github/workflows/android-local-apk.yml`에서 개발 브랜치 push 트리거 제거, `workflow_dispatch`만 유지. 개발 브랜치 자동 브라우저 QA는 `.github/workflows/development-qa.yml`로 계속 수행. 이미 시작된 과거 실행의 취소 여부까지 의미하지 않음.
+
+## 2026-11-05 APK 홀드 유지 · 연속 제작 저장 체크포인트
+- **일괄 제작** `bulkCraft`: 시도별 `save()` 반환값 검사. 첫 실패 즉시 이후 시도 중단, 결과창에 미저장 위험 안내, batchCraftLog를 `finally`로 초기화해 이전 제작 결과가 다음 제작에 섞이지 않게 처리.
+- **목표 등급 제작** `craftToGoal`: 매 시도 직후 저장 확인. 실패 시 시도 중단 및 보존되지 않을 수 있다는 경고 표시. 최종 저장 실패 시 성공으로 오인할 수 있는 결과 표시 억제.
+- `tests/p0-bulk-craft-save.spec.cjs` 신규 TC 3개: 첫 체크포인트 실패 중단, 정상 일괄 5회 시도별 저장, 목표 등급 제작 저장 실패 경고.
+- 데이터 포맷·장비 인덱스 변경 없음. 신규 회귀 테스트 실행 결과 미확인. APK 자동 빌드 홀드 및 Vercel 운영 배포 보류 유지.
