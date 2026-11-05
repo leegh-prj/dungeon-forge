@@ -53,3 +53,27 @@ test('P0 successful bulk craft persists a checkpoint for each attempt',async({pa
  expect(result.batchCleared).toBe(true);
  expect(result.success).toBe(true);
 });
+
+test('P0 goal crafting halts on checkpoint failure without claiming persistent success',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  S.craftTab='weapon';S.focus='balanced';S.autoCraftGoal=6;
+  S.ore=100000;S.crystals=100000;
+  S.bagCapacity=S.inventory.length+30;
+  S.warehouseCapacity=S.warehouse.length+30;
+  S.autoSalvageTier=-1;
+  const before=S.inventory.length,previousSave=save;
+  let saveCalls=0;
+  try{
+   save=()=>{saveCalls++;return false};
+   craftToGoal();
+  }finally{save=previousSave}
+  return {crafted:S.inventory.length-before,saveCalls,
+   warning:document.getElementById('craftModal').textContent.includes('저장 실패'),
+   notSuccess:!document.getElementById('craftModal').textContent.includes('목표 제작 성공')};
+ });
+ expect(result.crafted).toBe(1);
+ expect(result.saveCalls).toBe(1);
+ expect(result.warning).toBe(true);
+ expect(result.notSuccess).toBe(true);
+});
