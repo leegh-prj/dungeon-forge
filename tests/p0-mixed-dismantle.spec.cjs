@@ -48,3 +48,21 @@ test('P0 fusion still requires same kind and tier',async({page})=>{
  });
  expect(result.selection).toEqual([result.expected]);
 });
+
+test('P0 dismantling mixed items keeps equipped item identity and indexed slot',async({page})=>{
+ await page.goto('/');
+ const state=await page.evaluate(()=>{
+  const weapon=mkItem(recipeDefs.find(x=>x.kind==='weapon'),0,effects[0]);
+  const ring=mkItem(recipeDefs.find(x=>x.kind==='ring'),2,effects[0]);
+  const armor=mkItem(recipeDefs.find(x=>x.kind==='armor'),1,effects[0]);
+  S.inventory.push(weapon,ring,armor);
+  const a=S.inventory.length-3,b=S.inventory.length-2,c=S.inventory.length-1;
+  S.equip.armor=c;const protectedId=armor.id;
+  removeForgeItems([a,b]);
+  return {armorStillEquipped:!!eq('armor')&&eq('armor').id===protectedId,
+    equippedIndex:S.equip.armor,expectedIndex:a,
+    weaponRemoved:!S.inventory.some(x=>x.id===weapon.id),
+    ringRemoved:!S.inventory.some(x=>x.id===ring.id)};
+ });
+ expect(state).toEqual({armorStillEquipped:true,equippedIndex:state.expectedIndex,expectedIndex:state.expectedIndex,weaponRemoved:true,ringRemoved:true});
+});
