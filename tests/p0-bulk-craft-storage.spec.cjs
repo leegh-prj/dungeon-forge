@@ -52,7 +52,7 @@ test('P0 auto-salvage can complete bulk crafting even with full storage',async({
  await page.goto('/');
  const result=await page.evaluate(()=>{
   S.craftTab='weapon';S.focus='balanced';
-  S.ore=10000;S.crystals=10000;S.autoSalvageTier=0;S.autoLockTier=7;
+  S.ore=10000;S.crystals=10000;S.autoSalvageTier=0;S.autoLockTier=7;S.intro=null;
   S.bagCapacity=S.inventory.length;S.warehouseCapacity=S.warehouse.length;
   const def=recipeDefs.find(r=>r.kind==='weapon');
   const before={ore:S.ore,crystals:S.crystals,bag:S.inventory.length,warehouse:S.warehouse.length,salvaged:S.salvagedCount||0};
