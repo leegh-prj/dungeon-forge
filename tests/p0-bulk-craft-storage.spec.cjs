@@ -76,3 +76,18 @@ test('P0 auto-salvage can complete bulk crafting even with full storage',async({
  expect(result.summary).toContain('5/5회');
  expect(result.logCleared).toBe(true);
 });
+
+test('P0 repeat controls explain full storage and permit salvage-enabled retries',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  S.craftTab='weapon';S.focus='balanced';S.ore=10000;S.crystals=10000;
+  S.bagCapacity=S.inventory.length;S.warehouseCapacity=S.warehouse.length;
+  S.autoSalvageTier=-1;
+  const blocked=craftRepeatButtons();
+  S.autoSalvageTier=0;
+  const salvage=craftRepeatButtons();
+  return {blockedButtons:(blocked.match(/disabled/g)||[]).length,reason:blocked.includes('가방과 창고가 가득 찼습니다'),
+    salvageEnabled:!salvage.includes('disabled')};
+ });
+ expect(result).toEqual({blockedButtons:2,reason:true,salvageEnabled:true});
+});
