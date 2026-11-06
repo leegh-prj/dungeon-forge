@@ -2255,6 +2255,7 @@ function showTierReward(item,detail='',title='제작 완료'){
  '<div class="tierResultName">'+item.name+'</div>'+
  '<p class="tierResultEffect">✦ '+item.effect+' · 공격 '+(item.power||0)+' · 방어 '+(item.defense||0)+'</p>'+
  '<p class="tierResultDetail">'+(detail||title)+'</p>'+
+ '<div class="tierRewardCompare" role="status">'+craftItemComparison(item)+'</div>'+
  craftedEquipButton(item)+craftRepeatButtons()+
  '<button class="tierResultConfirm" onclick="closeCraft()">확인</button>';
  overlay.classList.add('show','tierReveal');
@@ -2314,6 +2315,7 @@ function showLegendaryCutscene(item,detail=''){
  <div class="legendaryIconFrame">${graphicImage(iconFor(item),item.kind,item.tier,item.name)}</div>
  <h2 class="legendaryHeading">${item.name}</h2><p class="legendaryPassive">✧ ${legendaryPassive(item)}</p>
  <p class="legendaryDetails">${item.firstLegendary?'🏆 최초 L 획득! 골드 +100,000 · 결정 +50':detail||'최고 등급 장비 획득'}</p>
+ <div class="tierRewardCompare" role="status">${craftItemComparison(item)}</div>
  ${craftedEquipButton(item)}${craftRepeatButtons()}<button class="legendaryConfirm" onclick="closeLegendaryCutscene()">전설 장비 확인</button>
  <button class="legendarySkip" onclick="closeLegendaryCutscene()">연출 건너뛰기</button>`;
  overlay.classList.add('show','legendaryReveal');
