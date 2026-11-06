@@ -2234,8 +2234,12 @@ function quickRepeatCraft(count){
 }
 function craftRepeatButtons(){
  const def=recipeDefs.find(r=>r.kind===S.craftTab);
- const canCraft=!!def&&S.ore>=def.ore&&S.crystals>=def.crystal+(S.focus==='balanced'?0:1);
- return '<div class="craftRepeatActions"><button onclick="quickRepeatCraft(1)" '+(canCraft?'':'disabled')+'>↻ 1회 더 제작</button><button onclick="quickRepeatCraft(10)" '+(canCraft?'':'disabled')+'>⚒ 10회 연속 제작</button></div>';
+ const room=S.inventory.length<S.bagCapacity||S.warehouse.length<S.warehouseCapacity;
+ // With auto salvage enabled a low-tier result may still fit through dismantling.
+ const storagePossible=room||S.autoSalvageTier>=0;
+ const canCraft=!!def&&storagePossible&&S.ore>=def.ore&&S.crystals>=def.crystal+(S.focus==='balanced'?0:1);
+ const reason=!storagePossible?'가방과 창고가 가득 찼습니다. 장비를 정리한 뒤 다시 제작하세요.':'';
+ return '<div class="craftRepeatActions"><button onclick="quickRepeatCraft(1)" '+(canCraft?'':'disabled')+'>↻ 1회 더 제작</button><button onclick="quickRepeatCraft(10)" '+(canCraft?'':'disabled')+'>⚒ 10회 연속 제작</button></div>'+(reason?'<p class="hint" role="status">'+reason+'</p>':'');
 }
 function showTierReward(item,detail='',title='제작 완료'){
  if(item?.tier===MAX_TIER)return showLegendaryCutscene(item,detail);
