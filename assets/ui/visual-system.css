@@ -221,3 +221,16 @@ html,body{overflow-x:hidden}
  .craftOverlay .craftModal button{margin-top:6px;padding:7px 12px}
  .craftOverlay .craftModal .bulkRewardGrid{max-height:22dvh;overflow-y:auto}
 }
+
+/* v12: concise equipped-item comparison across forge reward tiers. */
+.craftOverlay .tierRewardCompare{display:block;margin:7px auto 8px;padding:8px 10px;max-width:100%;border:1px solid rgba(245,201,117,.38);border-radius:10px;background:rgba(13,20,31,.65);color:#f7dfae;font-size:clamp(11px,2.6vw,13px);font-weight:700;line-height:1.45;overflow-wrap:anywhere}
+.craftOverlay .craftRepeatActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;max-width:100%;margin:8px 0}
+.craftOverlay .craftRepeatActions button{min-height:44px;width:100%;margin:0;padding:7px 8px;white-space:normal;font-size:clamp(11px,2.4vw,14px)}
+@media(orientation:landscape) and (max-height:500px){
+ .craftOverlay .tierRewardCompare{margin:4px auto;padding:5px 8px;font-size:11px;line-height:1.3}
+ .craftOverlay .craftRepeatActions{margin:5px 0;gap:6px}
+ .craftOverlay .craftRepeatActions button{padding:5px 7px}
+}
+@media(max-width:360px){
+ .craftOverlay .craftRepeatActions{grid-template-columns:1fr}
+}
