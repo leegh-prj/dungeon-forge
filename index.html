@@ -1551,7 +1551,13 @@ function scheduleEnemyAttack(initial=false){
  const delay=initial&&S.boss?Math.max(4900,enemyAttackInterval):enemyAttackInterval;
  enemyAttackAt=Date.now()+delay;pendingBossAttack=enemyAttackAt;
 }
-function bossPhase(){return S.boss&&S.enemyHp>0&&S.enemyHp<=getEnemyMax()*.5?2:1}
+let bossEnragedStage=-1;
+function bossPhase(){
+ if(!S.boss)return 1;
+ if(S.enemyHp>0&&S.enemyHp<=getEnemyMax()*.5)bossEnragedStage=S.stage;
+ // Healing must not silently revert the player to the first phase.
+ return bossEnragedStage===S.stage?2:1;
+}
 function getBossPattern(){
  const patterns=regionInfo().patterns;
  const step=((bossPatternStep%patterns.length)+patterns.length)%patterns.length;
@@ -1826,7 +1832,7 @@ function takeDamage(base){
  S.hp-=dmg;effectCombat(blocked?'guard':'hurt',dmg);
  if(eq('ring')?.effect==='반격')S.enemyHp-=Math.max(10,Math.round(totalDef()*.055));
  if(S.enemyHp<=0)enemyDown();
- if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();battlePoisonUntil=0;lastPoisonTick=0;battleStunUntil=0;guardActiveUntil=0;manualGuardWindow=false;perfectGuardRewarded=false;bossGuardUntil=0;bossPatternStep=0;scheduleEnemyAttack(true);toast('패배 · 재화 손실 없이 재도전')}
+ if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();battlePoisonUntil=0;lastPoisonTick=0;battleStunUntil=0;guardActiveUntil=0;manualGuardWindow=false;perfectGuardRewarded=false;bossGuardUntil=0;bossPatternStep=0;bossEnragedStage=-1;lastBossPhaseUIKey='';scheduleEnemyAttack(true);toast('패배 · 재화 손실 없이 재도전')}
  refreshCombatNumbers();updateSpriteFrames(true);save();
 }
 const BOSS_FORGE_RECIPES=[
@@ -1927,8 +1933,8 @@ function enemyDown(){
  const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;const pass=normalizePass();pass.xp=Math.min(100,pass.xp+(S.boss?5:1));
  const wasBoss=S.boss,defeatedRegion=regionInfo();const reward=awardBattleRewards(S.boss);if(wasBoss)S.bossTrophies[defeatedRegion.key]=(S.bossTrophies[defeatedRegion.key]||0)+1;S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
  introAdvance(wasBoss?'boss':'kill');
- if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+defeatedRegion.material+' +'+reward.quantity+' · '+bossRecipe(defeatedRegion.key).trophy+' +1 · 추천 제작: '+bossRecipe(defeatedRegion.key).name+' · 체력 일부 회복';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
- else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
+ if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+defeatedRegion.material+' +'+reward.quantity+' · '+bossRecipe(defeatedRegion.key).trophy+' +1 · 추천 제작: '+bossRecipe(defeatedRegion.key).name+' · 체력 일부 회복';bossPatternStep=0;bossEnragedStage=-1;lastBossPhaseUIKey='';toast('보스 격파! 다음 스테이지 개방')}
+ else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossEnragedStage=-1;lastBossPhaseUIKey='';bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
  S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();
  scheduleEnemyAttack(true);save();render();
 }
