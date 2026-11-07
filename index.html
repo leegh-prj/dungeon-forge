@@ -1665,14 +1665,51 @@ function attack(auto=false){
  const amount=Math.max(20,Math.round(totalAtk()*(auto?0.23:0.37)));
  effectCombat('attack',amount);damageEnemy(amount);
 }
+// Weapon mastery: deterministic forged-gear identity, without changing item IDs or save data.
+const FORGE_COMBAT_SKILLS={
+ fire:{name:'용광로 일격',icon:'🔥',bonus:.25,note:'화염 강타 · 추가 피해'},
+ water:{name:'서리 파쇄',icon:'❄',bonus:.12,note:'냉기 강타 · 보스 공격 지연'},
+ poison:{name:'맹독 각인',icon:'☠',bonus:.14,note:'독성 강타 · 추가 지속 피해'},
+ storm:{name:'뇌전 격파',icon:'⚡',bonus:.32,note:'번개 강타 · 추가 피해'},
+ earth:{name:'대지 분쇄',icon:'⛰',bonus:.18,note:'대지 강타 · 보스 방어 파괴'}
+};
+function forgedSkillElement(weapon=eq('weapon')){
+ if(!weapon)return null;
+ if(weapon.infusion&&FORGE_COMBAT_SKILLS[weapon.infusion])return weapon.infusion;
+ return ({'화상':'fire','냉기':'water','독':'poison','번개':'storm','견고함':'earth'})[weapon.effect]||null;
+}
+function forgedSkillInfo(weapon=eq('weapon')){
+ const element=forgedSkillElement(weapon);
+ return element?{element,...FORGE_COMBAT_SKILLS[element]}:null;
+}
+function applyForgedStrikeSkill(base,now=Date.now()){
+ const skill=forgedSkillInfo();
+ if(!skill)return {amount:base,description:''};
+ const bonus=Math.max(1,Math.round(base*skill.bonus));
+ if(skill.element==='water'){
+  // One delayed attack only: never accumulate more than 0.8 seconds of delay per strike.
+  enemyAttackAt+=Math.min(800,Math.max(0,2200-(enemyAttackAt-now)));
+  enemyChillUntil=Math.max(enemyChillUntil,now+2200);
+ }
+ if(skill.element==='poison')enemyPoisonUntil=Math.max(enemyPoisonUntil,now+4200);
+ if(skill.element==='fire')enemyBurnUntil=Math.max(enemyBurnUntil,now+3200);
+ if(skill.element==='earth'&&S.boss)bossGuardUntil=Math.min(bossGuardUntil,now);
+ const counter=S.boss&&ELEMENT_COUNTERS[skill.element]===regionInfo().key;
+ const amount=base+bonus+Math.round(base*(counter?.18:0));
+ const description=skill.icon+' '+skill.name+(counter?' · 보스 약점 격파!':'');
+ battleFxText=description+' +'+(amount-base)+' 추가 피해';
+ battleFxUntil=now+1700;
+ enemyStatusNote=skill.note;enemyStatusNoteUntil=now+1500;
+ return {amount,description};
+}
 function strike(auto=false){
  if(!auto&&S.battleMode!=='manual')return;
  if(Date.now()<battleStunUntil)return toast('감전! 잠시 공격할 수 없습니다');
  if(Date.now()<strikeReady){if(!auto)toast('강타 재사용 대기 중');return}
  strikeReady=Date.now()+7000;
- const amount=Math.round(totalAtk()*1.75);
- effectCombat('strong',amount);damageEnemy(amount);
- if(!auto)toast('강타 '+amount+' 피해');
+ const skill=applyForgedStrikeSkill(Math.round(totalAtk()*1.75));
+ effectCombat('strong',skill.amount);damageEnemy(skill.amount);
+ if(!auto)toast((skill.description||'강타')+' · '+skill.amount+' 피해');
 }
 function guard(auto=false){
  if(!auto&&S.battleMode!=='manual')return;
