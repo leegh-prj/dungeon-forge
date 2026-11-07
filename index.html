@@ -1963,9 +1963,29 @@ function refreshCombatNumbers(){
  if(hp)hp.style.width=Math.max(0,Math.min(100,S.hp/getMaxHp()*100))+'%';
  if(ep)ep.style.width=Math.max(0,Math.min(100,S.enemyHp/getEnemyMax()*100))+'%';
 }
+let lastBossPhaseUIKey='';
+function syncBossPhaseUI(now=Date.now()){
+ const key=S.boss?S.stage+':'+bossPhase():'';
+ if(key===lastBossPhaseUIKey)return;
+ const enraged=S.boss&&bossPhase()===2&&lastBossPhaseUIKey===S.stage+':1';
+ lastBossPhaseUIKey=key;
+ if(enraged){
+  // Telegraph the change before the faster phase-two attack can land.
+  enemyAttackAt=Math.max(now+1500,Math.min(enemyAttackAt,now+bossAttackInterval()));
+  enemyAttackInterval=bossAttackInterval();
+  battleFxText='⚠ 보스 격노! 공격 패턴이 달라집니다';
+  battleFxUntil=now+2000;
+  stageRewardText='⚠ 보스 2페이즈 시작 · 추천 속성 강타로 방어를 파훼하세요';
+  stageRewardUntil=now+2800;
+ }
+ const guide=document.getElementById('bossStrategyGuide');
+ if(guide&&S.boss)guide.outerHTML=bossGuide();
+ const telegraph=document.querySelector('.combatTelegraphBody strong');
+ if(telegraph&&S.boss)telegraph.textContent='보스 '+bossPhase()+'페이즈 · '+getBossPattern()[0];
+}
 function updateBattleHUD(){
  if(TAB!=='던전')return;
- const now=Date.now(),remain=Math.max(0,enemyAttackAt-now);
+ const now=Date.now();syncBossPhaseUI(now);const remain=Math.max(0,enemyAttackAt-now);
  const al=document.getElementById('combatAlert');
  if(al){
   const urgent=remain<=1000,pattern=S.boss?getBossPattern()[0]:regionInfo().enemy+' 돌진';
@@ -2470,7 +2490,7 @@ function bossGuide(){
  const weak=Object.keys(ELEMENT_COUNTERS).find(k=>ELEMENT_COUNTERS[k]===regionInfo().key);
  const mine=forgedSkillElement(),advantage=mine===weak;
  const skill=forgedSkillInfo();
- return '<div class="bossGuide"><span>⚠ 다음 보스 패턴 · '+(bossAttackInterval(next[0])/1000).toFixed(1)+'초 주기</span><strong>'+next[0]+'</strong>'+
+ return '<div class="bossGuide" id="bossStrategyGuide"><span>⚠ 다음 보스 패턴 · '+(bossAttackInterval(next[0])/1000).toFixed(1)+'초 주기</span><strong>'+next[0]+'</strong>'+
  '<small>보스 '+bossPhase()+'/2 페이즈 · '+(bossPhase()===2?'격노: 공격 속도·피해 증가':'체력 50% 이하에서 패턴 변화')+'</small>'+
  '<small>공략 추천 '+(ELEMENT_LABELS[weak]||'무속성')+' · '+(advantage?'✓ 현재 무기로 약점 공략 가능':'추천 속성 무기로 교체하면 강타 피해 증가')+'</small>'+
  '<small>약점 속성 강타로 보스 방어 태세를 깨고 공격을 지연시킬 수 있습니다.</small>'+
