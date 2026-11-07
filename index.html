@@ -2439,7 +2439,8 @@ function bossGuide(){
  return '<div class="bossGuide"><span>⚠ 다음 보스 패턴 · '+(bossAttackInterval(next[0])/1000).toFixed(1)+'초 주기</span><strong>'+next[0]+'</strong>'+
  '<small>공략 추천 '+(ELEMENT_LABELS[weak]||'무속성')+' · '+(advantage?'✓ 현재 무기로 약점 공략 가능':'추천 속성 무기로 교체하면 강타 피해 증가')+'</small>'+
  '<small>'+(skill?'현재 무기 비전: '+skill.icon+' '+skill.name+' · 강타로 발동':'현재 무기 비전 없음 · 화상/냉기/독/번개/견고함 무기 제작 추천')+'</small>'+
- '<small>'+(isGuard?'방어 태세 중에는 공격 효율이 떨어집니다.':isHeal?'회복 패턴입니다. 강타로 빠르게 압박하세요.':'공격 예고가 뜨면 방어 스킬을 활용하세요.')+'</small></div>';
+ '<small>'+(isGuard?'방어 태세 중에는 공격 효율이 떨어집니다.':isHeal?'회복 패턴입니다. 강타로 빠르게 압박하세요.':'공격 예고가 뜨면 방어 스킬을 활용하세요.')+'</small>'+
+ (advantage?'':'<button class="bossCounterLink" onclick="quickOpenEquipment(\'bag\')">🎒 약점 무기 교체</button>')+'</div>';
 }
 let dungeonPanel='fight';
 function setDungeonPanel(panel){
