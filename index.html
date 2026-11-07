@@ -1541,9 +1541,8 @@ function currentEnemyImg(){const region=regionInfo()?.key;return ['water','poiso
 const BOSS_SLOW_PATTERNS=new Set(['용암 내려찍기','암석 분쇄','전격 강하','버섯 폭발','파도 밀치기']);
 const BOSS_FAST_PATTERNS=new Set(['회복 젤','방어 태세','독안개','번개 깃털','연속 할퀴기']);
 function bossAttackInterval(name=getBossPattern()[0]){
- if(BOSS_SLOW_PATTERNS.has(name))return 6200;
- if(BOSS_FAST_PATTERNS.has(name))return 4600;
- return 5300;
+ const base=BOSS_SLOW_PATTERNS.has(name)?6200:BOSS_FAST_PATTERNS.has(name)?4600:5300;
+ return S.boss&&bossPhase()===2?Math.max(3600,Math.round(base*.84)):base;
 }
 let enemyAttackInterval=3200;
 function scheduleEnemyAttack(initial=false){
@@ -1552,7 +1551,12 @@ function scheduleEnemyAttack(initial=false){
  const delay=initial&&S.boss?Math.max(4900,enemyAttackInterval):enemyAttackInterval;
  enemyAttackAt=Date.now()+delay;pendingBossAttack=enemyAttackAt;
 }
-function getBossPattern(){const patterns=regionInfo().patterns;return patterns[((bossPatternStep%patterns.length)+patterns.length)%patterns.length]}
+function bossPhase(){return S.boss&&S.enemyHp>0&&S.enemyHp<=getEnemyMax()*.5?2:1}
+function getBossPattern(){
+ const patterns=regionInfo().patterns;
+ const step=((bossPatternStep%patterns.length)+patterns.length)%patterns.length;
+ return patterns[bossPhase()===2?(patterns.length-1-step):step];
+}
 function nextPatternHint(){if(!S.boss)return '기본 공격';return getBossPattern()[0]}
 function combatStatus(){
  const statuses=[];
@@ -1720,6 +1724,10 @@ function applyForgedStrikeSkill(base,now=Date.now()){
  if(skill.element==='fire')enemyBurnUntil=Math.max(enemyBurnUntil,now+3200);
  if(skill.element==='earth'&&S.boss)bossGuardUntil=Math.min(bossGuardUntil,now);
  const counter=S.boss&&ELEMENT_COUNTERS[skill.element]===regionInfo().key;
+ if(counter){
+  bossGuardUntil=Math.min(bossGuardUntil,now);
+  enemyAttackAt+=Math.min(650,Math.max(0,1800-(enemyAttackAt-now)));
+ }
  const amount=base+bonus+Math.round(base*(counter ? .18 : 0));
  const description=skill.icon+' '+skill.name+(counter?' · 보스 약점 격파!':'');
  showMasteryImpact(skill,amount-base,counter,now);
@@ -1919,7 +1927,7 @@ function enemyDown(){
  const daily=ensureDaily();if(S.boss)daily.bosses++;else daily.kills++;const pass=normalizePass();pass.xp=Math.min(100,pass.xp+(S.boss?5:1));
  const wasBoss=S.boss,defeatedRegion=regionInfo();const reward=awardBattleRewards(S.boss);if(wasBoss)S.bossTrophies[defeatedRegion.key]=(S.bossTrophies[defeatedRegion.key]||0)+1;S.kills++;if(!S.boss)S.stageKills=Math.min(3,S.stageKills+1);
  introAdvance(wasBoss?'boss':'kill');
- if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+defeatedRegion.material+' +'+reward.quantity+' · '+bossRecipe(defeatedRegion.key).trophy+' +1 · 체력 일부 회복';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
+ if(S.boss){const recovery=Math.max(25,Math.round(getMaxHp()*.12));S.hp=Math.min(getMaxHp(),S.hp+recovery);S.stage++;S.stageKills=0;S.boss=false;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;stageRewardUntil=Date.now()+6500;stageRewardText='🏆 보스 클리어! 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · 결정 +'+reward.crystals+' · '+defeatedRegion.material+' +'+reward.quantity+' · '+bossRecipe(defeatedRegion.key).trophy+' +1 · 추천 제작: '+bossRecipe(defeatedRegion.key).name+' · 체력 일부 회복';bossPatternStep=0;toast('보스 격파! 다음 스테이지 개방')}
  else{stageRewardUntil=Date.now()+2600;stageRewardText='✦ 골드 +'+reward.gold+' · 광석 +'+reward.ore+' · '+regionInfo().material+' +'+reward.quantity+' · '+S.stageKills+'/3 진행';toast('몬스터 처치! 재료 획득');if(S.stageKills>=3){S.boss=true;bossPatternStep=0;bossGuardUntil=0;battlePoisonUntil=0;battleStunUntil=0;toast('보스 등장! 공격 예고를 확인하세요')}}
  S.maxHp=getMaxHp();S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();
  scheduleEnemyAttack(true);save();render();
@@ -1938,7 +1946,7 @@ function battleTick(){
  if(S.enemyHp>0&&now>=enemyAttackAt){
    enemyPose='attack';enemyFxUntil=now+500;
    if(S.boss){
-     const [name,power]=getBossPattern();const damage=Math.round((105+S.stage*6.5)*power);
+     const [name,power]=getBossPattern();const damage=Math.round((105+S.stage*6.5)*power*(bossPhase()===2?1.18:1));
      battleLastPattern=name;const stageAtAttack=S.stage,killsAtAttack=S.kills;
      runBossPattern(name,damage);
      if(S.stage===stageAtAttack&&S.kills===killsAtAttack){bossPatternStep++;scheduleEnemyAttack()}
@@ -2463,7 +2471,9 @@ function bossGuide(){
  const mine=forgedSkillElement(),advantage=mine===weak;
  const skill=forgedSkillInfo();
  return '<div class="bossGuide"><span>⚠ 다음 보스 패턴 · '+(bossAttackInterval(next[0])/1000).toFixed(1)+'초 주기</span><strong>'+next[0]+'</strong>'+
+ '<small>보스 '+bossPhase()+'/2 페이즈 · '+(bossPhase()===2?'격노: 공격 속도·피해 증가':'체력 50% 이하에서 패턴 변화')+'</small>'+
  '<small>공략 추천 '+(ELEMENT_LABELS[weak]||'무속성')+' · '+(advantage?'✓ 현재 무기로 약점 공략 가능':'추천 속성 무기로 교체하면 강타 피해 증가')+'</small>'+
+ '<small>약점 속성 강타로 보스 방어 태세를 깨고 공격을 지연시킬 수 있습니다.</small>'+
  '<small>'+(skill?'현재 무기 비전: '+skill.icon+' '+skill.name+' · 강타로 발동':'현재 무기 비전 없음 · 화상/냉기/독/번개/견고함 무기 제작 추천')+'</small>'+
  '<small>'+(isGuard?'방어 태세 중에는 공격 효율이 떨어집니다.':isHeal?'회복 패턴입니다. 강타로 빠르게 압박하세요.':'공격 예고가 뜨면 방어 스킬을 활용하세요.')+'</small>'+
  (advantage?'':'<button class="bossCounterLink" onclick="quickOpenEquipment(\'bag\')">🎒 약점 무기 교체</button>')+'</div>';
