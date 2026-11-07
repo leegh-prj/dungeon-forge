@@ -22,7 +22,7 @@ checks={
  "6. Save format unchanged":"const K='dungeon-forge-ui-v2';",
 }
 visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
-checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=12"'
+checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=13"'
 checks["7. Visual style file is modular"]=visual_css.is_file() and "prefers-reduced-motion" in visual_css.read_text(encoding="utf-8")
 checks["7. Five regional fallback references"]='assets/backgrounds/${regionInfo().key}-fallback.svg'
 checks["8. Region monster sprite resolver"]="assets/sprites/regions/"
