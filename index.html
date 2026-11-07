@@ -1682,6 +1682,30 @@ function forgedSkillInfo(weapon=eq('weapon')){
  const element=forgedSkillElement(weapon);
  return element?{element,...FORGE_COMBAT_SKILLS[element]}:null;
 }
+// Transient visual-only state: never serialized into game saves or item records.
+let masteryImpact=null;
+function showMasteryImpact(skill,bonus,counter,now=Date.now()){
+ masteryImpact={element:skill.element,name:skill.name,icon:skill.icon,bonus,counter,until:now+1550};
+ updateMasteryImpact(now);
+}
+function updateMasteryImpact(now=Date.now()){
+ const layer=document.getElementById('masteryImpact');
+ const field=document.querySelector('.battlefield');
+ const active=masteryImpact&&now<masteryImpact.until;
+ if(field){
+  for(const element of ['fire','water','poison','storm','earth'])field.classList.toggle('mastery-'+element,!!active&&masteryImpact.element===element);
+  field.classList.toggle('mastery-counter',!!active&&!!masteryImpact.counter);
+ }
+ if(!layer)return;
+ if(!active){layer.className='masteryImpact';layer.replaceChildren();return}
+ const data=masteryImpact;
+ layer.className='masteryImpact active mastery-'+data.element+(data.counter?' counter':'');
+ const heading=document.createElement('strong');
+ heading.textContent=data.icon+' '+data.name;
+ const detail=document.createElement('span');
+ detail.textContent=(data.counter?'약점 적중 · ':'')+'고유 스킬 추가 피해 +'+data.bonus;
+ layer.replaceChildren(heading,detail);
+}
 function applyForgedStrikeSkill(base,now=Date.now()){
  const skill=forgedSkillInfo();
  if(!skill)return {amount:base,description:''};
@@ -1698,6 +1722,7 @@ function applyForgedStrikeSkill(base,now=Date.now()){
  const counter=S.boss&&ELEMENT_COUNTERS[skill.element]===regionInfo().key;
  const amount=base+bonus+Math.round(base*(counter ? .18 : 0));
  const description=skill.icon+' '+skill.name+(counter?' · 보스 약점 격파!':'');
+ showMasteryImpact(skill,amount-base,counter,now);
  battleFxText=description+' +'+(amount-base)+' 추가 피해';
  battleFxUntil=now+1700;
  enemyStatusNote=skill.note;enemyStatusNoteUntil=now+1500;
@@ -1942,6 +1967,7 @@ function updateBattleHUD(){
  for(const [id,at] of [['attackTimer',basicReady],['strikeTimer',strikeReady],['guardTimer',guardReady]]){const el=document.getElementById(id);if(el)el.textContent=now>=at?'준비 완료':Math.ceil((at-now)/1000)+'초'}
  const status=document.getElementById('battleStatus');if(status)status.textContent=combatStatus();const statusEnemy=document.getElementById('enemyStatusText');if(statusEnemy)statusEnemy.textContent=(now<enemyBurnUntil?'🔥 화상 ':'')+(now<enemyPoisonUntil?'☠ 독 ':'')+(now<enemyChillUntil?'❄ 둔화 ':'')+(now<enemyStatusNoteUntil?'· '+enemyStatusNote:'');refreshCombatNumbers();
  const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/Math.max(1,enemyAttackInterval))))+'%';
+ updateMasteryImpact(now);
  const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">'+battleFxText+'</span>':'';const reward=document.getElementById('stageRewardNote');if(reward)reward.style.display=now<stageRewardUntil?'block':'none';
 }
 function forgeRegion(){return REGIONS.find(r=>r.key===S.forgeRegionKey)||regionInfo()}
@@ -2463,7 +2489,7 @@ ${bossGuide()}
 ${S.stage<=3?'<div class="forgeAdventureHint" role="note"><strong>⚒ 제작 → 장비 장착 → 약점 강타</strong><span>무기 효과마다 강타 기술이 달라집니다. 보스의 추천 속성에 맞춰 장비를 바꿔보세요.</span><button onclick="quickOpenForge(\'제작\')">대장간에서 무기 제작</button></div>':''}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div>
-<div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('assets/backgrounds/${regionInfo().key}-fallback.svg'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
+<div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('assets/backgrounds/${regionInfo().key}-fallback.svg'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div><div id="masteryImpact" class="masteryImpact" aria-live="polite" aria-atomic="true"></div>
   <div class="righticons">
     <button class="sideicon" onclick="setBattleMode(S.battleMode==='manual'?'auto':'manual')">⚔<span>${S.battleMode==='manual'?'수동 전투':'자동 전투'}</span></button>
     <button class="sideicon" onclick="openStageInfo()">ℹ️<span>스테이지 정보</span></button>
