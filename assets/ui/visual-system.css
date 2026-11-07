@@ -247,3 +247,5 @@ html,body{overflow-x:hidden}
  #screen .forgeAdventureHint span{font-size:11px;flex-basis:130px}
  #screen .forgeAdventureHint button{min-height:38px;font-size:11px;padding:4px 8px}
 }
+
+#screen .bossGuide .bossCounterLink{display:inline-block;margin:5px 0 0;padding:7px 10px;min-height:44px;border:1px solid rgba(228,181,96,.75);border-radius:9px;background:rgba(113,72,39,.58);color:#ffdf9e;font-size:12px;font-weight:800;white-space:normal;touch-action:manipulation}
