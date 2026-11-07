@@ -2482,6 +2482,22 @@ function renderCraftJourney(){
  const percentage=Math.min(100,owned/4*100);
  return '<div class="craftJourney"><div class="craftJourneyTop"><span>⚒ 이번 지역 제작 목표</span><b>'+owned+' / 4</b></div><div class="craftJourneyBar"><span style="width:'+percentage+'%"></span></div><p>'+g.region.material+' '+(g.ready?'재료가 준비됐습니다. 속성 장비를 제작하세요!':'앞으로 '+g.remaining+'개를 더 모으면 지역 속성 장비를 제작할 수 있습니다.')+'</p><button onclick="enterForgeCraft(true)">'+(g.ready?'⚒ 지역 속성 장비 제작하기':'⚒ 대장간에서 제작 확인')+'</button></div>';
 }
+function renderPostBossCraftGoal(){
+ if(S.boss||S.stage<=1||S.stageKills!==0)return '';
+ const region=getStageData(S.stage-1),recipe=bossRecipe(region.key);
+ if(!recipe)return '';
+ const trophies=Number(S.bossTrophies?.[recipe.key])||0;
+ if(trophies<=0)return '';
+ const current=Math.min(BOSS_FORGE_COST.trophies,trophies),needed=Math.max(0,BOSS_FORGE_COST.trophies-trophies);
+ return '<div class="bossCraftGoal" role="note"><div><strong>👑 다음 제작 목표 · '+recipe.name+'</strong>'+
+  '<small>'+recipe.trophy+' '+current+'/'+BOSS_FORGE_COST.trophies+' · '+(needed?'같은 지역 보스를 '+needed+'번 더 격파해 전용 장비를 제작하세요':'제작 핵 확보! 지역 재료와 재화를 확인하세요')+'</small></div>'+
+  '<button onclick="openBossForgeGoal()">⚒ 보스 장비 제작</button></div>';
+}
+function openBossForgeGoal(){
+ quickOpenForge('제작');
+ const section=document.querySelector('.uxBossForge');
+ if(section){section.open=true;section.scrollIntoView({block:'start'})}
+}
 function bossGuide(){
  if(!S.boss)return '';
  const next=getBossPattern();
@@ -2519,6 +2535,7 @@ ${bossGuide()}
 ${S.stage<=3?'<div class="forgeAdventureHint" role="note"><strong>⚒ 제작 → 장비 장착 → 약점 강타</strong><span>무기 효과마다 강타 기술이 달라집니다. 보스의 추천 속성에 맞춰 장비를 바꿔보세요.</span><button onclick="quickOpenForge(\'제작\')">대장간에서 무기 제작</button></div>':''}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div>
+${renderPostBossCraftGoal()}
 <div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('assets/backgrounds/${regionInfo().key}-fallback.svg'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div><div id="masteryImpact" class="masteryImpact" aria-live="polite" aria-atomic="true"></div>
   <div class="righticons">
     <button class="sideicon" onclick="setBattleMode(S.battleMode==='manual'?'auto':'manual')">⚔<span>${S.battleMode==='manual'?'수동 전투':'자동 전투'}</span></button>
