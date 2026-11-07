@@ -71,3 +71,57 @@ test('boss guide shows phase and counter technique',async({page})=>{
  expect(result).toContain('보스 방어 태세');
  expect(result).toContain('격노');
 });
+
+test('enrage phase updates the live guide and announces with a safe reaction window',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  TAB='던전';dungeonPanel='fight';S.stage=1;S.boss=true;
+  S.enemyHp=getEnemyMax();lastBossPhaseUIKey='';
+  render();updateBattleHUD();
+  const first=document.getElementById('bossStrategyGuide')?.textContent||'';
+  const now=Date.now();
+  enemyAttackAt=now+250;
+  S.enemyHp=Math.floor(getEnemyMax()*.4);
+  updateBattleHUD();
+  return {
+   firstPhase:first.includes('1/2 페이즈'),
+   secondPhase:document.getElementById('bossStrategyGuide')?.textContent.includes('2/2 페이즈')||false,
+   notice:document.getElementById('stageRewardNote')?.textContent.includes('2페이즈 시작')||false,
+   reaction:enemyAttackAt-Date.now()
+  };
+ });
+ expect(result.firstPhase).toBe(true);
+ expect(result.secondPhase).toBe(true);
+ expect(result.notice).toBe(true);
+ expect(result.reaction).toBeGreaterThanOrEqual(1200);
+});
+
+test('post-boss crafting guide links to the existing special forge section',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  S.stage=2;S.boss=false;S.stageKills=0;
+  S.bossTrophies=S.bossTrophies||{};
+  S.bossTrophies.water=1;
+  TAB='던전';dungeonPanel='fight';render();
+  const card=document.querySelector('.bossCraftGoal');
+  const before=card?.textContent||'';
+  openBossForgeGoal();
+  return {
+   title:before.includes('수왕의 방패'),
+   progress:before.includes('1/2'),
+   tab:TAB,
+   forgeSectionOpen:!!document.querySelector('.uxBossForge')?.open
+  };
+ });
+ expect(result).toEqual({title:true,progress:true,tab:'대장간',forgeSectionOpen:true});
+});
+
+test('post-boss craft goal is hidden during the boss fight',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  S.stage=2;S.boss=true;S.stageKills=0;
+  S.bossTrophies.water=1;
+  return renderPostBossCraftGoal();
+ });
+ expect(result).toBe('');
+});
