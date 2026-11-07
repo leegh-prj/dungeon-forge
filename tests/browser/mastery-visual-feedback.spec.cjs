@@ -70,3 +70,20 @@ for(const viewport of [{width:844,height:390},{width:390,height:844}]){
   expect(measurements.pointerEvents).toBe('none');
  });
 }
+
+test('automatic strong attack produces weapon-specific feedback as well',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  TAB='던전';dungeonPanel='fight';S.stage=1;S.boss=true;
+  const item=mkItem(recipeDefs.find(r=>r.kind==='weapon'),0,'독');
+  S.inventory.push(item);S.equip.weapon=S.inventory.length-1;
+  S.enemyHp=Math.max(getEnemyMax(),100000);
+  S.battleMode='auto';strikeReady=0;battleStunUntil=0;
+  render();strike(true);
+  return {skill:masteryImpact?.name,
+    active:!!masteryImpact&&Date.now()<masteryImpact.until,
+    poisonApplied:enemyPoisonUntil>Date.now(),
+    counter:masteryImpact?.counter===true};
+ });
+ expect(result).toEqual({skill:'맹독 각인',active:true,poisonApplied:true,counter:true});
+});
