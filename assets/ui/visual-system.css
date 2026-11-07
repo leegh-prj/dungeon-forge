@@ -281,3 +281,15 @@ html,body{overflow-x:hidden}
  #screen .masteryImpact.active{animation:none;opacity:1;transform:none}
  #screen .battlefield:is(.mastery-fire,.mastery-water,.mastery-poison,.mastery-storm,.mastery-earth)::after{animation:none;opacity:.18}
 }
+
+/* v15: keep post-boss progression goal concise and reachable on mobile. */
+#screen .bossCraftGoal{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px 12px;margin:7px 0;padding:10px 12px;border:1px solid rgba(224,184,93,.55);border-radius:12px;background:linear-gradient(115deg,rgba(86,59,28,.65),rgba(29,43,58,.7))}
+#screen .bossCraftGoal>div{flex:1 1 185px;min-width:0}
+#screen .bossCraftGoal strong{display:block;color:#f7df9b;font-size:13px;line-height:1.35;overflow-wrap:anywhere}
+#screen .bossCraftGoal small{display:block;color:#e4dfc7;font-size:12px;line-height:1.4;margin-top:3px}
+#screen .bossCraftGoal button{min-height:44px;padding:8px 11px;border:1px solid #d6b26d;border-radius:9px;background:#51391f;color:#ffe9af;font-weight:750;touch-action:manipulation;white-space:normal}
+@media(orientation:landscape) and (max-height:500px){
+ #screen .bossCraftGoal{padding:6px 9px;margin:4px 0}
+ #screen .bossCraftGoal small{font-size:11px}
+ #screen .bossCraftGoal button{min-height:40px;padding:5px 8px}
+}
