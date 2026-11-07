@@ -115,3 +115,35 @@ test('combat UI labels strong skill with equipped weapon mastery',async({page})=
  expect(result).toContain('뇌전 격파');
  expect(result).toContain('aria-label="뇌전 격파"');
 });
+
+test('boss weakness panel offers a bag shortcut only when counter gear is missing',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  const prevStage=S.stage,prevBoss=S.boss,prevWeapon=S.equip.weapon;
+  const weapon=mkItem(recipeDefs.find(x=>x.kind==='weapon'),1,'독');
+  S.inventory.push(weapon);S.stage=1;S.boss=true;
+  S.equip.weapon=null;const without=bossGuide();
+  S.equip.weapon=S.inventory.length-1;const withCounter=bossGuide();
+  S.stage=prevStage;S.boss=prevBoss;S.equip.weapon=prevWeapon;
+  return {withoutShortcut:without.includes('bossCounterLink'),
+    withShortcut:withCounter.includes('bossCounterLink'),
+    weaknessShown:withCounter.includes('약점 공략 가능')};
+ });
+ expect(result).toEqual({withoutShortcut:true,withShortcut:false,weaknessShown:true});
+});
+
+test('boss mastery and counter guide stay inside landscape viewport',async({page})=>{
+ await page.setViewportSize({width:844,height:390});
+ await page.goto('/');
+ await page.evaluate(()=>{
+  S.stage=1;S.boss=true;
+  TAB='던전';dungeonPanel='fight';render();
+ });
+ const panel=page.locator('.bossGuide');
+ await expect(panel).toBeVisible();
+ const bounds=await panel.evaluate(el=>{
+   const r=el.getBoundingClientRect();return {left:r.left,right:r.right,view:innerWidth};
+ });
+ expect(bounds.left).toBeGreaterThanOrEqual(-3);
+ expect(bounds.right).toBeLessThanOrEqual(bounds.view+3);
+});
