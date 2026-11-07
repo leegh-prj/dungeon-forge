@@ -1685,7 +1685,8 @@ function forgedSkillInfo(weapon=eq('weapon')){
 function applyForgedStrikeSkill(base,now=Date.now()){
  const skill=forgedSkillInfo();
  if(!skill)return {amount:base,description:''};
- const bonus=Math.max(1,Math.round(base*skill.bonus));
+ const tier=Math.max(0,Math.min(MAX_TIER,Number(eq('weapon')?.tier)||0));
+ const bonus=Math.max(1,Math.round(base*(skill.bonus+tier*.025)));
  if(skill.element==='water'){
   // One delayed attack only: never accumulate more than 0.8 seconds of delay per strike.
   enemyAttackAt+=Math.min(800,Math.max(0,2200-(enemyAttackAt-now)));
@@ -2479,7 +2480,7 @@ ${S.stage<=3?'<div class="forgeAdventureHint" role="note"><strong>⚒ 제작 →
 <div class="combatActionTitle" role="heading" aria-level="3"><strong>전투 스킬</strong><span>${S.battleMode==='manual'?'공격 · 강타 · 방어':'자동 전투 진행 중'}</span></div>
 <div class="combatActions ${S.battleMode==='manual'?'manualSticky':''}">
  <button class="combatSkill basic" onclick="attack()" ${S.battleMode!=='manual'?'disabled':''}>⚔ 공격<small id="attackTimer">준비 완료</small></button>
- <button class="combatSkill strong" onclick="strike()" ${S.battleMode!=='manual'?'disabled':''}>🔥 강타<small id="strikeTimer">준비 완료</small></button>
+ <button class="combatSkill strong" onclick="strike()" ${S.battleMode!=='manual'?'disabled':''} aria-label="${forgedSkillInfo()?.name||'강타'}">${forgedSkillInfo()?forgedSkillInfo().icon+' '+forgedSkillInfo().name:'🔥 강타'}<small id="strikeTimer">준비 완료</small></button>
  <button class="combatSkill guard" onclick="guard()" ${S.battleMode!=='manual'?'disabled':''}>🛡 방어<small id="guardTimer">준비 완료</small></button>
 </div>
 <div class="enemyStatusText" id="enemyStatusText" role="status" aria-live="polite"></div><div class="battleQuickStatus" aria-label="현재 전투 상태"><span class="combatStateLabel">상태</span><span id="battleStatus">${combatStatus()}</span><span>⚔ ${totalAtk().toLocaleString()} · 🛡 ${totalDef().toLocaleString()}</span></div>
