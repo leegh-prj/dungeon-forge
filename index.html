@@ -1996,7 +1996,7 @@ function updateBattleHUD(){
  const status=document.getElementById('battleStatus');if(status)status.textContent=combatStatus();const statusEnemy=document.getElementById('enemyStatusText');if(statusEnemy)statusEnemy.textContent=(now<enemyBurnUntil?'🔥 화상 ':'')+(now<enemyPoisonUntil?'☠ 독 ':'')+(now<enemyChillUntil?'❄ 둔화 ':'')+(now<enemyStatusNoteUntil?'· '+enemyStatusNote:'');refreshCombatNumbers();
  const meter=document.getElementById('enemyCharge');if(meter)meter.style.width=Math.max(0,Math.min(100,100*(1-remain/Math.max(1,enemyAttackInterval))))+'%';
  updateMasteryImpact(now);
- const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">'+battleFxText+'</span>':'';const reward=document.getElementById('stageRewardNote');if(reward)reward.style.display=now<stageRewardUntil?'block':'none';
+ const fx=document.getElementById('battleEffect');if(fx)fx.innerHTML=now<battleFxUntil?'<span class="guardSuccess">'+battleFxText+'</span>':'';const reward=document.getElementById('stageRewardNote');if(reward){reward.textContent=stageRewardText;reward.style.display=now<stageRewardUntil?'block':'none'}
 }
 function forgeRegion(){return REGIONS.find(r=>r.key===S.forgeRegionKey)||regionInfo()}
 function selectForgeRegion(key){if(!REGIONS.some(r=>r.key===key))return;S.forgeRegionKey=key;save();render()}
