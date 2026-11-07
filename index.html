@@ -1695,7 +1695,7 @@ function applyForgedStrikeSkill(base,now=Date.now()){
  if(skill.element==='fire')enemyBurnUntil=Math.max(enemyBurnUntil,now+3200);
  if(skill.element==='earth'&&S.boss)bossGuardUntil=Math.min(bossGuardUntil,now);
  const counter=S.boss&&ELEMENT_COUNTERS[skill.element]===regionInfo().key;
- const amount=base+bonus+Math.round(base*(counter?.18:0));
+ const amount=base+bonus+Math.round(base*(counter ? .18 : 0));
  const description=skill.icon+' '+skill.name+(counter?' · 보스 약점 격파!':'');
  battleFxText=description+' +'+(amount-base)+' 추가 피해';
  battleFxUntil=now+1700;
@@ -2430,7 +2430,13 @@ function bossGuide(){
  const next=getBossPattern();
  const isGuard=next[0]==='방어 태세';
  const isHeal=next[0]==='회복 젤';
- return '<div class="bossGuide"><span>⚠ 다음 보스 패턴 · '+(bossAttackInterval(next[0])/1000).toFixed(1)+'초 주기</span><strong>'+next[0]+'</strong><small>'+(isGuard?'방어 태세 중에는 공격 효율이 떨어집니다.':'')+(isHeal?'회복 패턴입니다. 강타로 빠르게 압박하세요.':!isGuard?'공격 예고가 뜨면 방어 스킬을 활용하세요.':'')+'</small></div>';
+ const weak=Object.keys(ELEMENT_COUNTERS).find(k=>ELEMENT_COUNTERS[k]===regionInfo().key);
+ const mine=forgedSkillElement(),advantage=mine===weak;
+ const skill=forgedSkillInfo();
+ return '<div class="bossGuide"><span>⚠ 다음 보스 패턴 · '+(bossAttackInterval(next[0])/1000).toFixed(1)+'초 주기</span><strong>'+next[0]+'</strong>'+
+ '<small>공략 추천 '+(ELEMENT_LABELS[weak]||'무속성')+' · '+(advantage?'✓ 현재 무기로 약점 공략 가능':'추천 속성 무기로 교체하면 강타 피해 증가')+'</small>'+
+ '<small>'+(skill?'현재 무기 비전: '+skill.icon+' '+skill.name+' · 강타로 발동':'현재 무기 비전 없음 · 화상/냉기/독/번개/견고함 무기 제작 추천')+'</small>'+
+ '<small>'+(isGuard?'방어 태세 중에는 공격 효율이 떨어집니다.':isHeal?'회복 패턴입니다. 강타로 빠르게 압박하세요.':'공격 예고가 뜨면 방어 스킬을 활용하세요.')+'</small></div>';
 }
 let dungeonPanel='fight';
 function setDungeonPanel(panel){
@@ -2450,6 +2456,7 @@ ${renderDungeonTabs()}
 <div class="dungeonCombatPage" ${dungeonPanel==='fight'?'':'hidden'}>
 <div class="combatTelegraph" role="status" aria-live="polite"><span class="combatTelegraphIcon">${S.boss?'⚠':'⚔'}</span><div class="combatTelegraphBody"><strong>${S.boss?'보스 패턴 · '+getBossPattern()[0]:'지역 전투 · '+currentEnemyName()}</strong><small>${S.boss?'경고 후 방어 타이밍을 확인하세요':'공격·강타·방어로 전투를 진행하세요'}</small></div><span class="combatTelegraphMode">${S.battleMode==='manual'?'수동':'자동'}</span></div>
 ${bossGuide()}
+${S.stage<=3?'<div class="forgeAdventureHint" role="note"><strong>⚒ 제작 → 장비 장착 → 약점 강타</strong><span>무기 효과마다 강타 기술이 달라집니다. 보스의 추천 속성에 맞춰 장비를 바꿔보세요.</span><button onclick="quickOpenForge(\'제작\')">대장간에서 무기 제작</button></div>':''}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div>
 <div class="battlefield" style="background-image:linear-gradient(#121e2b55,#11111bb0),url('assets/backgrounds/${regionInfo().key}.webp'),url('assets/backgrounds/${regionInfo().key}-fallback.svg'),url('${regionInfo().background}')" ><div id="damageNumber" class="damageNumber"></div><div id="combatAlert" class="combatAlert" style="display:${S.boss?'block':'none'}">${S.boss?'⚠ 보스 공격 준비 중':''}</div><div id="battleEffect"></div>
