@@ -2191,7 +2191,9 @@ function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  if(S.ore<needOre||S.crystals<needCry)return toast('재료가 부족합니다');
  S.ore-=needOre;S.crystals-=needCry;
  const roll=Math.random(),tutorialBonus=introActive()&&S.intro.step===1&&kind==='weapon';const tier=tutorialBonus?1:rollCraftTier(roll);
- const item=mkItem(def,tier,effects[Math.floor(Math.random()*effects.length)]);
+ const starterCounter=tutorialBonus?Object.keys(ELEMENT_COUNTERS).find(k=>ELEMENT_COUNTERS[k]===regionInfo().key):null;
+ const starterEffect=starterCounter?({water:'냉기',fire:'화상',poison:'독',storm:'번개',earth:'견고함'})[starterCounter]:null;
+ const item=mkItem(def,tier,starterEffect||effects[Math.floor(Math.random()*effects.length)]);
  if(tier>=S.autoLockTier)item.locked=true; // Configurable auto-lock, default SS and above.
  if(S.focus==='attack')item.power+=4;if(S.focus==='defense')item.defense+=5;
  const destination=storeNewItem(item,skipAuto);
@@ -2681,7 +2683,7 @@ function setCraftFocus(value){
 }
 function forgePanel(){
  if(forgeMode==='제작')return `
-${introActive()&&S.intro.step===1?'<div class="introCraftGift">🎁 첫 무기 제작 · 고급 B 등급 확정 지급</div>':''}
+${introActive()&&S.intro.step===1?'<div class="introCraftGift">🎁 첫 무기 제작 · B등급 확정 + 첫 보스 약점 속성</div>':''}
 <div class="categoryTabs" style="margin:10px 0">${['weapon','armor','shield','ring'].map(k=>`<button class="segbtn ${S.craftTab===k?'active':''}" onclick="S.craftTab='${k}';render()">${kindLabel[k]}</button>`).join('')}</div>
 <div class="cardsRow">${recipeDefs.filter(d=>d.kind===S.craftTab).map(d=>recipeCard(d,introActive()&&S.intro.step===1?1:0)).join('')}</div><details class="uxDisclosure forgeRates"><summary>🎲 제작 확률 · 등급별 상세</summary><div class="rarityLadder"><span>등급</span>${rarityLetter.map((l,t)=>`<b class="${rarityClass(t)}">${l}</b>`).join('')}<small>SSS ${CRAFT_GRADE_RATES[5]}% · L ${CRAFT_GRADE_RATES[6]}% 제작 확률</small></div></details>
 <div class="sectiontitle" style="margin-top:14px">제작 집중 옵션</div>
