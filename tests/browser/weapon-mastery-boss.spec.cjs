@@ -82,3 +82,36 @@ test('unskilled attack has no mastery bonus or enemy side effects',async({page})
  expect(result.value).toEqual({amount:250,description:''});
  expect(result.unchanged).toBe(true);
 });
+
+test('higher grade weapon amplifies its mastery bonus without altering inventory',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  const def=recipeDefs.find(x=>x.kind==='weapon');
+  const first=mkItem(def,0,'화상'),legend=mkItem(def,MAX_TIER,'화상');
+  S.inventory.push(first,legend);
+  const old=S.equip.weapon,stage=S.stage,boss=S.boss,enemy=S.enemyHp;
+  S.stage=2;S.boss=false;S.equip.weapon=S.inventory.length-2;
+  const basic=applyForgedStrikeSkill(200).amount;
+  S.equip.weapon=S.inventory.length-1;
+  const high=applyForgedStrikeSkill(200).amount;
+  S.equip.weapon=old;S.stage=stage;S.boss=boss;
+  return {basic,high,enemyUnchanged:S.enemyHp===enemy};
+ });
+ expect(result.high).toBeGreaterThan(result.basic);
+ expect(result.enemyUnchanged).toBe(true);
+});
+
+test('combat UI labels strong skill with equipped weapon mastery',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  const def=recipeDefs.find(x=>x.kind==='weapon'),item=mkItem(def,1,'번개');
+  S.inventory.push(item);
+  const prev={weapon:S.equip.weapon,mode:S.battleMode};
+  S.equip.weapon=S.inventory.length-1;S.battleMode='manual';
+  const html=renderDungeon();
+  S.equip.weapon=prev.weapon;S.battleMode=prev.mode;
+  return html;
+ });
+ expect(result).toContain('뇌전 격파');
+ expect(result).toContain('aria-label="뇌전 격파"');
+});
