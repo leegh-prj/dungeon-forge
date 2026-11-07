@@ -249,3 +249,35 @@ html,body{overflow-x:hidden}
 }
 
 #screen .bossGuide .bossCounterLink{display:inline-block;margin:5px 0 0;padding:7px 10px;min-height:44px;border:1px solid rgba(228,181,96,.75);border-radius:9px;background:rgba(113,72,39,.58);color:#ffdf9e;font-size:12px;font-weight:800;white-space:normal;touch-action:manipulation}
+
+/* v14 — elemental impact feedback. No new sprite requests, and no save changes. */
+#screen .battlefield{isolation:isolate}
+#screen .masteryImpact{position:absolute;z-index:8;inset:auto 9% 20% 9%;display:flex;flex-direction:column;align-items:center;gap:3px;text-align:center;pointer-events:none;opacity:0;transform:translateY(14px) scale(.94);--mastery-glow:rgba(255,180,70,.55);--mastery-line:#ffe0a2}
+#screen .masteryImpact.active{opacity:1;transform:translateY(0) scale(1);animation:mastery-pop .32s cubic-bezier(.18,1.4,.45,1) both}
+#screen .masteryImpact strong{font-size:clamp(15px,2.5vw,26px);font-weight:900;line-height:1.15;color:var(--mastery-line);text-shadow:0 2px 6px #07080f,0 0 17px var(--mastery-glow)}
+#screen .masteryImpact span{font-size:clamp(11px,1.65vw,15px);font-weight:800;color:#fff;text-shadow:0 2px 5px #07080f}
+#screen .masteryImpact.counter strong{filter:brightness(1.17)}
+#screen .masteryImpact.counter span{color:#ffe49a}
+#screen .masteryImpact.mastery-fire{--mastery-glow:rgba(255,90,25,.8);--mastery-line:#ffd29c}
+#screen .masteryImpact.mastery-water{--mastery-glow:rgba(86,199,255,.83);--mastery-line:#b6f2ff}
+#screen .masteryImpact.mastery-poison{--mastery-glow:rgba(119,222,62,.8);--mastery-line:#dcff9c}
+#screen .masteryImpact.mastery-storm{--mastery-glow:rgba(192,145,255,.9);--mastery-line:#ece0ff}
+#screen .masteryImpact.mastery-earth{--mastery-glow:rgba(245,197,88,.8);--mastery-line:#f6e2b3}
+#screen .battlefield:is(.mastery-fire,.mastery-water,.mastery-poison,.mastery-storm,.mastery-earth)::after{content:"";position:absolute;z-index:4;inset:0;pointer-events:none;opacity:0;animation:mastery-flash .52s ease-out both}
+#screen .battlefield.mastery-fire::after{background:radial-gradient(ellipse at 73% 47%,rgba(255,94,22,.58),transparent 56%)}
+#screen .battlefield.mastery-water::after{background:radial-gradient(ellipse at 73% 47%,rgba(79,194,251,.5),transparent 55%)}
+#screen .battlefield.mastery-poison::after{background:radial-gradient(ellipse at 73% 47%,rgba(115,218,58,.46),transparent 55%)}
+#screen .battlefield.mastery-storm::after{background:linear-gradient(117deg,transparent 55%,rgba(210,165,255,.7) 58%,transparent 62%),radial-gradient(ellipse at 73% 47%,rgba(136,105,239,.52),transparent 56%)}
+#screen .battlefield.mastery-earth::after{background:radial-gradient(ellipse at 73% 77%,rgba(236,171,91,.55),transparent 63%)}
+#screen .battlefield.mastery-counter::after{filter:brightness(1.3)}
+@keyframes mastery-pop{from{opacity:0;transform:translateY(14px) scale(.86)}60%{opacity:1;transform:translateY(-3px) scale(1.07)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes mastery-flash{0%{opacity:0}22%{opacity:1}100%{opacity:0}}
+@media(orientation:landscape) and (max-height:500px){
+ #screen .masteryImpact{inset:auto 9% 12% 9%}
+ #screen .masteryImpact strong{font-size:clamp(14px,2.3vw,19px)}
+ #screen .masteryImpact span{font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+ #screen .masteryImpact.active{animation:none;opacity:1;transform:none}
+ #screen .battlefield:is(.mastery-fire,.mastery-water,.mastery-poison,.mastery-storm,.mastery-earth)::after{animation:none;opacity:.18}
+}
