@@ -234,3 +234,16 @@ html,body{overflow-x:hidden}
 @media(max-width:360px){
  .craftOverlay .craftRepeatActions{grid-template-columns:1fr}
 }
+
+/* v13: action-driven forge mastery and early boss strategy guide. */
+#screen .forgeAdventureHint{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;padding:9px 12px;margin:6px 0;border-radius:12px;border:1px solid rgba(226,177,89,.45);background:linear-gradient(100deg,rgba(117,75,37,.28),rgba(28,48,60,.43));color:#ffe4a4}
+#screen .forgeAdventureHint strong{font-size:13px;white-space:normal}
+#screen .forgeAdventureHint span{flex:1 1 190px;font-size:12px;line-height:1.35;color:#e3e9ea}
+#screen .forgeAdventureHint button{min-height:44px;margin-left:auto;padding:7px 11px;border:1px solid #c79b57;border-radius:10px;background:#4b3525;color:#ffebc2;font-weight:750;touch-action:manipulation;white-space:normal}
+#screen .bossGuide{max-width:100%;overflow-wrap:anywhere}
+#screen .bossGuide small{display:block;line-height:1.45}
+@media(orientation:landscape) and (max-height:500px){
+ #screen .forgeAdventureHint{padding:5px 9px;margin:4px 0;gap:4px 8px}
+ #screen .forgeAdventureHint span{font-size:11px;flex-basis:130px}
+ #screen .forgeAdventureHint button{min-height:38px;font-size:11px;padding:4px 8px}
+}
