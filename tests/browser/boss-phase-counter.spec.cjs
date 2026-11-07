@@ -125,3 +125,31 @@ test('post-boss craft goal is hidden during the boss fight',async({page})=>{
  });
  expect(result).toBe('');
 });
+
+test('boss enrage cannot be reversed by a healing pattern',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  const previous={stage:S.stage,boss:S.boss,hp:S.enemyHp,latched:bossEnragedStage};
+  S.stage=1;S.boss=true;bossEnragedStage=-1;
+  S.enemyHp=Math.round(getEnemyMax()*.46);
+  const triggered=bossPhase();
+  S.enemyHp=Math.round(getEnemyMax()*.72);
+  const afterHealing=bossPhase();
+  S.stage=previous.stage;S.boss=previous.boss;S.enemyHp=previous.hp;bossEnragedStage=previous.latched;
+  return {triggered,afterHealing};
+ });
+ expect(result).toEqual({triggered:2,afterHealing:2});
+});
+
+test('new boss encounter begins in first phase after old enraged encounter',async({page})=>{
+ await page.goto('/');
+ const result=await page.evaluate(()=>{
+  S.stage=1;S.boss=true;S.enemyHp=Math.floor(getEnemyMax()*.4);
+  bossPhase();
+  const old=bossEnragedStage;
+  S.stage=2;S.enemyHp=getEnemyMax();
+  return {old,newPhase:bossPhase()};
+ });
+ expect(result.old).toBe(1);
+ expect(result.newPhase).toBe(1);
+});
