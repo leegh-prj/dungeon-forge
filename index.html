@@ -1803,8 +1803,37 @@ function elementalMatchup(){
  if(ELEMENT_COUNTERS[enemy]===mine)return {mine,enemy,multiplier:.9,state:'weak'};
  return {mine,enemy,multiplier:1,state:'neutral'};
 }
+// Boss-forged gear adds distinct combat identity. Existing items already carry
+// bossCraft, infusion and name; no migration or new permanent item fields needed.
+const BOSS_GEAR_PASSIVES={
+ water:{title:'수왕의 가호',detail:'보스에게 받는 피해 12% 감소'},
+ poison:{title:'포자 흡수',detail:'보스에게 준 피해의 6%만큼 체력 회복'},
+ storm:{title:'그리핀의 심판',detail:'보스 공격 피해 14% 증가'},
+ fire:{title:'용암 폭주',detail:'보스 공격 피해 10% 증가 · 화상 지속시간 강화'},
+ earth:{title:'골렘의 결의',detail:'보스 격노 중 받는 피해 18% 감소'}
+};
+function activeBossGearPassive(kind){
+ const item=eq(kind);
+ return item?.bossCraft&&item.infusion&&BOSS_GEAR_PASSIVES[item.infusion]?
+  {key:item.infusion,...BOSS_GEAR_PASSIVES[item.infusion]}:null;
+}
+function bossGearDamageBonus(){
+ if(!S.boss)return 0;
+ return (activeBossGearPassive('weapon')?.key==='storm'?.14:0)+
+        (activeBossGearPassive('weapon')?.key==='fire'?.10:0);
+}
+function bossGearDamageMitigation(){
+ if(!S.boss)return 0;
+ let value=activeBossGearPassive('shield')?.key==='water'?.12:0;
+ if(bossPhase()===2&&activeBossGearPassive('armor')?.key==='earth')value+=.18;
+ return Math.min(.5,value);
+}
+function bossGearLifeSteal(damage){
+ return S.boss&&activeBossGearPassive('ring')?.key==='poison'?
+  Math.max(1,Math.round(Math.max(0,damage)*.06)):0;
+}
 function damageEnemy(d){
- const now=Date.now();let final=Math.round(d*(1+setBonuses().damage+currentRegionAffinity().damage)*elementalMatchup().multiplier);
+ const now=Date.now();let final=Math.round(d*(1+setBonuses().damage+currentRegionAffinity().damage+bossGearDamageBonus())*elementalMatchup().multiplier);
  if(eq('weapon')?.tier===MAX_TIER)final=Math.round(final*1.12);
  if(eq('ring')?.tier===MAX_TIER)S.hp=Math.min(getMaxHp(),S.hp+Math.max(1,Math.round(final*.05)));
  const weaponEffect=eq('weapon')?.effect,ringEffect=eq('ring')?.effect;
@@ -1814,7 +1843,9 @@ function damageEnemy(d){
  if(weaponEffect==='냉기'&&now>=enemyChillUntil)enemyAttackAt+=Math.min(500,Math.max(0,2000-(enemyAttackAt-now)));
  if(ringEffect==='냉기'&&now>=enemyChillUntil)enemyAttackAt+=Math.min(240,Math.max(0,2500-(enemyAttackAt-now)));
  applyWeaponStatus(weaponEffect,now);
+ if(S.boss&&activeBossGearPassive('weapon')?.key==='fire')enemyBurnUntil=Math.max(enemyBurnUntil,now+5000);
  if(now<bossGuardUntil&&S.boss)final=Math.round(final*.45);
+ S.hp=Math.min(getMaxHp(),S.hp+bossGearLifeSteal(final));
  S.enemyHp-=final;
  if(S.enemyHp<=0)enemyDown();else{refreshCombatNumbers();updateSpriteFrames(true)}
  save();
@@ -1827,6 +1858,7 @@ function takeDamage(base){
   if(perfect&&!perfectGuardRewarded){perfectGuardRewarded=true;S.ore+=3;battleFxText='✨ 완벽 방어! 피해 88% 감소 · 광석 +3';battleFxUntil=Date.now()+1700}
   else if(S.boss&&!perfect){battleFxText='🛡 방어 성공 · 피해 75% 감소';battleFxUntil=Date.now()+950}
  }
+ dmg*=1-bossGearDamageMitigation();
  if(eq('shield')?.effect==='보호막')dmg*=0.88;
  if(eq('armor')?.effect==='견고함')dmg*=0.90;if(eq('armor')?.tier===MAX_TIER)dmg*=.92;if(eq('shield')?.tier===MAX_TIER)dmg*=.90;
  S.hp-=dmg;effectCombat(blocked?'guard':'hurt',dmg);
