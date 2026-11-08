@@ -293,3 +293,9 @@ html,body{overflow-x:hidden}
  #screen .bossCraftGoal small{font-size:11px}
  #screen .bossCraftGoal button{min-height:40px;padding:5px 8px}
 }
+
+/* v16: make boss-exclusive passives readable before paying rare trophies. */
+#screen .bossForgePassive{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 8px;min-width:0;padding:7px 9px;margin:6px 0;border-radius:9px;background:rgba(108,83,36,.19);border:1px solid rgba(229,190,115,.28);overflow-wrap:anywhere}
+#screen .bossForgePassive strong{color:#f6d58e;font-size:12px;line-height:1.4}
+#screen .bossForgePassive small{color:#e5e0c9;font-size:11px;line-height:1.45;flex:1 1 140px}
+@media(max-width:480px){#screen .bossForgePassive{gap:3px;padding:6px 8px}#screen .bossForgePassive small{flex-basis:100%}}
