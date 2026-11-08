@@ -1819,12 +1819,12 @@ function activeBossGearPassive(kind){
 }
 function bossGearDamageBonus(){
  if(!S.boss)return 0;
- return (activeBossGearPassive('weapon')?.key==='storm'?.14:0)+
-        (activeBossGearPassive('weapon')?.key==='fire'?.10:0);
+ return (activeBossGearPassive('weapon')?.key==='storm' ? .14 : 0)+
+        (activeBossGearPassive('weapon')?.key==='fire' ? .10 : 0);
 }
 function bossGearDamageMitigation(){
  if(!S.boss)return 0;
- let value=activeBossGearPassive('shield')?.key==='water'?.12:0;
+ let value=activeBossGearPassive('shield')?.key==='water' ? .12 : 0;
  if(bossPhase()===2&&activeBossGearPassive('armor')?.key==='earth')value+=.18;
  return Math.min(.5,value);
 }
@@ -1945,7 +1945,7 @@ function forgeBossGear(key){
  S.bossTrophies[recipe.key]-=cost.trophies;S.materials[recipe.key]-=cost.materials;
  S.ore-=cost.ore;S.crystals-=cost.crystals;
  discover(item);trackBossCraft(item);save();render();
- showForgeSummary('보스 전리품 제작 완료',[item],recipe.trophy+' '+cost.trophies+'개 소모 · '+(dest==='warehouse'?'창고 보관':'가방 보관')+' · 수집 '+collectedBossKeys().length+'/5'+(pendingBossCollectionReward()?' · 👑 도감 수집 보상 수령 가능':''));
+ showForgeSummary('보스 전리품 제작 완료',[item],BOSS_GEAR_PASSIVES[recipe.key].title+' · '+BOSS_GEAR_PASSIVES[recipe.key].detail+' · '+recipe.trophy+' '+cost.trophies+'개 소모 · '+(dest==='warehouse'?'창고 보관':'가방 보관')+' · 수집 '+collectedBossKeys().length+'/5'+(pendingBossCollectionReward()?' · 👑 도감 수집 보상 수령 가능':''));
  return item;
 }
 function renderBossForge(){
@@ -1955,6 +1955,7 @@ function renderBossForge(){
   const r=bossForgeRequirements(recipe),region=REGIONS.find(x=>x.key===recipe.key),ready=canCraftBossGear(recipe);
   return '<div class="bossForgeCard" style="--boss-accent:'+region.tint+'">'+
   '<div class="bossForgeCardHead">'+graphicImage(iconFor({kind:recipe.kind,tier:2}),recipe.kind,2,recipe.name)+'<div><strong>'+recipe.name+'</strong><small>'+region.boss+' · '+recipe.effect+'</small></div></div>'+
+  '<div class="bossForgePassive"><strong>✦ '+BOSS_GEAR_PASSIVES[recipe.key].title+'</strong><small>'+BOSS_GEAR_PASSIVES[recipe.key].detail+'</small></div>'+
   '<div class="bossForgeCosts"><span>'+recipe.trophy+' '+r.trophies+'/'+cost.trophies+'</span><span>'+region.material+' '+r.materials+'/'+cost.materials+'</span><span>⛏ '+cost.ore+' · 💎 '+cost.crystals+'</span></div>'+
   '<button '+(ready?'':'disabled')+' onclick="forgeBossGear(\''+recipe.key+'\')">'+(ready?'⚒ 특별 장비 제작':'전리품 수집 중')+'</button></div>';
  }).join('')+'</div>';
