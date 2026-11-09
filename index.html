@@ -1592,8 +1592,27 @@ function runBossPattern(name,rawDamage){
 let bossGuardUntil=0;
 let enemyBurnUntil=0,enemyPoisonUntil=0,enemyChillUntil=0,lastEnemyStatusTick=0,enemyStatusNote='',enemyStatusNoteUntil=0;
 let manualGuardWindow=false,perfectGuardRewarded=false,battleFxText='';
+// Deterministic encounter variations: derived from the existing stage and kill
+// count. No additional save fields or inventory identity changes.
+const DUNGEON_MODIFIERS=[
+ {key:'surge',icon:'⚔',name:'광폭의 전장',detail:'적 공격 피해 +15% · 골드 보상 +25%',incoming:1.15,outgoing:1,gold:1.25,ore:1},
+ {key:'hardened',icon:'🛡',name:'철벽의 전장',detail:'일반 공격 피해 -12% · 광석 보상 +30%',incoming:1,outgoing:.88,gold:1,ore:1.3},
+ {key:'bounty',icon:'✦',name:'황금 채굴지',detail:'전투 피해 변화 없음 · 골드 +15%·광석 +20%',incoming:1,outgoing:1,gold:1.15,ore:1.2}
+];
+function dungeonModifier(stage=S.stage,kills=S.stageKills,boss=S.boss){
+ if(boss)return null;
+ const safeStage=Math.max(1,Math.floor(Number(stage)||1));
+ const safeKills=Math.max(0,Math.min(2,Math.floor(Number(kills)||0)));
+ // Initial tutorial encounter is always neutral.
+ if(safeStage===1&&safeKills===0)return null;
+ return DUNGEON_MODIFIERS[(safeStage*3+safeKills)%DUNGEON_MODIFIERS.length];
+}
+function renderDungeonModifier(){
+ const mod=dungeonModifier();if(!mod)return '';
+ return '<div class="dungeonModifier" role="note"><strong>'+mod.icon+' '+mod.name+'</strong><small>'+mod.detail+'</small></div>';
+}
 function rollBattleRewards(boss){const scale=Math.max(1.8,1+Math.floor(Math.max(1,S.stage)/5)*.12),early=1;return {gold:Math.round((boss?360:68)*scale*early),ore:Math.round((boss?46:11)*scale*early),crystals:boss?(S.stage<=3?6:4):(Math.random()<(S.stage<=3?.3:.17)?1:0),type:regionInfo().key,quantity:boss?6:1+Math.floor(Math.random()*2)}}
-function awardBattleRewards(boss){const reward=rollBattleRewards(boss);S.gold+=reward.gold;S.ore+=reward.ore;S.crystals+=reward.crystals;S.materials=S.materials||{};S.materials[reward.type]=(S.materials[reward.type]||0)+reward.quantity;return reward}
+function awardBattleRewards(boss){const reward=rollBattleRewards(boss),mod=dungeonModifier();if(mod){reward.gold=Math.round(reward.gold*mod.gold);reward.ore=Math.round(reward.ore*mod.ore)}S.gold+=reward.gold;S.ore+=reward.ore;S.crystals+=reward.crystals;S.materials=S.materials||{};S.materials[reward.type]=(S.materials[reward.type]||0)+reward.quantity;return reward}
 function discover(item){
  const key=[item.kind,item.name,item.tier,item.effect].join('|');
  if(!S.discovered.includes(key))S.discovered.push(key);
@@ -1845,12 +1864,14 @@ function damageEnemy(d){
  applyWeaponStatus(weaponEffect,now);
  if(S.boss&&activeBossGearPassive('weapon')?.key==='fire')enemyBurnUntil=Math.max(enemyBurnUntil,now+5000);
  if(now<bossGuardUntil&&S.boss)final=Math.round(final*.45);
+ const encounter=dungeonModifier();if(encounter)final=Math.max(1,Math.round(final*encounter.outgoing));
  S.hp=Math.min(getMaxHp(),S.hp+bossGearLifeSteal(final));
  S.enemyHp-=final;
  if(S.enemyHp<=0)enemyDown();else{refreshCombatNumbers();updateSpriteFrames(true)}
  save();
 }
 function takeDamage(base){
+ const encounter=dungeonModifier();if(encounter)base*=encounter.incoming;
  let dmg=base*100/(100+totalDef())*(1-setBonuses().mitigation)*(1-currentRegionAffinity().mitigation),blocked=Date.now()<guardActiveUntil;
  if(blocked){
   const perfect=S.boss&&manualGuardWindow&&Date.now()<=guardActiveUntil&&Date.now()>=enemyAttackAt-180;
@@ -2503,7 +2524,7 @@ function renderResources(){return `<div class="resources"><div class="reschip">$
 function renderHeader(title,icon='✦'){const art=({던전:'dungeon',대장간:'forge',장비:'gear',도감:'codex',상점:'shop'})[title];return `<div class="screenheader"><div class="headerleft"><div class="emblem">${art?'<img class="pixelUiIcon" src="assets/ui/'+art+'.svg" alt="">':icon}</div><div class="screentitle">${title}</div></div>${renderResources()}</div>`}
 function openStageInfo(){
  const r=regionInfo(),pattern=r.patterns.map(x=>x[0]).join(' · ');
- document.getElementById('craftModal').innerHTML=`<span class="beam">🏰</span><div class="grade">${r.name}</div><p class="researchNote">일반 몬스터: ${r.enemy}<br>보스: ${r.boss}<br>공격 패턴: ${pattern}<br>지역 재료: ${r.material}<br>보유 수량: ${S.materials?.[r.key]||0}</p><button onclick="closeCraft()">닫기</button>`;
+ document.getElementById('craftModal').innerHTML=`<span class="beam">🏰</span><div class="grade">${r.name}</div><p class="researchNote">일반 몬스터: ${r.enemy}<br>보스: ${r.boss}<br>공격 패턴: ${pattern}<br>지역 재료: ${r.material}<br>현재 전투 조건: ${dungeonModifier()?.name||'일반 전투'}<br>보유 수량: ${S.materials?.[r.key]||0}</p><button onclick="closeCraft()">닫기</button>`;
  document.getElementById('craftOverlay').classList.add('show');craftOverlayOpen=true;
 }
 function enterForgeCraft(region=false){
@@ -2571,6 +2592,7 @@ ${renderDungeonTabs()}
 <div class="dungeonCombatPage" ${dungeonPanel==='fight'?'':'hidden'}>
 <div class="combatTelegraph" role="status" aria-live="polite"><span class="combatTelegraphIcon">${S.boss?'⚠':'⚔'}</span><div class="combatTelegraphBody"><strong>${S.boss?'보스 패턴 · '+getBossPattern()[0]:'지역 전투 · '+currentEnemyName()}</strong><small>${S.boss?'경고 후 방어 타이밍을 확인하세요':'공격·강타·방어로 전투를 진행하세요'}</small></div><span class="combatTelegraphMode">${S.battleMode==='manual'?'수동':'자동'}</span></div>
 ${bossGuide()}
+${renderDungeonModifier()}
 ${S.stage<=3?'<div class="forgeAdventureHint" role="note"><strong>⚒ 제작 → 장비 장착 → 약점 강타</strong><span>무기 효과마다 강타 기술이 달라집니다. 보스의 추천 속성에 맞춰 장비를 바꿔보세요.</span><button onclick="quickOpenForge(\'제작\')">대장간에서 무기 제작</button></div>':''}
 <div class="panel stagebar"><div class="name">STAGE ${S.stage} · ${areaName()}<small>${S.boss?'보스 조우':'탐험 진행 중'}</small></div><div class="stagepath"><span class="dot ${S.stageKills>=1?'cleared':''}"></span><span class="dot ${S.stageKills>=2?'cleared':''}"></span><span class="dot ${S.stageKills>=3?'cleared':''}"></span><span class="dot boss ${S.boss?'active':''}"></span></div></div>
 <div class="stageRewardNote" id="stageRewardNote" style="display:${Date.now()<stageRewardUntil?'block':'none'}">${stageRewardText}</div>
