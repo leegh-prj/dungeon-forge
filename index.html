@@ -1596,7 +1596,7 @@ let manualGuardWindow=false,perfectGuardRewarded=false,battleFxText='';
 // count. No additional save fields or inventory identity changes.
 const DUNGEON_MODIFIERS=[
  {key:'surge',icon:'⚔',name:'광폭의 전장',detail:'적 공격 피해 +15% · 골드 보상 +25%',incoming:1.15,outgoing:1,gold:1.25,ore:1},
- {key:'hardened',icon:'🛡',name:'철벽의 전장',detail:'일반 공격 피해 -12% · 광석 보상 +30%',incoming:1,outgoing:.88,gold:1,ore:1.3},
+ {key:'hardened',icon:'🛡',name:'철벽의 전장',detail:'플레이어 공격 피해 -12% · 광석 보상 +30%',incoming:1,outgoing:.88,gold:1,ore:1.3},
  {key:'bounty',icon:'✦',name:'황금 채굴지',detail:'전투 피해 변화 없음 · 골드 +15%·광석 +20%',incoming:1,outgoing:1,gold:1.15,ore:1.2}
 ];
 function dungeonModifier(stage=S.stage,kills=S.stageKills,boss=S.boss){
