@@ -18,6 +18,10 @@ checks={
  "6. QA does not autosave":"if(!gearQaMode)document.addEventListener('visibilitychange'",
  "6. Equipped loadout still available":"function renderEquipment()",
  "6. Save format unchanged":"const K='dungeon-forge-ui-v2';",
+ "11. Boss milestone definitions":"const BOSS_MILESTONES=[",
+ "11. Milestone repeat prevention":"if(claimed.includes(goal.stage))return toast",
+ "11. Milestone stage gate":"if(S.stage<goal.stage)return toast",
+ "11. Milestone reward UI":"renderMilestoneJourney(),pendingBossMilestones()>0",
 }
 visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
 checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=4"'
@@ -32,5 +36,5 @@ checks["10. Combat text contrast overlay"]="Readability recovery v4" in visual_c
 for name,anchor in checks.items():
     ok=anchor if isinstance(anchor,bool) else anchor in s
     print(("PASS" if ok else "FAIL")+" "+name)
-if not all(anchor in s for anchor in checks.values()):raise SystemExit(1)
+if not all((anchor if isinstance(anchor,bool) else anchor in s) for anchor in checks.values()):raise SystemExit(1)
 print("PASS all",len(checks),"static regression checks")
