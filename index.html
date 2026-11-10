@@ -1921,6 +1921,48 @@ function claimDaily(id){
  if(dailyProgress(goal)<goal.target)return toast('아직 목표를 달성하지 못했습니다');
  S.gold+=goal.gold;S.ore+=goal.ore;S.premiumTokens+=goal.tokens;d.claimed.push(id);save();render();toast('일일 임무 보상 수령! 별빛 '+goal.tokens+'개');
 }
+// Long-term boss milestones use the existing stage counter and additive save fields.
+// Never reorder inventory or change the existing save key.
+const BOSS_MILESTONES=[
+ {stage:4,title:'첫 원정대장',gold:3500,ore:90,crystals:4},
+ {stage:6,title:'5지역 정복자',gold:8000,ore:180,crystals:8},
+ {stage:11,title:'두 번째 순환',gold:18000,ore:350,crystals:15},
+ {stage:21,title:'심연의 장인',gold:45000,ore:650,crystals:30},
+ {stage:36,title:'심층 탐험가',gold:95000,ore:1100,crystals:50},
+ {stage:51,title:'던전의 전설',gold:180000,ore:1800,crystals:80}
+];
+function bossMilestoneClaims(){
+ if(!Array.isArray(S.bossMilestoneClaimed))S.bossMilestoneClaimed=[];
+ S.bossMilestoneClaimed=S.bossMilestoneClaimed.filter(n=>Number.isInteger(n)&&BOSS_MILESTONES.some(g=>g.stage===n));
+ return S.bossMilestoneClaimed;
+}
+function claimBossMilestone(stage){
+ const goal=BOSS_MILESTONES.find(g=>g.stage===stage);
+ if(!goal)return;
+ const claimed=bossMilestoneClaims();
+ if(claimed.includes(goal.stage))return toast('이미 받은 원정 보상입니다');
+ if(S.stage<goal.stage)return toast('보스를 더 격파하면 열립니다');
+ claimed.push(goal.stage);
+ S.gold=Math.max(0,Number(S.gold)||0)+goal.gold;
+ S.ore=Math.max(0,Number(S.ore)||0)+goal.ore;
+ S.crystals=Math.max(0,Number(S.crystals)||0)+goal.crystals;
+ save();render();toast('원정 달성: '+goal.title+' 보상 획득');
+}
+function pendingBossMilestones(){
+ const claimed=bossMilestoneClaims();
+ return BOSS_MILESTONES.filter(g=>S.stage>=g.stage&&!claimed.includes(g.stage)).length;
+}
+function renderMilestoneJourney(){
+ const claimed=bossMilestoneClaims();
+ const next=BOSS_MILESTONES.find(g=>!claimed.includes(g.stage));
+ const remaining=next?Math.max(0,next.stage-S.stage):0;
+ return '<div class="milestoneJourney"><p class="hint">보스를 격파해 스테이지를 개방할수록 영구 원정 보상을 획득합니다. 장비·강화 수치는 초기화되지 않습니다.</p>'+
+ (next?'<p><strong>다음 목표: '+next.title+'</strong> · '+(remaining?'보스 '+remaining+'회 추가 격파':'지금 보상 수령 가능')+'</p>':'<p><strong>모든 원정 목표 완료!</strong></p>')+
+ BOSS_MILESTONES.map(g=>{
+  const done=claimed.includes(g.stage),ready=S.stage>=g.stage;
+  return '<div class="dailyMission"><div><strong>🏆 '+g.title+'</strong><small>스테이지 '+g.stage+' 개방 · 골드 '+g.gold.toLocaleString()+' · 광석 '+g.ore+' · 결정 '+g.crystals+'</small></div><button '+(!ready||done?'disabled':'')+' onclick="claimBossMilestone('+g.stage+')">'+(done?'수령 완료':ready?'보상 수령':'잠김')+'</button></div>';
+ }).join('')+'</div>';
+}
 // Native disclosure panels keep secondary actions out of the battle/forge primary workflow.
 function compactPanel(title,content,open=false,extraClass=''){
  return '<details class="uxDisclosure '+extraClass+'" '+(open?'open':'')+'><summary>'+title+'</summary><div class="uxDisclosureBody">'+content+'</div></details>';
@@ -2421,6 +2463,7 @@ ${compactPanel('🧭 지역 속성 공략',`<div class="regionAffinity">${curren
 ${S.offlinePending?renderOfflineReward():''}
 ${S.attendance.day!==dailyKey()?compactPanel('🎁 오늘의 출석 보상',renderAttendance(),false,'uxAttendance'):''}
 ${compactPanel('📅 일일 임무 · 수령 가능 '+dailyClaimableCount()+'개',renderDaily(),false,'uxDaily')}
+${compactPanel('🏆 원정 성장 목표 · 수령 가능 '+pendingBossMilestones()+'개',renderMilestoneJourney(),pendingBossMilestones()>0,'uxMilestones')}
 </div>
 `;}
 
