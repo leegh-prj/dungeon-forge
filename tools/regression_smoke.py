@@ -28,6 +28,9 @@ checks={
  "12. Milestone IDs deduplicated":"[...new Set(S.bossMilestoneClaimed.filter",
 
 }
+save_core=(Path(__file__).resolve().parents[1]/"assets/js/save-core.js").read_text(encoding="utf-8")
+checks["12. Save validator checks stage"]= "Number.isInteger(parsed.stage)" in save_core
+checks["12. Save validator checks inventory"]= "Array.isArray(parsed.inventory)" in save_core
 visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
 checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=4"'
 checks["7. Visual style file is modular"]=visual_css.is_file() and "prefers-reduced-motion" in visual_css.read_text(encoding="utf-8")
