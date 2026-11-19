@@ -22,6 +22,11 @@ checks={
  "11. Milestone repeat prevention":"if(claimed.includes(goal.stage))return toast",
  "11. Milestone stage gate":"if(S.stage<goal.stage)return toast",
  "11. Milestone reward UI":"renderMilestoneJourney(),pendingBossMilestones()>0",
+ "12. Auto attack transition guard":"if(S.stage!==stageBeforeTick||S.kills!==killsBeforeTick){updateBattleHUD();return}",
+ "12. Save recovery checks both copies":"for(const key of [K,K+'-backup'])",
+ "12. Save recovery requires validation":"if(!GameSaveCore.validSnapshot(raw))continue",
+ "12. Milestone IDs deduplicated":"[...new Set(S.bossMilestoneClaimed.filter",
+
 }
 visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
 checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=4"'
