@@ -1,10 +1,21 @@
-/* Pure save validation utilities; no storage mutation and no schema migration. */
+/* Save parsing and validation; pure helpers, no storage mutation or schema migration. */
 (function(root){
  'use strict';
- function validSnapshot(raw){
-  if(!raw)return false;
-  try{const parsed=JSON.parse(raw);return !!parsed&&typeof parsed==='object'&&!Array.isArray(parsed)&&Number.isInteger(parsed.stage)&&parsed.stage>=1&&Array.isArray(parsed.inventory)&&parsed.equip!==null&&typeof parsed.equip==='object'&&!Array.isArray(parsed.equip)}
-  catch(_error){return false}
+ function parseSnapshot(raw){
+  if(typeof raw!=='string'||!raw)return null;
+  try{
+   const data=JSON.parse(raw);
+   if(!data||typeof data!=='object'||Array.isArray(data))return null;
+   // Keep older saves compatible: check only keys required by the game boot path.
+   if(!Number.isInteger(data.stage)||data.stage<1)return null;
+   if(!Array.isArray(data.inventory))return null;
+   if(!data.equip||typeof data.equip!=='object'||Array.isArray(data.equip))return null;
+   return data;
+  }catch(_error){return null}
  }
- root.GameSaveCore=Object.freeze({validSnapshot});
+ function validSnapshot(raw){return parseSnapshot(raw)!==null}
+ function recoverSnapshot(primaryRaw,backupRaw){
+  return parseSnapshot(primaryRaw)||parseSnapshot(backupRaw);
+ }
+ root.GameSaveCore=Object.freeze({parseSnapshot,validSnapshot,recoverSnapshot});
 })(typeof window!=='undefined'?window:globalThis);
