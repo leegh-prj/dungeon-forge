@@ -17,15 +17,27 @@ test('save snapshot survives reload without losing inventory', async ({ page }) 
  const after=await page.evaluate(() => ({items:S.inventory.map(x=>x.id),stage:S.stage,key:K}));
  expect(after).toEqual(before);
 });
-test('invalid primary snapshot restores valid backup', async ({ page }) => {
- await page.evaluate(() => {
+test('invalid primary snapshot restores exact backup stage and gear', async ({ page }) => {
+ const expected=await page.evaluate(() => {
   save();
-  localStorage.setItem(K+'-backup',localStorage.getItem(K));
+  const snapshot=JSON.parse(localStorage.getItem(K));
+  // A valid higher stage proves recovery happened, not a fresh-game reset.
+  snapshot.stage=7;
+  localStorage.setItem(K+'-backup',JSON.stringify(snapshot));
   localStorage.setItem(K,JSON.stringify({stage:-1,inventory:null,equip:null}));
+  return {stage:snapshot.stage,ids:snapshot.inventory.map(x=>x.id)};
  });
  await page.reload();
- expect(await page.evaluate(() => S.stage)).toBeGreaterThanOrEqual(1);
- expect(await page.evaluate(() => Array.isArray(S.inventory))).toBe(true);
+ const restored=await page.evaluate(() => ({stage:S.stage,ids:S.inventory.map(x=>x.id)}));
+ expect(restored).toEqual(expected);
+});
+test('save recovery rejects malformed snapshots without throwing', async ({ page }) => {
+ const check=await page.evaluate(() => {
+  const valid=JSON.stringify({stage:3,inventory:[],equip:{weapon:null}});
+  const bad=['{','null','[]',JSON.stringify({stage:-2,inventory:[],equip:{}})];
+  return bad.every(raw=>GameSaveCore.recoverSnapshot(raw,valid)?.stage===3);
+ });
+ expect(check).toBe(true);
 });
 test('inventory removal preserves equipped indices', async ({ page }) => {
  const result=await page.evaluate(() => {
