@@ -1,1 +1,13 @@
-{"name":"dungeon-forge-browser-qa","private":true,"scripts":{"test:browser":"playwright test"},"devDependencies":{"@playwright/test":"1.56.1"}}
+{
+  "name": "dungeon-forge-browser-qa",
+  "private": true,
+  "scripts": {
+    "test:browser": "playwright test",
+    "test:core": "node --test tests/core.test.cjs",
+    "test:regression": "python3 tools/regression_smoke.py",
+    "test:all": "npm run test:core && npm run test:regression && npm run test:browser"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1"
+  }
+}
