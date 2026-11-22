@@ -60,8 +60,17 @@ test('milestone claim cannot pay twice', async ({ page }) => {
  });
  expect(value).toEqual({delta:3500,duplicate:0});
 });
-test('mobile viewport does not overflow horizontally', async ({ page,isMobile }) => {
- if (!isMobile) return;
- const dims=await page.evaluate(() => ({scroll:document.documentElement.scrollWidth,view:document.documentElement.clientWidth}));
- expect(dims.scroll).toBeLessThanOrEqual(dims.view+2);
+test('all game views fit narrow mobile width without horizontal overflow', async ({ page }) => {
+ for(const width of [320,360,390]){
+  await page.setViewportSize({width,height:760});
+  for(const tab of ['던전','대장간','장비','도감','상점']){
+   await page.evaluate(name=>switchMainTab(name),tab);
+   await expect(page.locator('#gameErrorDetail')).toHaveCount(0);
+   const dims=await page.evaluate(()=>({
+    scroll:document.documentElement.scrollWidth,
+    view:document.documentElement.clientWidth
+   }));
+   expect(dims.scroll,tab+' at '+width+'px').toBeLessThanOrEqual(dims.view+2);
+  }
+ }
 });
