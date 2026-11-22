@@ -1402,19 +1402,18 @@ let logs=[];
 function initializeGameState(){
  let hasSavedGame=false;
  try{
-  let saved=null;
-  for(const key of [K,K+'-backup']){
-   const raw=localStorage.getItem(key);
-   if(!GameSaveCore.validSnapshot(raw))continue;
-   saved=JSON.parse(raw);
-   break;
-  }
+  // Read both snapshots independently. A storage read failure must not prevent
+  // trying the recovery copy, and invalid JSON must not erase the last good save.
+  let primary=null,backup=null;
+  try{primary=localStorage.getItem(K)}catch(error){console.warn('주 저장본 읽기 실패',error)}
+  try{backup=localStorage.getItem(K+'-backup')}catch(error){console.warn('백업 읽기 실패',error)}
+  const saved=GameSaveCore.recoverSnapshot(primary,backup);
   if(saved){
    hasSavedGame=true;
    S={...stateInit(),...saved};
    if(!Object.prototype.hasOwnProperty.call(saved,'intro'))S.intro=null;
   }
- }catch(e){console.warn('기존 저장 데이터 읽기 실패',e)}
+ }catch(error){console.warn('기존 저장 데이터 복구 실패',error)}
  if(!hasSavedGame)seedStarterItems();
  normalizeState();
  if(hasSavedGame){prepareOfflineReward(S.last);save()}
