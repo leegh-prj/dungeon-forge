@@ -6,7 +6,6 @@ const projects=[
 if(process.env.TEST_WEBKIT==='1')projects.push({name:'mobile-webkit',use:{...devices['iPhone 13']}});
 module.exports=defineConfig({
  testDir:'./tests',
- testMatch:/.*\\.spec\\.js$/,
  timeout:30000,
  retries:process.env.CI?1:0,
  projects,
