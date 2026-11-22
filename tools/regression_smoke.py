@@ -23,14 +23,15 @@ checks={
  "11. Milestone stage gate":"if(S.stage<goal.stage)return toast",
  "11. Milestone reward UI":"renderMilestoneJourney(),pendingBossMilestones()>0",
  "12. Auto attack transition guard":"if(S.stage!==stageBeforeTick||S.kills!==killsBeforeTick){updateBattleHUD();return}",
- "12. Save recovery checks both copies":"for(const key of [K,K+'-backup'])",
- "12. Save recovery requires validation":"if(!GameSaveCore.validSnapshot(raw))continue",
+ "12. Save recovery checks both copies":"GameSaveCore.recoverSnapshot(primary,backup)",
+ "12. Save recovery reads backup independently":"backup=localStorage.getItem(K+'-backup')",
  "12. Milestone IDs deduplicated":"[...new Set(S.bossMilestoneClaimed.filter",
 
 }
 save_core=(Path(__file__).resolve().parents[1]/"assets/js/save-core.js").read_text(encoding="utf-8")
-checks["12. Save validator checks stage"]= "Number.isInteger(parsed.stage)" in save_core
-checks["12. Save validator checks inventory"]= "Array.isArray(parsed.inventory)" in save_core
+checks["12. Save validator checks stage"]= "Number.isInteger(data.stage)" in save_core
+checks["12. Save validator checks inventory"]= "Array.isArray(data.inventory)" in save_core
+checks["12. Save recovery helper"]= "function recoverSnapshot(primaryRaw,backupRaw)" in save_core
 visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
 checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=4"'
 checks["7. Visual style file is modular"]=visual_css.is_file() and "prefers-reduced-motion" in visual_css.read_text(encoding="utf-8")
