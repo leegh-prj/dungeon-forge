@@ -2220,8 +2220,8 @@ function craft(kind=S.craftTab,quiet=false,skipAuto=false){
  if(destination==='bag'){/* Player explicitly equips new gear; crafting never overrides the current loadout. */}
  S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);
  if(!quiet){
-  if(destination==='salvaged'){toast(rarityName[tier]+' 자동 분해 완료');save();render()}
-  else{toast(rarityName[tier]+' '+def.name+(destination==='warehouse'?' 창고 보관':' 제작')+'!');save();render();showCraft(item)}
+  if(destination==='salvaged'){toast(rarityName[tier]+' 자동 분해 완료')}
+  else{toast(rarityName[tier]+' '+def.name+(destination==='warehouse'?' 창고 보관':' 제작')+'!');showCraft(item)}
  }
  return destination==='salvaged'?null:item;
 }
@@ -2634,7 +2634,7 @@ function forgeStatComparison(item,previous){
 }
 function finishForge(item,message,detail=''){
  S.maxHp=getMaxHp();S.hp=Math.min(S.hp,S.maxHp);
- save();render();toast(message);
+ toast(message); // toast performs the checkpoint save and final render.
  if(detail&&typeof detail==='object'&&detail.previous){
    const modal=document.getElementById('craftModal');modal.className='craftModal';
    modal.innerHTML='<span class="beam">✦ ⚒ ✦</span><div class="grade">'+message+'</div><img class="craftedIcon" src="'+iconFor(item)+'" alt="강화된 장비"><p class="researchNote">'+(detail.text||'장비 능력치 성장')+'</p>'+forgeStatComparison(item,detail.previous)+'<button class="tierResultConfirm" onclick="closeCraft()">계속 플레이</button>';
