@@ -1750,7 +1750,10 @@ function damageEnemy(d){
  applyWeaponStatus(weaponEffect,now);
  if(now<bossGuardUntil&&S.boss)final=Math.round(final*.45);
  S.enemyHp-=final;
- if(S.enemyHp<=0)enemyDown();else{refreshCombatNumbers();updateSpriteFrames(true)}
+ // enemyDown already performs a checkpoint save and renders the next opponent.
+ // Do not write a second save for the same kill.
+ if(S.enemyHp<=0){enemyDown();return}
+ refreshCombatNumbers();updateSpriteFrames(true);
  save();
 }
 function takeDamage(base){
@@ -1765,7 +1768,9 @@ function takeDamage(base){
  if(eq('armor')?.effect==='견고함')dmg*=0.90;if(eq('armor')?.tier===MAX_TIER)dmg*=.92;if(eq('shield')?.tier===MAX_TIER)dmg*=.90;
  S.hp-=dmg;effectCombat(blocked?'guard':'hurt',dmg);
  if(eq('ring')?.effect==='반격')S.enemyHp-=Math.max(10,Math.round(totalDef()*.055));
- if(S.enemyHp<=0)enemyDown();
+ // A lethal counterattack has already transitioned to the next opponent.
+ // Never apply this hit's defeat handling to the newly spawned encounter.
+ if(S.enemyHp<=0){enemyDown();return}
  if(S.hp<=0){S.maxHp=getMaxHp();S.hp=S.maxHp;S.enemyMax=getEnemyMax();S.enemyHp=S.enemyMax;resetEnemyStatuses();battlePoisonUntil=0;lastPoisonTick=0;battleStunUntil=0;guardActiveUntil=0;manualGuardWindow=false;perfectGuardRewarded=false;bossGuardUntil=0;bossPatternStep=0;enemyAttackAt=Date.now()+3400;pendingBossAttack=enemyAttackAt;toast('패배 · 재화 손실 없이 재도전')}
  refreshCombatNumbers();updateSpriteFrames(true);save();
 }
