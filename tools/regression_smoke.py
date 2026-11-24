@@ -26,6 +26,10 @@ checks={
  "12. Save recovery checks both copies":"GameSaveCore.recoverSnapshot(primary,backup)",
  "12. Save recovery reads backup independently":"backup=localStorage.getItem(K+'-backup')",
  "12. Milestone IDs deduplicated":"[...new Set(S.bossMilestoneClaimed.filter",
+ "13. Combat kill returns after transition":"if(S.enemyHp<=0){enemyDown();return}",
+ "13. Counterattack clamps simultaneous victory HP":"if(S.enemyHp<=0){S.hp=Math.max(1,S.hp);enemyDown();return}",
+ "13. Forge result uses one toast-based checkpoint":"toast(message); // toast performs the checkpoint save and final render.",
+
 
 }
 save_core=(Path(__file__).resolve().parents[1]/"assets/js/save-core.js").read_text(encoding="utf-8")
