@@ -74,3 +74,58 @@ test('all game views fit narrow mobile width without horizontal overflow', async
   }
  }
 });
+
+test('normal kill grants exactly one reward and spawns full-health opponent', async ({ page }) => {
+ const result=await page.evaluate(() => {
+  S.battleMode='manual';S.stage=1;S.boss=false;S.stageKills=0;S.enemyHp=1;
+  const oldKills=S.kills,oldGold=S.gold;
+  damageEnemy(999999);
+  return {kills:S.kills-oldKills,stageKills:S.stageKills,stage:S.stage,
+   rewardGold:S.gold-oldGold,enemyFull:S.enemyHp===getEnemyMax()};
+ });
+ expect(result.kills).toBe(1);
+ expect(result.stageKills).toBe(1);
+ expect(result.stage).toBe(1);
+ expect(result.rewardGold).toBeGreaterThan(0);
+ expect(result.enemyFull).toBe(true);
+});
+test('lethal counterattack resolves one win without negative hero HP', async ({ page }) => {
+ const result=await page.evaluate(() => {
+  // A test-only local loadout; no production save is modified.
+  const ring=S.inventory.findIndex(item=>item.kind==='ring');
+  if(ring<0)throw Error('missing starting ring');
+  S.inventory[ring].effect='반격';S.equip.ring=ring;
+  S.enemyHp=1;S.hp=1;S.stage=1;S.boss=false;S.stageKills=0;
+  const oldKills=S.kills;
+  takeDamage(999999);
+  return {kills:S.kills-oldKills,hp:S.hp,stageKills:S.stageKills,enemyFull:S.enemyHp===getEnemyMax()};
+ });
+ expect(result.kills).toBe(1);
+ expect(result.hp).toBeGreaterThanOrEqual(1);
+ expect(result.stageKills).toBe(1);
+ expect(result.enemyFull).toBe(true);
+});
+test('crafting spends only listed resources and creates one item', async ({ page }) => {
+ const result=await page.evaluate(() => {
+  S.intro=null;S.autoSalvageTier=-1;S.focus='balanced';S.autoLockTier=7;
+  S.ore=1000;S.crystals=100;S.bagCapacity=999;
+  const initial={count:S.inventory.length,ore:S.ore,crystals:S.crystals};
+  const made=craft('weapon',true,true);
+  return {made:!!made,count:S.inventory.length-initial.count,
+   oreSpent:initial.ore-S.ore,crystalsSpent:initial.crystals-S.crystals};
+ });
+ expect(result).toEqual({made:true,count:1,oreSpent:10,crystalsSpent:0});
+});
+test('enhancement probability is bounded and max-level gear cannot roll', async ({ page }) => {
+ const result=await page.evaluate(() => {
+  const item={kind:'weapon',level:0,power:50,defense:0,upgradeFails:0};
+  const rates=[];
+  for(let level=0;level<=20;level++){
+   item.level=level;rates.push(enhancementChance(item));
+  }
+  return rates;
+ });
+ expect(result).toHaveLength(21);
+ expect(result.slice(0,20).every(v=>Number.isFinite(v)&&v>=0&&v<=100)).toBe(true);
+ expect(result[20]).toBe(0);
+});
