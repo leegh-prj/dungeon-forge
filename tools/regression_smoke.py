@@ -35,9 +35,10 @@ checks={
 save_core=(Path(__file__).resolve().parents[1]/"assets/js/save-core.js").read_text(encoding="utf-8")
 checks["12. Save validator checks stage"]= "Number.isInteger(data.stage)" in save_core
 checks["12. Save validator checks inventory"]= "Array.isArray(data.inventory)" in save_core
+checks["14. Rendering avoids normalization"] = "normalizeState(); const view = renderCurrentScreen()" not in s
 checks["12. Save recovery helper"]= "function recoverSnapshot(primaryRaw,backupRaw)" in save_core
 visual_css=(Path(__file__).resolve().parents[1]/"assets/ui/visual-system.css")
-checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=4"'
+checks["7. Shared visual skin loaded"]='href="assets/ui/visual-system.css?v=5"'
 checks["7. Visual style file is modular"]=visual_css.is_file() and "prefers-reduced-motion" in visual_css.read_text(encoding="utf-8")
 checks["7. Five regional fallback references"]='assets/backgrounds/${regionInfo().key}-fallback.svg'
 checks["8. Region monster sprite resolver"]="assets/sprites/regions/"
