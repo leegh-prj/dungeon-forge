@@ -17,7 +17,7 @@ test('save snapshot survives reload without losing inventory', async ({ page }) 
  const after=await page.evaluate(() => ({items:S.inventory.map(x=>x.id),stage:S.stage,key:K}));
  expect(after).toEqual(before);
 });
-test('invalid primary snapshot restores exact backup stage and gear', async ({ page }) => {
+test('invalid primary snapshot restores exact backup stage and gear', async ({ page, context }) => {
  const expected=await page.evaluate(() => {
   save();
   const snapshot=JSON.parse(localStorage.getItem(K));
@@ -27,8 +27,11 @@ test('invalid primary snapshot restores exact backup stage and gear', async ({ p
   localStorage.setItem(K,JSON.stringify({stage:-1,inventory:null,equip:null}));
   return {stage:snapshot.stage,ids:snapshot.inventory.map(x=>x.id)};
  });
- await page.reload();
- const restored=await page.evaluate(() => ({stage:S.stage,ids:S.inventory.map(x=>x.id)}));
+ // Open a separate page without unloading the live source page; beforeunload saves
+ // are a separate behavior and must not overwrite this synthetic corruption.
+ const recoveredPage=await context.newPage();
+ await recoveredPage.goto('/');
+ const restored=await recoveredPage.evaluate(() => ({stage:S.stage,ids:S.inventory.map(x=>x.id)}));
  expect(restored).toEqual(expected);
 });
 test('save recovery rejects malformed snapshots without throwing', async ({ page }) => {
@@ -128,4 +131,19 @@ test('enhancement probability is bounded and max-level gear cannot roll', async 
  expect(result).toHaveLength(21);
  expect(result.slice(0,20).every(v=>Number.isFinite(v)&&v>=0&&v<=100)).toBe(true);
  expect(result[20]).toBe(0);
+});
+
+test('UI navigation preserves inventory references and equipment indices', async ({ page }) => {
+ const results=await page.evaluate(()=>{
+  const originalInventory=S.inventory;
+  const firstIds=S.inventory.map(item=>item.id).join('|');
+  const before=JSON.stringify(S.equip);
+  for(const tab of ['대장간','장비','도감','상점','던전']){
+   switchMainTab(tab);
+   if(S.inventory!==originalInventory)return {stable:false,reason:'inventory array replaced'};
+  }
+  return {stable:true,idsUnchanged:S.inventory.map(item=>item.id).join('|')===firstIds,
+   equipUnchanged:JSON.stringify(S.equip)===before};
+ });
+ expect(results).toEqual({stable:true,idsUnchanged:true,equipUnchanged:true});
 });
